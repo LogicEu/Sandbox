@@ -6,8 +6,6 @@ lib=(
    '-I'$dir'src/'
    '-I'$dir'include/GLFW/'
    '-L'$dir'lib/'
-    -lGL
-    -lGLEW
     -lcore
     -lglfw
 )
@@ -24,9 +22,9 @@ linux=(
 
 comp() {
     if echo "$OSTYPE" | grep -q "linux"; then
-        gcc -std=c99 -Wall -O2 ${lib[*]} ${linux[*]} example.c -o $dir'bin/'$app
+        gcc -std=c99 -Wall -O2 ${lib[*]} ${linux[*]} *.c -o $dir'bin/'$app
     elif echo "$OSTYPE" | grep -q "darwin"; then 
-        gcc -std=c99 -Wall -O2 ${lib[*]} ${mac[*]} example.c -o $dir'bin/'$app
+        gcc -std=c99 -Wall -O2 ${lib[*]} ${mac[*]} *.c -o $dir'bin/'$app
     else
         echo "OS is not supported yet..."
         exit

@@ -40,7 +40,7 @@ comp() {
     if echo "$OSTYPE" | grep -q "linux"; then
         gcc ${flags[*]} ${inc[*]} ${linux[*]} *.c -o ../../bin/$name
     elif echo "$OSTYPE" | grep -q "darwin"; then
-        gcc ${flags[*]} ${inc[*]} ${linux[*]} *.c -o ../../bin/$name
+        gcc ${flags[*]} ${inc[*]} ${mac[*]} *.c -o ../../bin/$name
     else 
         echo "OS not supported yet..."
         exit
