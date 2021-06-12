@@ -1,0 +1,65 @@
+#include "UIcommon.h"
+
+extern vec2 mouse;
+extern vec4 cam;
+
+static wxGroup* group;
+
+static void getInput()
+{
+    bool mousePressed = mouse_pressed(GLFW_MOUSE_BUTTON_LEFT);
+    wxGroupUpdate(group, mouse, mousePressed, mousePressed);
+
+    wxButton* play = group->widgets[WX_BUTTON_PLAY].widget;
+    wxButton* level_editor = group->widgets[WX_BUTTON_LEVEL_EDITOR].widget;
+    wxButton* quit = group->widgets[WX_BUTTON_QUIT].widget;
+    wxButton* ui_editor = group->widgets[WX_BUTTON_UI_EDITOR].widget;
+    wxButton* options = group->widgets[WX_BUTTON_OPTIONS].widget;
+    wxButton* sprite_editor = group->widgets[WX_BUTTON_SPRITE_EDITOR].widget;
+
+    if (play->state == WIDGET_SELECTED) systemSetState(STATE_PLAY);
+    if (level_editor->state == WIDGET_SELECTED) systemSetState(STATE_LEVEL_EDITOR);
+    if (ui_editor->state == WIDGET_SELECTED) systemSetState(STATE_UI_EDITOR);
+    if (options->state == WIDGET_SELECTED) systemSetState(STATE_OPTIONS);
+    if (sprite_editor->state == WIDGET_SELECTED) systemSetState(STATE_SPRITE_EDITOR);
+    if (keyboard_pressed(GLFW_KEY_ESCAPE) || quit->state == WIDGET_SELECTED) {
+        systemExit();
+    }
+}
+
+void mouseDraw()
+{
+    static float camera[] = {0.0f, 0.0f, 1.0f, 0.0f};
+    static color_t white = {1.0f, 1.0f, 1.0f, 1.0f};
+    glUseProgram(assetsGetShader(SHADER_TEXTURE));
+    glBindVertexArray(quadVAO);
+    shader_set_uniform(assetsGetShader(SHADER_TEXTURE), 4, "camera", &camera[0]);
+    drawTextureColor(*assetsGetTexture(TEXTURE_MOUSE_CURSOR), vec2_new(mouse.x + 4.0f, mouse.y - 4.0f), white);
+}
+
+
+void menuDraw()
+{
+    wxGroupDraw(group);
+    mouseDraw();
+}
+
+void cameraBackgroundSlide()
+{
+    static float target = 1600.0f;
+    if (cam.x >= 1600.0f) target = 0.0f;
+    if (cam.x <= 0.0f) target = 1600.0f;
+    cam.x = lerpf(cam.x, target, 0.0001f);
+}
+
+void menuStep()
+{
+    getInput();
+    menuDraw();
+    cameraBackgroundSlide();
+}
+
+void menuInit()
+{
+    group = &wxDir.groups[WX_DIR_MAIN_MENU];
+}
