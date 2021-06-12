@@ -4,14 +4,14 @@ app='audio_loop_test'
 dir=../../../
 lib=(
    '-I'$dir'src/'
-   '-I'$dir'include/FMOD/'
+   '-I'$dir'include/'
    '-L'$dir'lib/'
     -laural
     -lfmod
 )
 
 comp() {
-    gcc -std=c99 -Wall -O2 ${lib[*]} example.c -o $dir'bin/'$app
+    gcc -std=c99 -Wall -O2 ${lib[*]} *.c -o $dir'bin/'$app
 }
 
 exe() {
