@@ -9,7 +9,7 @@ comp=gcc
 src=src/*.c
 exe=battle_net
 std=-std=c99
-dir=/Users/eugenio/Dev/Engine/Heart/
+dir=../../../
 
 flags=(
     $std
@@ -26,7 +26,6 @@ inc=(
 )
 
 lib=(
-    -framework OpenGL
     -lglfw
     -lpng
     -lfreetype
@@ -43,8 +42,26 @@ lib=(
     -lspawn
 )
 
+linux=(
+    -lm
+    -lGL
+    -lGLEW
+)
+
+mac=(
+    -framework OpenGL
+    -mmacos-version-min=10.9
+)
+
 compile() {
-    $comp ${flags[*]} ${inc[*]} ${lib[*]} $src -o $dir'bin/'$exe
+    if echo "$OSTYPE" | grep -q "linux"; then
+        $comp ${flags[*]} ${inc[*]} ${lib[*]} ${linux[*]} $src -o $dir'bin/'$exe
+    elif echo "$OSTYPE" | grep -q "darwin"; then
+        $comp ${flags[*]} ${inc[*]} ${lib[*]} ${mac[*]} $src -o $dir'bin/'$exe
+    else
+        echo "OS not supported yet..."
+        exit
+    fi
 }
 
 execute() {

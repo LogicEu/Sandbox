@@ -4,7 +4,7 @@ comp=gcc
 src='src/*.c src/scripts/*.c src/UI/*.c'
 exe=tree_game
 std=-std=c99
-dir=~/Dev/Engine/Heart/
+dir=../../
 
 flags=(
     $std

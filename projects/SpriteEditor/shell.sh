@@ -4,14 +4,13 @@ comp=gcc
 src=*.c
 exe=sprite_editor
 std=-std=c99
-dir=/Users/eugenio/Dev/Engine/Heart/
+dir=../../
 
 flags=(
     $std
     -Wall
     #-Wextra
     -O2
-    -mmacos-version-min=10.9
 )
 
 inc=(
@@ -23,15 +22,32 @@ inc=(
 )
 
 lib=(
-    -framework OpenGL
     -lcore
     -limagine
     -lglfw
     -lpng
+    -ljpeg
+)
+
+linux=(
+    -lGL
+    -lGLEW
+)
+
+mac=(
+    -framwork OpenGL
+    -mmacos-version-min=10.9
 )
 
 compile() {
-    $comp ${flags[*]} ${inc[*]} ${lib[*]} $src -o $dir'bin/'$exe
+    if echo "$OSTYPE" | grep -q "linux"; then
+        $comp ${flags[*]} ${inc[*]} ${lib[*]} ${linux[*]} $src -o $dir'bin/'$exe
+    elif echo "$OSTYPE" | grep -q "darwin"; then
+        $comp ${flags[*]} ${inc[*]} ${lib[*]} ${mac[*]} $src -o $dir'bin/'$exe
+    else
+        echo "OS not supported yet..."
+        exit
+    fi
 }
 
 execute() {

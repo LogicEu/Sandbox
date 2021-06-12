@@ -1,7 +1,7 @@
 #!/bin/bash
 
 app='audio_loop_test'
-dir=/Users/eugenio/Dev/Engine/Heart/
+dir=../../../
 lib=(
    '-I'$dir'src/'
    '-I'$dir'include/FMOD/'
@@ -15,7 +15,7 @@ comp() {
 }
 
 exe() {
-    cd ~/Dev/Engine/Heart/
+    cd $dir
     ./shell.sh exe $app "$@"
 }
 

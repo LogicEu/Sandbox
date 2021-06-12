@@ -7,7 +7,13 @@ extern "C" {
 
 #include <fmod.h>
 #include <fmod_errors.h>
+
+
+#ifndef __APPLE__
+#include <GL/glew.h>
+#else
 #define GLFW_INCLUDE_GLCOREARB
+#endif
 #include <GLFW/glfw3.h>
 
 typedef struct {

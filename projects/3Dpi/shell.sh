@@ -14,9 +14,6 @@ inc=(
     -I.
     -I../../
     -I../../src/
-    -lm
-    -lGL
-    -lGLEW
     -lglfw
     -lzbug
     -lcore
@@ -27,9 +24,27 @@ inc=(
     -ltaxi
 )
 
+linux=(
+    -lm
+    -lGL
+    -lGLEW
+)
+
+mac=(
+    -framework OpenGL
+    -mmacos-version-min=10.9
+)
+
 comp() {
     echo "Compiling $name"
-    gcc ${flags[*]} ${inc[*]} *.c -o ../../bin/$name
+    if echo "$OSTYPE" | grep -q "linux"; then
+        gcc ${flags[*]} ${inc[*]} ${linux[*]} *.c -o ../../bin/$name
+    elif echo "$OSTYPE" | grep -q "darwin"; then
+        gcc ${flags[*]} ${inc[*]} ${linux[*]} *.c -o ../../bin/$name
+    else 
+        echo "OS not supported yet..."
+        exit
+    fi
 }
 
 exe() {

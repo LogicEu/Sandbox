@@ -1,13 +1,14 @@
 #!/bin/bash
 
 app='png_cutter'
-dir=~/Dev/Engine/Heart/
+dir=../../../
 lib=(
    '-I'$dir'src/'
    '-I'$dir'include/'
    '-L'$dir'lib/'
     -limagine
     -lpng
+    -ljpeg
 )
 
 comp() {

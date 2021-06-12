@@ -1,10 +1,10 @@
 #!/bin/bash
 
 app='glsl_visualizer'
-dir=~/Dev/Engine/Heart/
+dir=../../../
 lib=(
    '-I'$dir'src/'
-#   '-I'$dir'include/GLFW/'
+   '-I'$dir'include/GLFW/'
    '-L'$dir'lib/'
     -lGL
     -lGLEW
@@ -12,8 +12,25 @@ lib=(
     -lglfw
 )
 
+mac=(
+    -framework OpenGL
+    -mmacos-versio-min=10.9
+)
+
+linux=(
+    -lGL
+    -lGLEW
+)
+
 comp() {
-    gcc -std=c99 -Wall -O2 ${lib[*]} example.c -o $dir'bin/'$app
+    if echo "$OSTYPE" | grep -q "linux"; then
+        gcc -std=c99 -Wall -O2 ${lib[*]} ${linux[*]} example.c -o $dir'bin/'$app
+    elif echo "$OSTYPE" | grep -q "darwin"; then 
+        gcc -std=c99 -Wall -O2 ${lib[*]} ${mac[*]} example.c -o $dir'bin/'$app
+    else
+        echo "OS is not supported yet..."
+        exit
+    fi
 }
 
 exe() {

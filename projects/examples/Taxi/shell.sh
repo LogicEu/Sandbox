@@ -1,14 +1,13 @@
 #!/bin/bash
 
 app='taxi_test'
-dir=/Users/eugenio/Dev/Engine/Heart/
+dir=../../../
 lib=(
    '-I'$dir'src/'
    '-I'$dir'include/GLFW/'
    '-I'$dir'include/FreeType/'
    '-I'$dir'include/'
    '-L'$dir'lib/'
-    -framework OpenGL
     -lcore
     -ltaxi
     -lfreetype
@@ -17,12 +16,29 @@ lib=(
     -lzbug
 )
 
+linux=(
+    -lGL
+    -lGLEW
+)
+
+mac=(
+    -framework OpenGL
+    -mmacos-version-min=10.9
+)
+
 comp() {
-    gcc -std=c99 -Wall -O2 ${lib[*]} example.c -o $dir'bin/'$app
+    if echo "$OSTYPE" | grep -q "linux"; then
+        gcc -std=c99 -Wall -O2 ${lib[*]} ${linux[*]} *.c -o $dir'bin/'$app
+    elif echo "$OSTYPE" | grep -q "darwin"; then
+        gcc -std=c99 -Wall -O2 ${lib[*]} ${mac[*]} *.c -o $dir'bin/'$app
+    else
+        echo "OS not supported yet..."
+        exit
+    fi
 }
 
 exe() {
-    cd ~/Dev/Engine/Heart/
+    cd $dir
     ./shell.sh exe $app "$@"
 }
 

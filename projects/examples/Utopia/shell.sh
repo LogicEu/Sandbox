@@ -1,7 +1,7 @@
 #!/bin/bash
 
 app='utopia_test'
-dir=~/Dev/Engine/Heart/
+dir=../../../
 lib=(
    '-I'$dir'src/'
    '-L'$dir'lib/'

@@ -1,18 +1,21 @@
 #!/bin/bash
 
 app='obj_model_test'
-dir=~/Dev/Engine/Heart/
+dir=../../../
 lib=(
    '-I'$dir'src/'
    '-L'$dir'lib/'
     -lmass
     -lfract
     -lutopia
-    -lm
 )
 
 comp() {
-    gcc -std=c99 -Wall -O2 ${lib[*]} example.c -o $dir'bin/'$app
+    if echo "$OSTYPE" | grep -q "linux"; then
+        gcc -std=c99 -Wall -O2 ${lib[*]} -lm .c -o $dir'bin/'$app
+    else
+        gcc -std=c99 -Wall -O2 ${lib[*]} *.c -o $dir'bin/'$app
+    fi
 }
 
 exe() {

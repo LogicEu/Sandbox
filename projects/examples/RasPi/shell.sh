@@ -1,18 +1,33 @@
 #!/bin/bash
 
 app='RasPiGLtest'
-dir=~/Dev/Engine/Heart/
+dir=../../../
 lib=(
     '-I'$dir'src/'
     '-L'$dir'lib/'
-    -lGL
-    -lGLEW
     -lglfw
     -lcore
 )
 
+linux=(
+    -lGL
+    -lGLEW
+)
+
+mac=(
+    -framework OpenGL
+    -mmacos-version-min=10.9
+)
+
 comp() {
-    gcc -std=c99 -Wall -Wextra -O2 ${lib[*]} *.c -o $dir'bin/'$app
+    if echo "$OSTYPE" | grep -q "linux"; then
+        gcc -std=c99 -Wall -Wextra -O2 ${lib[*]} ${linux[*]} *.c -o $dir'bin/'$app
+    elif echo "$OSTYPE" | grep -q "darwin"; then
+        gcc -std=c99 -Wall -Wextra -O2 ${lib[*]} ${mac[*]} *.c -o $dir'bin/'$app
+    else
+        echo "OS not supported yet..."
+        exit
+    fi
 }
 
 exe() {

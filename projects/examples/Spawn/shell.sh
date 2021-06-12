@@ -1,12 +1,11 @@
 #!/bin/bash
 
-app='modular_ecs_test'
-dir=/Users/eugenio/Dev/Engine/Heart/
+app='spawn_test'
+dir=../../../
 lib=(
    '-I'$dir'include/'
    '-I'$dir'src/'
    '-L'$dir'lib/'
-    -framework OpenGL
     -lmodular
     -lfract
     -limagine
@@ -17,12 +16,29 @@ lib=(
     -lglfw
 )
 
+mac=(
+    -framework OpenGL
+    -mmacos-version-min=10.9
+)
+
+linux=(
+    -lGL
+    -lGLEW
+)
+
 comp() {
-    gcc -std=c99 -Wall -O2 ${lib[*]} example.c -o $dir'bin/'$app
+    if echo "$OSTYPE" | grep -q "linux"; then
+        gcc -std=c99 -Wall -O2 ${lib[*]} ${linux[*]} *.c -o $dir'bin/'$app
+    elif echo "$OSTYPE" | grep -q "darwin"; then
+        gcc -std=c99 -Wall -O2 ${lib[*]} ${mac[*]} *.c -o $dir'bin/'$app
+    else
+        echo "OS not supported yet..."
+        exit
+    fi
 }
 
 exe() {
-    cd ~/Dev/Engine/Heart/
+    cd $dir
     ./shell.sh exe $app "$@"
 }
 
