@@ -70,6 +70,10 @@ clean() {
     rm -r assets
 }
 
+archive() {
+    tar -czvf ../assets.tar.gz assets/
+}
+
 helpmsg() {
     echo "Use 'init' to initialize and compile sandbox."
     echo "Use 'clean' to remove all binaries and libraries built."
@@ -96,6 +100,10 @@ then
     elif [[ "$1" == "clean" ]]
     then
         clean
+        exit
+    elif [[ "$1" == "archive" ]]
+    then
+        archive
         exit
     elif [[ "$1" == "help" ]]
     then
