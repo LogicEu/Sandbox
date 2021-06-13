@@ -24,7 +24,7 @@ TREE FRAMEWORK HEADER
 #ifdef __APPLE__
 #define KEY_MOD GLFW_KEY_LEFT_ALT
 #else
-#define KEY_MOD GLFW_KEY_CONTROL_ALT
+#define KEY_MOD GLFW_KEY_LEFT_CONTROL
 #endif
 
 typedef enum {
