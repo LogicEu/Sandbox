@@ -12,7 +12,7 @@ lib=(
 
 mac=(
     -framework OpenGL
-    -mmacos-versio-min=10.9
+    -mmacos-version-min=10.9
 )
 
 linux=(

@@ -2,6 +2,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifndef __APPLE__
+static const char* glsl_version = "#version 300 es\nprecision mediump float;\n\n";
+#else
+static const char* glsl_version = "#version 330 core\n\n";
+#endif
+
 char* shader_read_file(const char* path)
 {
     FILE* file = fopen(path, "rb");
@@ -12,9 +18,12 @@ char* shader_read_file(const char* path)
     fseek(file, 0, SEEK_END);
     long length = ftell(file);
     fseek(file, 0, SEEK_SET);
-    char* buffer = (char*)malloc(length + 1);
-    fread(buffer, 1, length, file);
-    buffer[length] = '\0';
+
+    size_t pre_size = strlen(glsl_version);
+    char* buffer = (char*)malloc(length + pre_size + 1);
+    sprintf(&buffer[0], "%s", glsl_version);
+    fread(&buffer[pre_size], 1, length, file);
+    buffer[pre_size + length] = '\0';
     fclose(file);
     return buffer;
 }

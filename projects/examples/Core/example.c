@@ -3,8 +3,13 @@
 #include <string.h>
 #include <Core/Core.h>
 
-static const char* glsl_version_core = "#version 300 es\nprecision mediump float;\n";
-static const char* glsl_quad_shader = "#version 300 es\nprecision mediump float;\nlayout (location = 0) in vec2 vertCoord;\nvoid main() {gl_Position = vec4(vertCoord.x, vertCoord.y, 0.0, 1.0);}\n";
+#ifdef __APPLE__
+static const char* glsl_version = "#version 330 core\n\n";
+#else
+static const char* glsl_version = "#version 300 es\nprecision mediump float;\n\n";
+#endif
+
+static const char* glsl_quad_shader = "layout (location = 0) in vec2 vertCoord;\nvoid main() {gl_Position = vec4(vertCoord.x, vertCoord.y, 0.0, 1.0);}\n";
 static const char* glsl_template = "out vec4 FragColor;\n\nuniform float u_time;\nuniform vec2 u_resolution;\nuniform vec2 u_mouse;\n\nvoid main() \n{\n\tvec2 uv = gl_FragCoord.xy / u_resolution.y;\n\tvec3 color = vec3(uv.x, uv.y, cos(u_time));\n\tFragColor = vec4(color, 1.0);\n}\n";
 
 void glsl_write_shader()
@@ -27,20 +32,32 @@ unsigned int glsl_shader_load(const char* fpath)
         printf("There was an error loading shader '%s'\n", fpath);
         return 0;
     }
-    char* glsl_frag = (char*)malloc(strlen(glsl_version_core) + strlen(fb) + 1);
-    strcpy(glsl_frag, glsl_version_core);
+
+    /*size_t size = strlen(glsl_version) + strlen(fb);
+    char* glsl_frag = (char*)malloc(size + 1);
+    strcpy(glsl_frag, glsl_version);
     strcat(glsl_frag, fb);
-    free(fb);
+    glsl_frag[size] = '\0';
+    free(fb);*/
+
+    size_t size = strlen(glsl_version) + strlen(glsl_quad_shader);
+    char* glsl_vert = (char*)malloc(size + 1);
+    strcpy(glsl_vert, glsl_version);
+    strcat(glsl_vert, glsl_quad_shader);
+    glsl_vert[size] = '\0';
+    printf("%s\n", glsl_vert);
+    printf("%s\n", fb); 
 
     unsigned int vertex_shader = glCreateShader(GL_VERTEX_SHADER);
     unsigned int fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
 
-    shader_compile(glsl_quad_shader, vertex_shader);
-    shader_compile(glsl_frag, fragment_shader);
+    shader_compile(glsl_vert, vertex_shader);
+    shader_compile(fb, fragment_shader);
     shader_link(shader, vertex_shader, fragment_shader);
     glUseProgram(shader);
 
-    free(glsl_frag);
+    free(fb);
+    free(glsl_vert);
     return shader;
 }
 

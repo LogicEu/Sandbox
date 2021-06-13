@@ -21,9 +21,9 @@ into a simpler framework.
 #include <Omega.h>
 
 #ifndef __APPLE__
-#include <GL/glew.h>
+    #include <GL/glew.h>
 #else
-#define GLFW_INCLUDE_GLCOREARB
+    #define GLFW_INCLUDE_GLCOREARB
 #endif
 
 #include <GLFW/glfw3.h>
