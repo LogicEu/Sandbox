@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ldlp() {
-    LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/:/usr/lib/arm-linux-gnueabihf/:~/Dev/Engine/Heart/lib/:lib/
+    LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/:/usr/lib/arm-linux-gnueabihf/:lib/
     export LD_LIBRARY_PATH
 
 }
