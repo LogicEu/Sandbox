@@ -45,6 +45,7 @@ void optionsStep()
 {
     getInput();
     optionsDraw();
+    cameraBackgroundSlide();
 }
 
 void optionsInit()

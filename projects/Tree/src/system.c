@@ -23,10 +23,6 @@ static void systemSnapshot()
 static void systemDraw()
 {
     if (state == STATE_PAUSE || !hp) framebuffer_bind(assetsGetFramebuffer(FRAMEBUFFER_BLACK_AND_WHITE)->id);
-    
-    //glUseProgram(assetsGetShader(SHADER_TEXTURE));
-    //glBindTexture(GL_TEXTURE_2D, 0);
-    //glBindVertexArray(quadVAO);
     drawParallax(cam);
     drawSetCamera(&cam.x);
     if (state == STATE_PLAY || state == STATE_LEVEL_EDITOR || state == STATE_PAUSE) drawComponents();
@@ -129,6 +125,9 @@ void systemStep(float deltaTime)
         case STATE_OPTIONS:
             optionsStep();
             break;
+        case STATE_NET_MENU:
+            netMenuStep();
+            break;
         case STATE_LOAD:
             //loaderStep();
             systemSetState(STATE_MENU);
@@ -214,6 +213,7 @@ void systemInit(unsigned int startState)
     printf("Seed: %u\n", randSeed);
 
     menuInit();
+    netMenuInit();
     optionsInit();
     levelEditorInit();
     spriteEditorInit();

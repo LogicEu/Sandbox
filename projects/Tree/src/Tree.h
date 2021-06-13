@@ -21,6 +21,12 @@ TREE FRAMEWORK HEADER
 #define SCREEN_XSCALE SCREEN_WIDTH / SCREEN_SCALE
 #define SCREEN_YSCALE SCREEN_HEIGHT / SCREEN_SCALE
 
+#ifdef __APPLE__
+#define KEY_MOD GLFW_KEY_LEFT_ALT
+#else
+#define KEY_MOD GLFW_KEY_CONTROL_ALT
+#endif
+
 typedef enum {
     STATE_MENU,
     STATE_PLAY,
@@ -29,6 +35,7 @@ typedef enum {
     STATE_SPRITE_EDITOR,
     STATE_UI_EDITOR,
     STATE_OPTIONS,
+    STATE_NET_MENU,
     STATE_LOAD
 } stateEnum;
 
@@ -219,6 +226,9 @@ void levelEditorInit();
 
 void menuStep();
 void menuInit();
+
+void netMenuInit();
+void netMenuStep();
 
 void optionsStep();
 void optionsInit();

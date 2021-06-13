@@ -43,10 +43,10 @@ static wxGroup mainMenuGroup()
     
     wxTitle title = wxTitleCreate("TREE", vec3_new(100.0f, 170.0f, 2.5f), color(0.3f, 1.0f, 0.3f, 1.0f));
     wxGroupPush(&group, &title, WIDGET_TITLE);
-    title = wxTitleCreate("Main Menu", vec3_new(100.0f, 125.0f, 0.8f), color(1.0f, 0.0f, 0.0f, 1.0f));
+    title = wxTitleCreate("Main Menu", vec3_new(100.0f, 155.0f, 0.8f), color(1.0f, 0.0f, 0.0f, 1.0f));
     wxGroupPush(&group, &title, WIDGET_TITLE);
     
-    wxButton button = wxButtonCreate("Play", rect_new(x, 110.0f, 40.0f, 15.0f));
+    wxButton button = wxButtonCreate("Play", rect_new(x, 130.0f, 40.0f, 15.0f));
     button.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
     wxGroupPush(&group, &button, WIDGET_BUTTON);
     button = wxButtonCreate("Level Editor", rect_new(x, 90.0f, 108.0f, 15.0f));
@@ -62,6 +62,9 @@ static wxGroup mainMenuGroup()
     button.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
     wxGroupPush(&group, &button, WIDGET_BUTTON);
     button = wxButtonCreate("Options", rect_new(x, 30.0f, 80.0f, 15.0f));
+    button.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
+    wxGroupPush(&group, &button, WIDGET_BUTTON);
+    button = wxButtonCreate("Online", rect_new(x, 110.0f, 60.0f, 15.0f));
     button.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
     wxGroupPush(&group, &button, WIDGET_BUTTON);
     
@@ -119,21 +122,40 @@ static wxGroup spriteEditorGroup()
 
 static wxGroup optionsGroup()
 {
+    wxGroup group = wxGroupCreate();
+    wxTitle title = wxTitleCreate("Options", vec3_new(4.0f, 185.0f, 1.0f), color(1.0f, 0.0f, 0.0f, 1.0f));
+    wxGroupPush(&group, &title, WIDGET_TITLE);
+    title = wxTitleCreate("Mouse", vec3_new(85.0f, 110.0f, 0.8f), color(1.0f, 0.0f, 0.0f, 1.0f));
+    wxGroupPush(&group, &title, WIDGET_TITLE);
+    title = wxTitleCreate("Fullscreen", vec3_new(75.0f, 70.0f, 0.8f), color(1.0f, 0.0f, 0.0f, 1.0f));
+    wxGroupPush(&group, &title, WIDGET_TITLE);
+
+    wxSwitch sw = wxSwitchCreate(vec2_new(160.0f, 115.0f), 1.0f);
+    wxGroupPush(&group, &sw, WIDGET_SWITCH);
+    sw = wxSwitchCreate(vec2_new(160.0f, 75.0f), 1.0f);
+    wxGroupPush(&group, &sw, WIDGET_SWITCH);
+    return group;
+}
+
+static wxGroup netMenuGroup()
+{
     float xscale = viewport.x / viewport.z;
     float yscale = viewport.y / viewport.z;
 
     wxGroup group = wxGroupCreate();
-    wxTitle title = wxTitleCreate("Options", vec3_new(4.0f, 185.0f, 1.0f), color(1.0f, 0.0f, 0.0f, 1.0f));
+    wxTitle title = wxTitleCreate("Online", vec3_new(4.0f, 185.0f, 1.0f), color(1.0f, 0.0f, 0.0f, 1.0f));
     wxGroupPush(&group, &title, WIDGET_TITLE);
-    title = wxTitleCreate("Mouse", vec3_new(xscale * 0.5f, yscale * 0.5f, 0.8f), color(1.0f, 0.0f, 0.0f, 1.0f));
+    title = wxTitleCreate("Enter Server's IP:", vec3_new(80.0f, yscale * 0.5f + 48.0f, 0.8f), color(1.0f, 0.0f, 0.0f, 1.0f));
     wxGroupPush(&group, &title, WIDGET_TITLE);
-    title = wxTitleCreate("Fullscreen", vec3_new(xscale * 0.5f, yscale * 0.5f - 32.0f, 0.8f), color(1.0f, 0.0f, 0.0f, 1.0f));
+    title = wxTitleCreate("Enter User Name:", vec3_new(80.0f, yscale * 0.5f - 16.0f, 0.8f), color(1.0f, 0.0f, 0.0f, 1.0f));
     wxGroupPush(&group, &title, WIDGET_TITLE);
 
-    wxSwitch sw = wxSwitchCreate(vec2_new(xscale - 32.0f, yscale * 0.5f), 1.0f);
-    wxGroupPush(&group, &sw, WIDGET_SWITCH);
-    sw = wxSwitchCreate(vec2_new(xscale - 32.0f, yscale * 0.5f - 32.0f), 1.0f);
-    wxGroupPush(&group, &sw, WIDGET_SWITCH);
+    wxField field = wxFieldCreate(rect_new(xscale * 0.5f, yscale * 0.5f + 32.0f, 154.0f, 16.0f), 15);
+    field.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
+    wxGroupPush(&group, &field, WIDGET_FIELD);
+    field = wxFieldCreate(rect_new(xscale * 0.5f, yscale * 0.5f - 32.0f, 154.0f, 16.0f), 15);
+    field.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
+    wxGroupPush(&group, &field, WIDGET_FIELD);
     return group;
 }
 
@@ -165,6 +187,9 @@ static wxDirectory UIassetsDirectory()
     wxDirectoryPushGroup(&dir, &group);
 
     group = optionsGroup();
+    wxDirectoryPushGroup(&dir, &group);
+
+    group = netMenuGroup();
     wxDirectoryPushGroup(&dir, &group);
 
     dir.selected = WX_DIR_MAIN_MENU;

@@ -8,7 +8,8 @@ typedef enum {
     WX_DIR_LEVEL_EDITOR,
     WX_DIR_UI_EDITOR,
     WX_DIR_SPRITE_EDITOR,
-    WX_DIR_OPTIONS
+    WX_DIR_OPTIONS,
+    WX_DIR_NET_MENU
 } dirEnum;
 
 typedef enum {
@@ -20,6 +21,7 @@ typedef enum {
     WX_BUTTON_UI_EDITOR,
     WX_BUTTON_SPRITE_EDITOR,
     WX_BUTTON_OPTIONS,
+    WX_BUTTON_ONLINE
 } menuUIEnum;
 
 typedef enum {

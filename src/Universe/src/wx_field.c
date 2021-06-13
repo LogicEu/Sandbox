@@ -14,10 +14,14 @@ wxField wxFieldCreate(rect_t rect, unsigned int maxSize)
 
 void wxFieldUpdate(wxField* field, vec2 mouse, bool pressed)
 {
-    char ch = keyboard_char();
     bool hover = point_meeting(mouse, field->rect);
     if (field->state == WIDGET_SELECTED) {
-        if ((!hover && pressed) || keyboard_pressed(GLFW_KEY_ENTER)) field->state = WIDGET_UNSELECTED;
+        if ((!hover && pressed) || keyboard_pressed(GLFW_KEY_ENTER)) {
+            field->state = WIDGET_UNSELECTED;
+            return;
+        }
+
+        char ch = keyboard_char();
         if (keyboard_pressed(GLFW_KEY_ENTER)) {
             field->text[field->strMark++] = '\n';
         }

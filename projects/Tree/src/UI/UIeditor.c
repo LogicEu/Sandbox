@@ -162,7 +162,7 @@ static void getInput()
         wxDirectorySave(FILE_MENU_UI_SAVE, &wxDir);
     }
 
-    if (keyboard_down(GLFW_KEY_LEFT_CONTROL)) {
+    if (keyboard_down(KEY_MOD)) {
         if (keyboard_pressed(GLFW_KEY_RIGHT)) {
             if (wxDir.selected < wxDir.used - 1) wxDir.selected++;
             else wxDir.selected = 0;

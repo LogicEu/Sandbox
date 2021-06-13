@@ -14,15 +14,13 @@ GLFWwindow* window_get()
 static void GLwindow_size(GLFWwindow* window, int width, int height)
 {
     core.update = 1;
-    //core.width = width;
-    //core.height = height;
 }
 
 static void GLframebuffer_size(GLFWwindow* window, int width, int height)
 {
-    glViewport(0, 0, width, height);
-    core.width = width / 2;
-    core.height = height / 2;
+    core.update = 1;
+    //core.width = width / 2;
+    //core.height = height / 2;
 }
 
 void window_create(const char* title, int width, int height, unsigned int fullscreen, unsigned int resizable)

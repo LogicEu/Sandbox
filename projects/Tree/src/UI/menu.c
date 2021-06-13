@@ -16,12 +16,14 @@ static void getInput()
     wxButton* ui_editor = group->widgets[WX_BUTTON_UI_EDITOR].widget;
     wxButton* options = group->widgets[WX_BUTTON_OPTIONS].widget;
     wxButton* sprite_editor = group->widgets[WX_BUTTON_SPRITE_EDITOR].widget;
+    wxButton* online = group->widgets[WX_BUTTON_ONLINE].widget;
 
     if (play->state == WIDGET_SELECTED) systemSetState(STATE_PLAY);
     if (level_editor->state == WIDGET_SELECTED) systemSetState(STATE_LEVEL_EDITOR);
     if (ui_editor->state == WIDGET_SELECTED) systemSetState(STATE_UI_EDITOR);
     if (options->state == WIDGET_SELECTED) systemSetState(STATE_OPTIONS);
     if (sprite_editor->state == WIDGET_SELECTED) systemSetState(STATE_SPRITE_EDITOR);
+    if (online->state == WIDGET_SELECTED) systemSetState(STATE_NET_MENU);
     if (keyboard_pressed(GLFW_KEY_ESCAPE) || quit->state == WIDGET_SELECTED) {
         systemExit();
     }
@@ -36,7 +38,6 @@ void mouseDraw()
     shader_set_uniform(assetsGetShader(SHADER_TEXTURE), 4, "camera", &camera[0]);
     drawTextureColor(*assetsGetTexture(TEXTURE_MOUSE_CURSOR), vec2_new(mouse.x + 4.0f, mouse.y - 4.0f), white);
 }
-
 
 void menuDraw()
 {
