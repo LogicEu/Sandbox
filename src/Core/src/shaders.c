@@ -1,6 +1,7 @@
 #include "common.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #ifndef __APPLE__
 static const char* glsl_version = "#version 300 es\nprecision mediump float;\n\n";
