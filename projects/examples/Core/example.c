@@ -33,20 +33,11 @@ unsigned int glsl_shader_load(const char* fpath)
         return 0;
     }
 
-    /*size_t size = strlen(glsl_version) + strlen(fb);
-    char* glsl_frag = (char*)malloc(size + 1);
-    strcpy(glsl_frag, glsl_version);
-    strcat(glsl_frag, fb);
-    glsl_frag[size] = '\0';
-    free(fb);*/
-
     size_t size = strlen(glsl_version) + strlen(glsl_quad_shader);
     char* glsl_vert = (char*)malloc(size + 1);
     strcpy(glsl_vert, glsl_version);
     strcat(glsl_vert, glsl_quad_shader);
     glsl_vert[size] = '\0';
-    printf("%s\n", glsl_vert);
-    printf("%s\n", fb); 
 
     unsigned int vertex_shader = glCreateShader(GL_VERTEX_SHADER);
     unsigned int fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -135,7 +126,13 @@ int main(int argc, char** argv)
     unsigned int quad = vertex_array_buffer_quad_create();
     unsigned int shader = glsl_shader_load(fragment_shader_path);
     if (!shader) return 0;
-    glUniform2f(glGetUniformLocation(shader, "u_resolution"), (float)w * 2.0, (float)h * 2.0f);
+
+    float width = (float)w, height = (float)h;
+#ifdef __APPLE__
+    width *= 2.0f;
+    height *= 2.0f;
+#endif
+    glUniform2f(glGetUniformLocation(shader, "u_resolution"), width, height);
 
     double mouse_x, mouse_y;
     while (window_is_open()) {
