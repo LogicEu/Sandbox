@@ -60,7 +60,12 @@ void menuStep()
     cameraBackgroundSlide();
 }
 
+void menuDirectoryReset()
+{
+    group = &wxDir.groups[WX_DIR_MAIN_MENU];   
+}
+
 void menuInit()
 {
-    group = &wxDir.groups[WX_DIR_MAIN_MENU];
+    menuDirectoryReset();
 }

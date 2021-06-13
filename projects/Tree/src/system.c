@@ -212,12 +212,29 @@ void systemInit(unsigned int startState)
     srand(randSeed);
     printf("Seed: %u\n", randSeed);
 
+    treeInit();
+}
+
+void treeInit()
+{
     menuInit();
     netMenuInit();
+    UIeditorInit();
     optionsInit();
     levelEditorInit();
     spriteEditorInit();
     gameInit();
+}
+
+void treeDirectoryReset()
+{
+    gameDirectoryReset();
+    menuDirectoryReset();
+    levelEditorDirectoryReset();
+    spriteEditorDirectoryReset();
+    UIeditorDirectoryReset();
+    optionsDirectoryReset();
+    netMenuDirectoryReset();
 }
 
 void systemExit()

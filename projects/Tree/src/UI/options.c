@@ -9,6 +9,8 @@ typedef enum {
     WX_OPTIONS_TITLE_MOUSE_LOCK,
     WX_OPTIONS_TITLE_FULLSCREEN,
 
+    WX_OPTIONS_BUTTON_MENU,
+
     WX_OPTIONS_MOUSE_LOCK,
     WX_OPTIONS_FULLSCREEN
 } wxOptionEnum;
@@ -23,6 +25,9 @@ static void getInput()
 
     bool mousePressed = mouse_pressed(GLFW_MOUSE_BUTTON_LEFT);
     wxGroupUpdate(group, mouse, mousePressed, mousePressed);
+
+    wxButton* button = group->widgets[WX_OPTIONS_BUTTON_MENU].widget;
+    if (button->state == WIDGET_SELECTED) systemSetState(STATE_MENU);
 
     wxSwitch* sw = group->widgets[WX_OPTIONS_MOUSE_LOCK].widget;
     if (!mouseLock && sw->activated) {
@@ -48,7 +53,12 @@ void optionsStep()
     cameraBackgroundSlide();
 }
 
-void optionsInit()
+void optionsDirectoryReset()
 {
     group = &wxDir.groups[WX_DIR_OPTIONS];
+}
+
+void optionsInit()
+{
+    optionsDirectoryReset();
 }

@@ -84,8 +84,13 @@ void gameStep(float deltaTime)
     gameDraw();
 }
 
-void gameInit()
+void gameDirectoryReset()
 {
     group = &wxDir.groups[WX_DIR_GAME];
+}
+
+void gameInit()
+{
+    gameDirectoryReset();
     player = archetypePlayer();
 }

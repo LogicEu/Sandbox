@@ -214,6 +214,16 @@ font_t* assetsGetFont(unsigned int index);
 framebuffer_t* assetsGetFramebuffer(unsigned int index);
 sprite_t* assetsGetSprite(unsigned int index);
 
+void treeInit();
+void treeDirectoryReset();
+void gameDirectoryReset();
+void menuDirectoryReset();
+void levelEditorDirectoryReset();
+void spriteEditorDirectoryReset();
+void UIeditorDirectoryReset();
+void optionsDirectoryReset();
+void netMenuDirectoryReset();
+
 void gameStep(float deltaTime);
 void gameInit();
 
@@ -236,10 +246,12 @@ void optionsInit();
 void spriteEditorInit();
 void spriteEditorStep();
 
-void UIassetsLoad();
 void UIeditorStep();
+void UIeditorInit();
 
 void loaderStep();
+
+void UIassetsLoad();
 
 /************
  * COMPONENTS

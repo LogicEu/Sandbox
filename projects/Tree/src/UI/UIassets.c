@@ -88,6 +88,21 @@ static wxGroup spriteEditorGroup()
     wxGroupPush(&group, &title, WIDGET_TITLE);
     title = wxTitleCreate("A", vec3_new(xscale - 12.0f, 4.0f, 0.8f), color(0.5f, 0.5f, 0.5f, 1.0f));
     wxGroupPush(&group, &title, WIDGET_TITLE);
+    title = wxTitleCreate("Zoom", vec3_new(xscale - 48.0f, 90.0f, 0.8f), color(0.5f, 0.5f, 0.5f, 1.0f));
+    wxGroupPush(&group, &title, WIDGET_TITLE);
+
+    wxButton button = wxButtonCreate("Menu", rect_new(32.0f, yscale - 32.0f, 50.0f, 15.0f));
+    button.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
+    wxGroupPush(&group, &button, WIDGET_BUTTON);
+    button = wxButtonCreate("Save", rect_new(xscale * 0.5, 24.0f, 40.0f, 15.0f));
+    button.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
+    wxGroupPush(&group, &button, WIDGET_BUTTON);
+    
+    wxField field = wxFieldCreate(rect_new(xscale * 0.5f, 8.0f, 160.0f, 8.0f), 32);
+    field.text_offset = vec3_new(2.0f, 0.2f, 2.5f);
+    strcpy(field.text, "sprite.png");
+    field.strMark = strlen(field.text);
+    wxGroupPush(&group, &field, WIDGET_FIELD);
     
     wxSlider slider = wxSliderCreate(vec2_new(xscale - 40.0f, 32.0f), 1.0f, true);
     wxGroupPush(&group, &slider, WIDGET_SLIDER);
@@ -96,6 +111,8 @@ static wxGroup spriteEditorGroup()
     slider = wxSliderCreate(vec2_new(xscale - 20.0f, 32.0f), 1.0f, true);
     wxGroupPush(&group, &slider, WIDGET_SLIDER);
     slider = wxSliderCreate(vec2_new(xscale - 10.0f, 32.0f), 1.0f, true);
+    wxGroupPush(&group, &slider, WIDGET_SLIDER);
+    slider = wxSliderCreate(vec2_new(xscale - 10.0f, 96.0f), 1.0f, true);
     wxGroupPush(&group, &slider, WIDGET_SLIDER);
     
     wxRect rect = wxRectCreate(rect_new(xscale - 32.0f, yscale - 16.0f, 16.0f, 16.0f), color(0.0f, 0.0f, 0.0f, 1.0f));
@@ -122,6 +139,8 @@ static wxGroup spriteEditorGroup()
 
 static wxGroup optionsGroup()
 {
+    float yscale = viewport.y / viewport.z;
+
     wxGroup group = wxGroupCreate();
     wxTitle title = wxTitleCreate("Options", vec3_new(4.0f, 185.0f, 1.0f), color(1.0f, 0.0f, 0.0f, 1.0f));
     wxGroupPush(&group, &title, WIDGET_TITLE);
@@ -129,6 +148,10 @@ static wxGroup optionsGroup()
     wxGroupPush(&group, &title, WIDGET_TITLE);
     title = wxTitleCreate("Fullscreen", vec3_new(75.0f, 70.0f, 0.8f), color(1.0f, 0.0f, 0.0f, 1.0f));
     wxGroupPush(&group, &title, WIDGET_TITLE);
+
+    wxButton button = wxButtonCreate("Menu", rect_new(32.0f, yscale - 32.0f, 50.0f, 15.0f));
+    button.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
+    wxGroupPush(&group, &button, WIDGET_BUTTON);
 
     wxSwitch sw = wxSwitchCreate(vec2_new(160.0f, 115.0f), 1.0f);
     wxGroupPush(&group, &sw, WIDGET_SWITCH);
@@ -156,6 +179,53 @@ static wxGroup netMenuGroup()
     field = wxFieldCreate(rect_new(xscale * 0.5f, yscale * 0.5f - 32.0f, 154.0f, 16.0f), 15);
     field.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
     wxGroupPush(&group, &field, WIDGET_FIELD);
+
+    wxButton button = wxButtonCreate("Menu", rect_new(32.0f, yscale - 32.0f, 50.0f, 15.0f));
+    button.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
+    wxGroupPush(&group, &button, WIDGET_BUTTON);
+    button = wxButtonCreate("Connect", rect_new(xscale * 0.5, 16.0f, 80.0f, 16.0f));
+    button.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
+    wxGroupPush(&group, &button, WIDGET_BUTTON);
+    return group;
+}
+
+static wxGroup levelEditorGroup()
+{
+    float xscale = viewport.x / viewport.z;
+    float yscale = viewport.y / viewport.z;
+    wxGroup group = wxGroupCreate();
+
+    wxTitle title = wxTitleCreate("Level Editor Mode", vec3_new(4.0f, 185.0f, 1.0f), color(1.0f, 0.0f, 0.0f, 1.0f));
+    wxGroupPush(&group, &title, WIDGET_TITLE);
+    title = wxTitleCreate("Zoom", vec3_new(xscale - 48.0f, 90.0f, 0.8f), color(0.5f, 0.5f, 0.5f, 1.0f));
+    wxGroupPush(&group, &title, WIDGET_TITLE);
+
+    wxButton button = wxButtonCreate("Menu", rect_new(32.0f, yscale - 32.0f, 50.0f, 15.0f));
+    button.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
+    wxGroupPush(&group, &button, WIDGET_BUTTON);
+
+    wxSlider slider = wxSliderCreate(vec2_new(xscale - 10.0f, 96.0f), 1.0f, true);
+    wxGroupPush(&group, &slider, WIDGET_SLIDER);
+    return group;
+}
+
+static wxGroup UIeditorGroup()
+{
+    float yscale = viewport.y / viewport.z;
+
+    wxGroup group = wxGroupCreate();
+    wxTitle title = wxTitleCreate("UI Editor Mode", vec3_new(4.0f, 185.0f, 0.8f), color(0.3f, 1.0f, 0.3f, 1.0f));
+    wxGroupPush(&group, &title, WIDGET_TITLE);
+    
+    wxButton button = wxButtonCreate("Menu", rect_new(32.0f, yscale - 32.0f, 50.0f, 15.0f));
+    button.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
+    wxGroupPush(&group, &button, WIDGET_BUTTON);
+    button = wxButtonCreate("Save", rect_new(32.0f, yscale - 52.0f, 50.0f, 15.0f));
+    button.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
+    wxGroupPush(&group, &button, WIDGET_BUTTON);
+    button = wxButtonCreate("Load", rect_new(32.0f, yscale - 72.0f, 50.0f, 15.0f));
+    button.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
+    wxGroupPush(&group, &button, WIDGET_BUTTON);
     return group;
 }
 
@@ -173,14 +243,10 @@ static wxDirectory UIassetsDirectory()
     wxGroupPush(&group, &title, WIDGET_TITLE);
     wxDirectoryPushGroup(&dir, &group);
 
-    group = wxGroupCreate();
-    title = wxTitleCreate("Level Editor Mode", vec3_new(4.0f, 185.0f, 1.0f), color(1.0f, 0.0f, 0.0f, 1.0f));
-    wxGroupPush(&group, &title, WIDGET_TITLE);
+    group = levelEditorGroup();
     wxDirectoryPushGroup(&dir, &group);
 
-    group = wxGroupCreate();
-    title = wxTitleCreate("UI Editor Mode", vec3_new(4.0f, 185.0f, 1.0f), color(1.0f, 0.0f, 0.0f, 1.0f));
-    wxGroupPush(&group, &title, WIDGET_TITLE);
+    group = UIeditorGroup();
     wxDirectoryPushGroup(&dir, &group);
 
     group = spriteEditorGroup();

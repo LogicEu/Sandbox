@@ -1,7 +1,16 @@
 #include "UIcommon.h"
 
 extern vec2 mouse;
-static wxGroup* group = NULL;
+static wxGroup* group;
+static wxGroup* editorGroup;
+
+typedef enum {
+    WX_UIE_TITLE_MAIN,
+    
+    WX_UIE_BUTTON_MENU,
+    WX_UIE_BUTTON_SAVE,
+    WX_UIE_BUTTON_LOAD
+} wxUIeditorEnum;
 
 static void wxEditSlider(wxSlider* slider, vec2 mouse)
 {
@@ -154,12 +163,23 @@ static void wxEditButton(wxButton* button, vec2 mouse)
 
 static void getInput()
 {
-    if (keyboard_pressed(GLFW_KEY_ESCAPE)) {
+    bool mousePressed = mouse_pressed(GLFW_MOUSE_BUTTON_LEFT);
+    bool mouseDown = mouse_down(GLFW_MOUSE_BUTTON_LEFT);
+    wxGroupUpdate(group, mouse, mousePressed, mouseDown);
+
+    wxButton* button = editorGroup->widgets[WX_UIE_BUTTON_MENU].widget;
+    bool buttonPressed = button->state == WIDGET_HOVER && mousePressed;
+    if (keyboard_pressed(GLFW_KEY_ESCAPE) || button->state == WIDGET_SELECTED) {
         systemSetState(STATE_MENU);
+        button->state = WIDGET_UNSELECTED;
         return;
     }
-    if (keyboard_pressed(GLFW_KEY_P)) {
+
+    button = editorGroup->widgets[WX_UIE_BUTTON_SAVE].widget;
+    buttonPressed = button->state == WIDGET_HOVER && mousePressed;
+    if (keyboard_pressed(GLFW_KEY_P) || buttonPressed) {
         wxDirectorySave(FILE_MENU_UI_SAVE, &wxDir);
+        return;
     }
 
     if (keyboard_down(KEY_MOD)) {
@@ -174,22 +194,25 @@ static void getInput()
             group = &wxDir.groups[wxDir.selected];
         }
     }
-    if (keyboard_pressed(GLFW_KEY_L)) {
+
+    button = editorGroup->widgets[WX_UIE_BUTTON_LOAD].widget;
+    buttonPressed = button->state == WIDGET_HOVER && mousePressed;
+    if (keyboard_pressed(GLFW_KEY_L) || buttonPressed) {
         wxDirectoryFree(&wxDir);
         wxDir = wxDirectoryLoad(FILE_MENU_UI_SAVE);
-        group = &wxDir.groups[wxDir.selected];
+        treeDirectoryReset();
+        return;
     }
 
-    bool mousePressed = mouse_down(GLFW_MOUSE_BUTTON_LEFT);
-    wxGroupUpdate(group, mouse, mousePressed, mousePressed);
+    wxGroupUpdate(editorGroup, mouse, mousePressed, mouseDown);
 
-    if (!mousePressed) return;
+    if (!mouseDown) return;
     for (unsigned int i = 0; i < group->used; i++) {
         wxPtr p = group->widgets[i];
         if (p.type == WIDGET_TITLE) {
             wxEditTitle(p.widget, mouse);
         } else if (p.type == WIDGET_BUTTON) {
-            wxButton* button = p.widget;
+            button = p.widget;
             if (button->state == WIDGET_SELECTED) wxEditButton(button, mouse);
         } else if (p.type == WIDGET_SLIDER) {
             wxSlider* slider = p.widget;
@@ -204,12 +227,23 @@ static void getInput()
 void UIeditorDraw()
 {
     wxGroupDraw(group);
+    wxGroupDraw(editorGroup);
     mouseDraw();
+}
+
+void UIeditorDirectoryReset()
+{
+    group = &wxDir.groups[wxDir.selected];
+    editorGroup = &wxDir.groups[WX_DIR_UI_EDITOR];
+}
+
+void UIeditorInit()
+{
+    UIeditorDirectoryReset();
 }
 
 void UIeditorStep()
 {
-    if (group == NULL) group = &wxDir.groups[wxDir.selected];
     getInput();
     cameraBackgroundSlide();
     UIeditorDraw();

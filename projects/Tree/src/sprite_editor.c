@@ -10,17 +10,25 @@ static bmp_t bmp;
 static color_t cursorColor;
 static float scale;
 
+#define SCALE_MULT 4.0f
+
 typedef enum {
     WX_SE_TITLE_MAIN,
     WX_SE_TITLE_R,
     WX_SE_TITLE_G,
     WX_SE_TITLE_B,
     WX_SE_TITLE_A,
+    WX_SE_TITLE_ZOOM,
+
+    WX_SE_BUTTON_MENU,
+    WX_SE_BUTTON_SAVE,
+    WX_SE_FIELD_DIR,
 
     WX_SE_SLIDER_RED,
     WX_SE_SLIDER_GREEN,
     WX_SE_SLIDER_BLUE,
     WX_SE_SLIDER_ALPHA,
+    WX_SE_SLIDER_ZOOM,
 
     WX_SE_RECT_BLACK,
     WX_SE_RECT_RED,
@@ -44,12 +52,20 @@ static void slidersReset()
     slider->lerp = cursorColor.b;
     slider = group->widgets[WX_SE_SLIDER_ALPHA].widget;
     slider->lerp = cursorColor.a;
+    slider = group->widgets[WX_SE_SLIDER_ZOOM].widget;
+    slider->lerp = clampf(0.0f, 1.0f, (scale - 0.5f) / SCALE_MULT);
 }
 
 static void wxInput()
 {
     wxRect* rect = group->widgets[WX_SE_RECT_CURSOR].widget;
     rect->color = cursorColor;
+
+    wxButton* button = group->widgets[WX_SE_BUTTON_MENU].widget;
+    if (button->state == WIDGET_SELECTED) {
+        systemSetState(STATE_MENU);
+        return;
+    }
 
     wxSlider* slider = group->widgets[WX_SE_SLIDER_RED].widget;
     if (slider->selected) {
@@ -61,8 +77,10 @@ static void wxInput()
     if (slider->selected) cursorColor.b = slider->lerp;
     slider = group->widgets[WX_SE_SLIDER_ALPHA].widget;
     if (slider->selected) cursorColor.a = slider->lerp;
+    slider = group->widgets[WX_SE_SLIDER_ZOOM].widget;
+    if (slider->selected) scale = 0.5f + slider->lerp * SCALE_MULT;
 
-    if (mouse_pressed(GLFW_MOUSE_BUTTON_LEFT)) {
+    if (mouse_down(GLFW_MOUSE_BUTTON_LEFT)) {
         for (unsigned int i = WX_SE_RECT_BLACK; i <= WX_SE_RECT_WHITE; i++) {
             rect = group->widgets[i].widget;
             if (point_meeting(mouse, rect->rect)) {
@@ -79,12 +97,6 @@ static void editorInput()
     if (keyboard_pressed(GLFW_KEY_ESCAPE)) {
         systemSetState(STATE_MENU);
     }
-    if (keyboard_down(GLFW_KEY_M)) {
-        scale += 0.2f;
-    }
-    if (keyboard_down(GLFW_KEY_N)) {
-        scale -= 0.2f;
-    }
 
     if (window_file_has()) {
         bmp_t tmp = bmp_load(window_file_get());
@@ -94,8 +106,12 @@ static void editorInput()
         bmp_free(&tmp2);
     }
 
+    bool mousePressed = mouse_pressed(GLFW_MOUSE_BUTTON_LEFT);
     bool mouseDown = mouse_down(GLFW_MOUSE_BUTTON_LEFT);
-    wxGroupUpdate(group, mouse, mouseDown, mouseDown);
+    wxButton* button = group->widgets[WX_SE_BUTTON_SAVE].widget;
+    wxField* field = group->widgets[WX_SE_FIELD_DIR].widget;
+    if (button->state == WIDGET_HOVER && mousePressed) bmp_write(field->text, &bmp);
+    wxGroupUpdate(group, mouse, mousePressed, mouseDown);
 
     if (mouseDown){
         rect_t r = {
@@ -136,9 +152,14 @@ void spriteEditorStep()
     spriteEditorDraw();
 }
 
-void spriteEditorInit()
+void spriteEditorDirectoryReset()
 {
     group = &wxDir.groups[WX_DIR_SPRITE_EDITOR];
+}
+
+void spriteEditorInit()
+{
+    spriteEditorDirectoryReset();
     uint8_t color[] = {255, 255, 255, 255};
     bmp = bmp_color(32, 32, 4, color);
     scale = 2.0f;

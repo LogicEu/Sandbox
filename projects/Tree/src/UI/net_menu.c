@@ -5,19 +5,35 @@ extern vec4 cam;
 
 wxGroup* group;
 
+typedef enum {
+    WX_NET_MENU_TITLE_MAIN,
+    WX_NET_MENU_TITLE_IP,
+    WX_NET_MENU_TITLE_USER,
+    
+    WX_NET_MENU_FIELD_IP,
+    WX_NET_MENU_FIELD_USER,
+    
+    WX_NET_MENU_BUTTON_MENU,
+    WX_NET_MENU_BUTTON_CONNECT
+} wxNetMenuEnum;
+
 static void getInput()
 {
-    wxField* f = group->widgets[3].widget;
-    wxField* ff = group->widgets[4].widget;
-    if (keyboard_pressed(GLFW_KEY_ENTER)) {
-        printf("%s:%s\n", ff->text, f->text);
-    }
-    if (keyboard_pressed(GLFW_KEY_ESCAPE)) {
-        systemSetState(STATE_MENU);
-    }
-
     bool mousePressed = mouse_pressed(GLFW_MOUSE_BUTTON_LEFT);
     wxGroupUpdate(group, mouse, mousePressed, mousePressed);
+
+    wxField* fieldIp = group->widgets[WX_NET_MENU_FIELD_IP].widget;
+    wxField* fieldUser = group->widgets[WX_NET_MENU_FIELD_USER].widget;
+    wxButton* button = group->widgets[WX_NET_MENU_BUTTON_CONNECT].widget;
+    
+    if (keyboard_pressed(GLFW_KEY_ENTER) || button->state == WIDGET_SELECTED) {
+        printf("%s:%s\n", fieldUser->text, fieldIp->text);
+    }
+
+    button = group->widgets[WX_NET_MENU_BUTTON_MENU].widget;
+    if (keyboard_pressed(GLFW_KEY_ESCAPE) || button->state == WIDGET_SELECTED) {
+        systemSetState(STATE_MENU);
+    }
 }
 
 static void netMenuDraw()
@@ -33,7 +49,12 @@ void netMenuStep()
     cameraBackgroundSlide();
 }
 
-void netMenuInit()
+void netMenuDirectoryReset()
 {
     group = &wxDir.groups[WX_DIR_NET_MENU];
+}
+
+void netMenuInit()
+{
+    netMenuDirectoryReset();
 }

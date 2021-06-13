@@ -2,6 +2,7 @@
 #include "UI/UIcommon.h"
 
 #define FILE_ECS_MODULE "assets/data/module.bin"
+#define SCALE_MULT 4.0f
 
 extern vec4 cam;
 extern vec2 mouse;
@@ -9,6 +10,15 @@ extern wxDirectory wxDir;
 
 static vec2 cursor;
 static Entity selected;
+
+static wxGroup* group;
+
+typedef enum {
+    WX_LE_TITLE_MAIN,
+    WX_LE_TITLE_ZOOM,
+    WX_LE_BUTTON_MENU,
+    WX_LE_SLIDER_ZOOM
+} wxLevelEditorEnum;
 
 typedef enum {
     ARCH_SWITCH_TILE_GRASS,
@@ -24,7 +34,6 @@ typedef enum {
     ARCH_SWITCH_GRANADE
 } archSwitchEnum;
 
-static wxGroup* group;
 static archSwitchEnum selectedIndex;
 
 static texture_t* textureGet()
@@ -92,8 +101,22 @@ static void getMouseInput()
     const float tileSize = 32.0f;
     vec2 center = {(viewport.x / viewport.z) * 0.5f, (viewport.y / viewport.z) * 0.5f};
 
+    bool mousePressed = mouse_pressed(GLFW_MOUSE_BUTTON_LEFT);
+    wxGroupUpdate(group, mouse, mousePressed, mouse_down(GLFW_MOUSE_BUTTON_LEFT));
+
     mouse = vec2_add(vec2_add(vec2_div(vec2_sub(mouse, center), cam.z), center), *(vec2*)&cam);
     cursor = vec2_add(vec2_mult(to_vec2(to_ivec2(vec2_div(mouse, tileSize))), tileSize), univec2(tileSize * 0.5f));
+
+    wxSlider* slider = group->widgets[WX_LE_SLIDER_ZOOM].widget;
+    if (slider->selected) {
+        cam.z = 0.6f + slider->lerp * SCALE_MULT;
+        return;
+    }
+    wxButton* button = group->widgets[WX_LE_BUTTON_MENU].widget;
+    if (button->state == WIDGET_SELECTED) {
+        systemSetState(STATE_MENU);
+        return;
+    }
 
     Entity hover = 0;
     for (Entity e = 1; e < entity_count(); e++) {
@@ -108,10 +131,10 @@ static void getMouseInput()
     if (hover) {
         glUseProgram(assetsGetShader(SHADER_TEXTURE));
         drawRect(*(rect_t*)entity_get(hover, COMPONENT_GL_RECT), unicolor(0.5f));
-        if (mouse_pressed(GLFW_MOUSE_BUTTON_LEFT)) {
+        if (mousePressed) {
             selected = hover;
         }
-    } else if (mouse_pressed(GLFW_MOUSE_BUTTON_LEFT)) {
+    } else if (mousePressed) {
         entityCreate();
     }
 
@@ -192,8 +215,8 @@ static void levelEditorDraw()
 
 static void getInput(float deltaTime)
 {
-    getMouseInput();
     getKeyboardInput(deltaTime);
+    getMouseInput();
 }
 
 void levelEditorStep(float deltaTime)
@@ -202,9 +225,14 @@ void levelEditorStep(float deltaTime)
     levelEditorDraw();
 }
 
-void levelEditorInit()
+void levelEditorDirectoryReset()
 {
     group = &wxDir.groups[WX_DIR_LEVEL_EDITOR];
+}
+
+void levelEditorInit()
+{
+    levelEditorDirectoryReset();
     selectedIndex = ARCH_SWITCH_TILE_GRASS;
     selected = 0;
 }
