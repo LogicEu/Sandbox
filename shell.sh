@@ -37,6 +37,9 @@ build_mac_app() {
     then
         exe=$1
         bundle=$1
+    else
+        echo "Missing input binary."
+        exit
     fi
 
     echo Building $bundle.app
@@ -47,8 +50,8 @@ build_mac_app() {
     mkdir $bundle.app/Contents/Resources/
 
     cp $exe $bundle.app/Contents/MacOS/$bundle
-    cp bundles/Info.plist $bundle.app/Contents/Info.plist
-    cp bundles/icon.icns $bundle.app/Contents/Resources/icon.icns
+    cp assets/MacOS/Info.plist $bundle.app/Contents/Info.plist
+    cp assets/MacOS/icon.icns $bundle.app/Contents/Resources/icon.icns
     cp -r lib $bundle.app/Contents/MacOS/lib/
     cp -r assets $bundle.app/Contents/Resources/assets/
 
