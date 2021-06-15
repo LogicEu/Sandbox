@@ -3,7 +3,6 @@
 int main(void)
 {
     unsigned int state = STATE_MENU;
-    // if (argc > 1) state = atoi(argv[1]);
     systemInit(state);
     float lastTime = time_start_timer(), deltaTime;
     while (window_is_open()) {

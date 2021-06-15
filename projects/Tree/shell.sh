@@ -80,7 +80,13 @@ then
     fail
 fi
 
-if [[ "$1" == "run" ]]
+if [[ "$1" == "server" ]]
+then
+    shift
+    pushd src/server/
+    ./shell.sh "$@"
+    popd
+elif [[ "$1" == "run" ]]
 then
     shift
     compile

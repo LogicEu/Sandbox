@@ -9,7 +9,7 @@
 void initNanoNet()
 {
     if (enet_initialize() != 0) {
-        printf("Could not initialize enet.\n");
+        printf("Could not initialize ENet.\n");
         exit(-1);
     }
     printf("Succesfully initiated ENet.\n");
@@ -19,6 +19,7 @@ void exitNanoNet(ENetHost* host)
 {
     enet_host_destroy(host);
     enet_deinitialize();
+    printf("Succesfully deinitialized ENet.\n");
 }
 
 ENetAddress NNet_adress(const char* host, enet_uint16 port)

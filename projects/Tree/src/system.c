@@ -200,8 +200,6 @@ void systemInit(unsigned int startState)
     printf("Seed: %u\n", randSeed);
 
     assetsLoad();
-    //loaderStep();
-
     UIassetsLoad();
 
     modularInit();
@@ -212,6 +210,7 @@ void systemInit(unsigned int startState)
     srand(randSeed);
     printf("Seed: %u\n", randSeed);
 
+    initNanoNet();
     treeInit();
 }
 

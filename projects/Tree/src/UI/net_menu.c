@@ -1,9 +1,11 @@
 #include "UIcommon.h"
+#include "../TreeNet.h"
 
 extern vec2 mouse;
 extern vec4 cam;
 
 wxGroup* group;
+NNetHost* host;
 
 typedef enum {
     WX_NET_MENU_TITLE_MAIN,
@@ -28,6 +30,7 @@ static void getInput()
     
     if (keyboard_pressed(GLFW_KEY_ENTER) || button->state == WIDGET_SELECTED) {
         printf("%s:%s\n", fieldUser->text, fieldIp->text);
+        //host = NNetHost_create(fieldIp->text, NET_PORT, NET_MAX_CLIENT_COUNT, NET_CHANNELS, NET_BUFFER_SIZE, NET_TIMEOUT);
     }
 
     button = group->widgets[WX_NET_MENU_BUTTON_MENU].widget;
@@ -57,4 +60,5 @@ void netMenuDirectoryReset()
 void netMenuInit()
 {
     netMenuDirectoryReset();
+    host = NULL;
 }
