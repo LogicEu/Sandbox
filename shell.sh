@@ -59,9 +59,9 @@ build_mac_app() {
 }
 
 init() {
-    mkdir lib/
+    tar -xzvf ../Assets/libs.tar.gz -C lib/
+    tar -xzvf ../Assets/assets.tar.gz -C assets/
     mkdir bin/
-    tar -xzvf ../assets.tar.gz -C .
     pushd src/
     ./buildlibs.sh -d
     popd
@@ -74,7 +74,7 @@ clean() {
 }
 
 archive() {
-    tar -czvf ../assets.tar.gz assets/
+    tar -czvf ../Assets/assets.tar.gz assets/
 }
 
 helpmsg() {
