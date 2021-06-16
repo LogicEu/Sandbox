@@ -14,9 +14,9 @@ TREE FRAMEWORK HEADER
 #include <Heart.h>
 
 #define FULLSCREEN 0
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 600
-#define SCREEN_SCALE 3
+#define SCREEN_WIDTH 400
+#define SCREEN_HEIGHT 300
+#define SCREEN_SCALE 2
 
 #define SCREEN_XSCALE SCREEN_WIDTH / SCREEN_SCALE
 #define SCREEN_YSCALE SCREEN_HEIGHT / SCREEN_SCALE
@@ -36,6 +36,7 @@ typedef enum {
     STATE_UI_EDITOR,
     STATE_OPTIONS,
     STATE_NET_MENU,
+    STATE_NET_PLAY,
     STATE_LOAD
 } stateEnum;
 
@@ -224,6 +225,10 @@ void UIeditorDirectoryReset();
 void optionsDirectoryReset();
 void netMenuDirectoryReset();
 
+void treeNetInit(const char* username, const char* ip);
+void treeNetExit();
+void netGameStep(float deltaTime);
+
 void gameStep(float deltaTime);
 void gameInit();
 
@@ -233,6 +238,7 @@ void playerGameStep(float deltaTime);
 
 void levelEditorStep(float deltaTime);
 void levelEditorInit();
+void levelReset();
 
 void menuStep();
 void menuInit();

@@ -26,3 +26,15 @@ Packet* packetFind(array_t* packets, uint8_t id)
     }
     return NULL;
 }
+
+void packetPrint(Packet* p)
+{
+    printf(
+        "Packet -> Id: %u, Type: %u, State: %u, X: %f, Y: %f\n", 
+        p->data[PACKET_ID], 
+        p->data[PACKET_TYPE], 
+        p->data[PACKET_STATE],
+        *(float*)&p->data[PACKET_FLOAT_X], 
+        *(float*)&p->data[PACKET_FLOAT_Y]
+    );
+}

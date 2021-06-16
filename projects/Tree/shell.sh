@@ -1,7 +1,7 @@
 #!/bin/bash
 
 comp=gcc
-src='src/*.c src/scripts/*.c src/UI/*.c'
+src='src/*.c src/scripts/*.c src/UI/*.c src/client/*.c src/server/packet.c'
 exe=tree_game
 std=-std=c99
 dir=../../
@@ -11,8 +11,6 @@ flags=(
     -Wall
     -Wextra
     -O2
-    #-fsyntax-only
-    #-fsanitize=address
 )
 
 inc=(

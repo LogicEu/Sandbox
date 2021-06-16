@@ -1,5 +1,11 @@
 #include "Tree.h"
 
+#ifdef __APPLE__ 
+    #define FB_SIZE 2
+#else 
+    #define FB_SIZE 1
+#endif
+
 static unsigned int state;
 static unsigned int oldState;
 
@@ -13,11 +19,16 @@ vec2 mouse;
 vec3 viewport;
 vec4 cam;
 
+bool treeNetConnected;
+
 static void systemSnapshot()
 {
-    unsigned char img[SCREEN_WIDTH * 2 * SCREEN_HEIGHT * 2 * 4];
-    glReadPixels(0, 0, SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2, GL_RGBA, GL_UNSIGNED_BYTE, &img[0]);
-    img_file_write("test.png", &img[0], SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2, 4);
+    bmp_t tmp = bmp_new(SCREEN_WIDTH * FB_SIZE, SCREEN_HEIGHT * FB_SIZE, 4);
+    bmp_t bmp = bmp_flip_vertical(&tmp);
+    bmp_free(&tmp);
+    glReadPixels(0, 0, bmp.width, bmp.height, GL_RGBA, GL_UNSIGNED_BYTE, &bmp.pixels[0]);
+    bmp_write("test.png", &bmp);
+    bmp_free(&bmp);
 }
 
 static void systemDraw()
@@ -25,7 +36,7 @@ static void systemDraw()
     if (state == STATE_PAUSE || !hp) framebuffer_bind(assetsGetFramebuffer(FRAMEBUFFER_BLACK_AND_WHITE)->id);
     drawParallax(cam);
     drawSetCamera(&cam.x);
-    if (state == STATE_PLAY || state == STATE_LEVEL_EDITOR || state == STATE_PAUSE) drawComponents();
+    if (state == STATE_PLAY || state == STATE_LEVEL_EDITOR || state == STATE_PAUSE || state == STATE_NET_PLAY) drawComponents();
 }
 
 static void systemPause()
@@ -128,6 +139,9 @@ void systemStep(float deltaTime)
         case STATE_NET_MENU:
             netMenuStep();
             break;
+        case STATE_NET_PLAY:
+            netGameStep(deltaTime);
+            break;
         case STATE_LOAD:
             //loaderStep();
             systemSetState(STATE_MENU);
@@ -210,6 +224,7 @@ void systemInit(unsigned int startState)
     srand(randSeed);
     printf("Seed: %u\n", randSeed);
 
+    treeNetConnected = false;
     initNanoNet();
     treeInit();
 }

@@ -180,6 +180,8 @@ static void drawComponent(Component component)
     }
 }
 
+extern array_t* netEntities;
+
 void drawComponents()
 {
     drawComponent(COMPONENT_RIGID_COLLIDER);
@@ -187,7 +189,7 @@ void drawComponents()
     drawComponent(COMPONENT_SMOKE);
     drawComponent(COMPONENT_JETPACK);
     drawComponent(COMPONENT_SHADOW);
-    drawEntity(player);
+    drawComponent(COMPONENT_SPRITE_ID);
     drawComponent(COMPONENT_BULLET);
     drawComponent(COMPONENT_GUN_CONTROLLER);
     drawComponent(COMPONENT_GRANADE);

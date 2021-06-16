@@ -1,6 +1,4 @@
-@LogicEu - SANDBOX 2021
-#TEST
-
+@eulogic - SANDBOX 2021
 Sandbox framework for developing modular C99 libraries and projects. 
 It contains math, graphics/rendering, image processing, 
 data structures, utilities and more.

@@ -30,7 +30,8 @@ static void getInput()
     
     if (keyboard_pressed(GLFW_KEY_ENTER) || button->state == WIDGET_SELECTED) {
         printf("%s:%s\n", fieldUser->text, fieldIp->text);
-        //host = NNetHost_create(fieldIp->text, NET_PORT, NET_MAX_CLIENT_COUNT, NET_CHANNELS, NET_BUFFER_SIZE, NET_TIMEOUT);
+        treeNetInit(fieldUser->text, fieldIp->text);
+        return;
     }
 
     button = group->widgets[WX_NET_MENU_BUTTON_MENU].widget;

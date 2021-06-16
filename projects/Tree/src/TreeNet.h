@@ -28,7 +28,8 @@ typedef enum {
     PACKET_OP = 3,
     PACKET_FLOAT_X = 4,
     PACKET_FLOAT_Y = 8,
-    PACKET_FLOAT_Z = 12
+    PACKET_FLOAT_Z = 12,
+    PACKET_ENTITY_ID = 12
 } packetBitsEnum;
 
 typedef enum {
@@ -41,5 +42,6 @@ typedef enum {
 
 uint8_t packetNewId(array_t* users);
 Packet* packetFind(array_t* packets, uint8_t id);
+void packetPrint(Packet* p);
 
 #endif

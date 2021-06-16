@@ -7,6 +7,7 @@
 extern vec4 cam;
 extern vec2 mouse;
 extern wxDirectory wxDir;
+extern Entity player;
 
 static vec2 cursor;
 static Entity selected;
@@ -163,13 +164,17 @@ static void getKeyboardInput(float deltaTime)
         module_destroy(module_current());
         module_load(FILE_ECS_MODULE);
     }
+    if (keyboard_down(KEY_MOD) && keyboard_pressed(GLFW_KEY_P)) {
+        entity_destroy(player);
+        module_save(FILE_ECS_MODULE, module_current());
+        player = archetypePlayer();
+        printf("Without character!\n");
+    }
     if (keyboard_pressed(GLFW_KEY_P)) {
         module_save(FILE_ECS_MODULE, module_current());
     }
     if (keyboard_pressed(GLFW_KEY_R)) {
-        module_destroy(module_current());
-        moduleInit();
-        archetypePlayer();
+        levelReset();
     }
     if (keyboard_pressed(GLFW_KEY_C)) {
         if (selectedIndex < ARCH_SWITCH_GRANADE) selectedIndex ++;
@@ -228,6 +233,13 @@ void levelEditorStep(float deltaTime)
 void levelEditorDirectoryReset()
 {
     group = &wxDir.groups[WX_DIR_LEVEL_EDITOR];
+}
+
+void levelReset()
+{
+    module_destroy(module_current());
+    moduleInit();
+    player = archetypePlayer();
 }
 
 void levelEditorInit()
