@@ -19,8 +19,8 @@ int main(void)
     printf("TreeNet Server is up and running.\n");
     printf("Server listening on port %u.\n", NET_PORT);
 
-    unsigned int received;
-    uint8_t id;
+    unsigned int received = 0;
+    uint8_t id = 0;
     while (1) {
         while (enet_host_service(server->host, &server->event, 0) > 0) {
             switch (server->event.type) {
