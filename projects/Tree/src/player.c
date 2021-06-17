@@ -11,6 +11,7 @@ static unsigned int granadeCount = 0;
 
 extern Entity player;
 extern vec4 cam;
+extern bool blackAndWhite;
 
 extern void cameraTriggerAlarm();
 
@@ -105,29 +106,13 @@ static void playerDrawGUI()
 
 static void playerDrawDead()
 {
-    static color_t red = {1.0f, 0.0f, 0.0f, 1.0f};
     static unsigned int sprite = SPRITE_KID_DEAD;
-    vec2 center = {(viewport.x / viewport.z) * 0.5f, (viewport.y / viewport.z) * 0.5f};
-
     texture_t* t = assetsGetSprite(sprite)->textures;
     entity_set(player, COMPONENT_SPRITE_ID, &sprite);
 
     rect_t* rPhi = entity_get(player, COMPONENT_PHI_RECT);
     rPhi->w = t->width;
     rPhi->h = t->height;
-
-    drawFramebuffer();
-    
-    glUseProgram(assetsGetShader(SHADER_FONT));
-    drawStringCentered(
-        "You Died", 
-        assetsGetFont(FONT_1), 
-        &red.r,
-        center.x - 84.0f, 
-        center.y - 32.0f, 
-        0.75f, 
-        0.0f
-    );
 }
 
 static void pickObject()
@@ -188,12 +173,14 @@ static void playerDeadStep(float deltaTime)
         deadTimer = 1.0f;
         playerDrawDead();
         playerReset();
+        blackAndWhite = false;
     } else playerDrawDead();
 }
 
 void playerGameStep(float deltaTime)
 {
     if (hp == 0) {
+        blackAndWhite = true;
         playerDeadStep(deltaTime);
         return;
     }

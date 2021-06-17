@@ -70,7 +70,7 @@ int main(void)
             unsigned int size = users->used;
             for (Packet* u = start; u != start + size; u++) {
                 memcpy(p, u, sizeof(Packet));
-                packetPrint(p);
+                //packetPrint(p);
                 if (u->data[PACKET_STATE] == NET_DISCONNECTED) {
                     array_remove(users, index);
                 } else index++;

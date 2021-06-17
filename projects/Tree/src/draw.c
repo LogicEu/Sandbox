@@ -1,6 +1,7 @@
 #include "Tree.h"
 
 extern Entity player;
+extern unsigned int quadVAO;
 
 static float white[] = {1.0f, 1.0f, 1.0f, 1.0f};
 static float scale_rot[] = {1.0f, 0.0f};

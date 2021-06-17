@@ -59,13 +59,3 @@ void core_set_2d_mode()
     glDisable(GL_DEPTH_TEST);
     core.mode = 0;
 }
-
-unsigned int core_need_update()
-{
-    return core.update;
-}
-
-void core_update()
-{
-    core.update = 0;
-}

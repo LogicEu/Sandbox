@@ -29,7 +29,9 @@ typedef enum {
     PACKET_FLOAT_X = 4,
     PACKET_FLOAT_Y = 8,
     PACKET_FLOAT_Z = 12,
-    PACKET_ENTITY_ID = 12
+    PACKET_ENTITY_ID = 12,
+    PACKET_SPRITE_ID = 12,
+    PACKET_ORIENTATION = 13
 } packetBitsEnum;
 
 typedef enum {

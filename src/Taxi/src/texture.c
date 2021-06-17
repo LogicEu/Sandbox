@@ -73,18 +73,14 @@ void texture_remap(texture_t* texture, bitmap_t* bitmap)
 
 texture_t texture_framebuffer(unsigned int fbo)
 {
-    unsigned int width, height;
-    core_get_size(&width, &height);
+    int width, height;
+    glfwGetFramebufferSize(window_get(), &width, &height);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
     texture_t texture;
     glGenTextures(1, &texture.id);
     texture.width = width;
     texture.height = height;
-#ifdef __APPLE__
-    texture.width *= 2;
-    texture.height *= 2;
-#endif
 
     glBindTexture(GL_TEXTURE_2D, texture.id);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture.width, texture.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);

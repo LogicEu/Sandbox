@@ -41,8 +41,6 @@ void core_set_2d_mode();
 void core_set_2d_scale(unsigned int scale);
 unsigned int core_get_2d_scale();
 void core_get_size(unsigned int* width, unsigned int* height);
-unsigned int core_need_update();
-void core_update();
 
 /*
 -------------

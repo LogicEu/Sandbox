@@ -19,7 +19,7 @@ vec2 mouse;
 vec3 viewport;
 vec4 cam;
 
-bool treeNetConnected;
+bool blackAndWhite;
 
 static void systemSnapshot()
 {
@@ -33,61 +33,34 @@ static void systemSnapshot()
 
 static void systemDraw()
 {
-    if (state == STATE_PAUSE || !hp) framebuffer_bind(assetsGetFramebuffer(FRAMEBUFFER_BLACK_AND_WHITE)->id);
+    glUseProgram(assetsGetShader(SHADER_TEXTURE));
     drawParallax(cam);
     drawSetCamera(&cam.x);
     if (state == STATE_PLAY || state == STATE_LEVEL_EDITOR || state == STATE_PAUSE || state == STATE_NET_PLAY) drawComponents();
 }
 
-static void systemPause()
+static void systemPause(float deltaTime)
 {
-    static color_t red = {1.0f, 0.0f, 0.0f, 1.0f};
-    vec2 center = {(viewport.x / viewport.z) * 0.5f, (viewport.y / viewport.z) * 0.5f};
-
     if (mouse_pressed(GLFW_MOUSE_BUTTON_LEFT)   ||
         keyboard_pressed(GLFW_KEY_SPACE)        || 
         keyboard_pressed(GLFW_KEY_BACKSPACE)    || 
         keyboard_pressed(GLFW_KEY_N)) {
+        blackAndWhite = false;
         state = oldState;
     }
     if (keyboard_pressed(GLFW_KEY_ESCAPE) || keyboard_pressed(GLFW_KEY_Y)) {
         if (oldState == STATE_PLAY || oldState == STATE_LEVEL_EDITOR) systemSetState(STATE_MENU);
+        else if (oldState == STATE_NET_PLAY) treeNetExit();
         else systemExit();
     }
     if (keyboard_pressed(GLFW_KEY_M)) {
         systemSetState(STATE_MENU);
     }
-
-    drawFramebuffer();
-    
-    glUseProgram(assetsGetShader(SHADER_FONT));
-    drawStringCentered(
-        "GAME IS PAUSED", 
-        assetsGetFont(FONT_1), 
-        &red.r,
-        center.x - 84.0f, 
-        center.y - 32.0f, 
-        0.75f, 
-        0.0f
-    );
-
-    drawStringCentered(
-        "Do you want to quit?", 
-        assetsGetFont(FONT_1), 
-        &red.r,
-        center.x - 174.0f, 
-        center.y - 48.0f, 
-        0.5f, 
-        0.0f
-    );
+    if (oldState == STATE_NET_PLAY) netGameStep(deltaTime);
 }
 
 static void systemInput()
 {
-    if (core_need_update()) {
-        core_update();
-    }
-
     if (keyboard_down(GLFW_KEY_LEFT_CONTROL)) {
         if (keyboard_pressed(GLFW_KEY_M)) {
             systemSetState(STATE_MENU);
@@ -105,12 +78,19 @@ static void systemInput()
             systemSetState(STATE_UI_EDITOR);
             return;
         }
+        if (keyboard_pressed(GLFW_KEY_B)) {
+            if (blackAndWhite) blackAndWhite = false;
+            else blackAndWhite = true;
+        }
     }
 }
 
 void systemStep(float deltaTime)
 {
+    if (blackAndWhite) framebuffer_bind(assetsGetFramebuffer(FRAMEBUFFER_BLACK_AND_WHITE)->id);
+    else framebuffer_bind(0);
     screen_clear();
+
     systemDraw();
     systemInput();
     mouse_get_position(&mouse.x, &mouse.y);
@@ -122,7 +102,7 @@ void systemStep(float deltaTime)
             gameStep(deltaTime);
             break;
         case STATE_PAUSE:
-            systemPause();
+            systemPause(deltaTime);
             break;
         case STATE_LEVEL_EDITOR:
             levelEditorStep(deltaTime);
@@ -152,6 +132,7 @@ void systemStep(float deltaTime)
     if (keyboard_down(GLFW_KEY_LEFT_CONTROL) && keyboard_pressed(GLFW_KEY_P)) {
         systemSnapshot();
     }
+    if (blackAndWhite) drawFramebuffer();
     screen_refresh();
 }
 
@@ -160,9 +141,13 @@ void systemSetState(unsigned int newState)
     if (newState == state) return;
     oldState = state;
     state = newState;
+
     if (oldState == STATE_MENU) {
         cam = vec4_new(0.0f, 0.0f, 1.0f, 0.0f);
     }
+
+    if (state == STATE_PAUSE) blackAndWhite = true;
+    if (oldState == STATE_PAUSE) blackAndWhite = false;
 }
 
 Module moduleInit()
@@ -224,7 +209,7 @@ void systemInit(unsigned int startState)
     srand(randSeed);
     printf("Seed: %u\n", randSeed);
 
-    treeNetConnected = false;
+    blackAndWhite = false;
     initNanoNet();
     treeInit();
 }

@@ -34,10 +34,20 @@ static void netEntityApply(Entity entity, Packet* packet)
 {
     rect_t* PhiRect = (rect_t*)entity_get(entity, COMPONENT_PHI_RECT);
     rect_t* glRect = (rect_t*)entity_get(entity, COMPONENT_GL_RECT);
+    unsigned int* sprite = (unsigned int*)entity_get(entity, COMPONENT_SPRITE_ID);
+    *sprite = (unsigned int)packet->data[PACKET_SPRITE_ID];
+    int orientation = (int)(unsigned int)packet->data[PACKET_ORIENTATION];
+    orientation = orientation * 2 - 1;
+    if ((glRect->w > 0.0f && orientation < 0) ||
+        (glRect->w < 0.0f && orientation > 0)) {
+        glRect->w *= -1.0f;
+    }
+
     memcpy(&PhiRect->x, &packet->data[PACKET_FLOAT_X], sizeof(float));
     memcpy(&PhiRect->y, &packet->data[PACKET_FLOAT_Y], sizeof(float));
     memcpy(&glRect->x, &packet->data[PACKET_FLOAT_X], sizeof(float));
     memcpy(&glRect->y, &packet->data[PACKET_FLOAT_Y], sizeof(float));
+    sprite_frame_update(assetsGetSprite(*sprite));
 }
 
 static void netRead()
@@ -50,10 +60,9 @@ static void netRead()
     Packet* p = client->buffer;
     unsigned int size = received / sizeof(Packet);
     for (unsigned int i = 0; i < size; i++) {
-        packetPrint(p);
+        //packetPrint(p);
         uint8_t id = p->data[PACKET_ID];
         Entity e = netEntityFindById(id);
-        printf("Entity %u - %u\n", e, player);
         if (e) {
             if (p->data[PACKET_STATE] == NET_DISCONNECTED) disconnected = id;
             else if (p->data[PACKET_ID] != client->id) netEntityApply(e, p);
@@ -69,9 +78,11 @@ static void netRead()
     NetEntity* n = netEntities->data;
     for (unsigned int i = 0; i < netEntities->used; i++) {
         if (n->id == disconnected) {
+            entity_destroy(n->entity);
             array_remove(netEntities, i);
             break;
         }
+        n++;
     }
     printf("Player %u has disconnected\n", disconnected);
 }
@@ -81,12 +92,15 @@ static void netSend()
     if (!received) return;
 
     Packet* packet = client->buffer;
-    rect_t phiRect = *(rect_t*)entity_get(player, COMPONENT_PHI_RECT);
+    rect_t glRect = *(rect_t*)entity_get(player, COMPONENT_GL_RECT);
     packet->data[PACKET_ID] = client->id;
     packet->data[PACKET_STATE] = NET_CONNECTED;
     packet->data[PACKET_TYPE] = PACKET_TYPE_USER;
-    memcpy(&packet->data[PACKET_FLOAT_X], &phiRect.x, sizeof(float));
-    memcpy(&packet->data[PACKET_FLOAT_Y], &phiRect.y, sizeof(float));
+    memcpy(&packet->data[PACKET_FLOAT_X], &glRect.x, sizeof(float));
+    memcpy(&packet->data[PACKET_FLOAT_Y], &glRect.y, sizeof(float));
+    packet->data[PACKET_SPRITE_ID] = (uint8_t)*(unsigned int*)entity_get(player, COMPONENT_SPRITE_ID);
+    packet->data[PACKET_ORIENTATION] = (glRect.w >= 0.0f);
+
     //packetPrint(packet);
     NNet_send(client->server, client->packet, client->buffer, sizeof(Packet), 0);
     received = 0;
@@ -130,6 +144,7 @@ void treeNetInit(const char* username, const char* ip)
 
     module_destroy(module_current());
     module_load(FILE_NET_MODULE);
+    entity_create(1, COMPONENT_TEX_ID, &received);
 
     netEntities = array_new(NET_MAX_CLIENT_COUNT, sizeof(NetEntity));
     client = NNetHost_create(serverIp, NET_PORT, NET_MAX_CLIENT_COUNT, NET_CHANNELS, NET_BUFFER_SIZE, NET_TIMEOUT);
