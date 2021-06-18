@@ -17,21 +17,25 @@ void terrainReduce()
     }
 }
 
+void terrainRecalcSingleTexture(Entity e)
+{
+    static const vec2 off = {0.0f, 32.0f};
+
+    unsigned int* t = (unsigned int*)entity_get(e, COMPONENT_TEX_ID);
+    bool change = checkRigidCollision(e, off);
+    if  (change && *t == assetsGetTexture(TEXTURE_TILE_GRASS)->id) {
+        *t = assetsGetTexture(TEXTURE_TILE_DIRT)->id;
+    }
+    if (!change && *t == assetsGetTexture(TEXTURE_TILE_DIRT)->id) {
+        *t = assetsGetTexture(TEXTURE_TILE_GRASS)->id;
+    }
+}
+
 void terrainRecalcTextures()
 {
     const unsigned int component_count = component_entity_count(COMPONENT_RIGID_COLLIDER);
-    vec2 off = {0.0f, 32.0f};
-    printf("Recalcuating Tile Textures: %u\n", component_count);
     for (unsigned int i = 0; i < component_count; i++) {
-        Entity e = entity_find(COMPONENT_RIGID_COLLIDER, i);
-        unsigned int* t = (unsigned int*)entity_get(e, COMPONENT_TEX_ID);
-        bool change =  checkRigidCollision(e, off);
-        if  (change && *t == assetsGetTexture(TEXTURE_TILE_GRASS)->id) {
-            *t = assetsGetTexture(TEXTURE_TILE_DIRT)->id;
-        }
-        if (!change && *t == assetsGetTexture(TEXTURE_TILE_DIRT)->id) {
-            *t = assetsGetTexture(TEXTURE_TILE_GRASS)->id;
-        }
+        terrainRecalcSingleTexture(entity_find(COMPONENT_RIGID_COLLIDER, i));
     }  
 }
 

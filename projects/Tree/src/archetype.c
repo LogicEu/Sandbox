@@ -4,12 +4,14 @@ static const vec2 vecZero = {0.0f, 0.0f};
 static const bool bTrue = true, bFalse = false;
 static const float fOne = 1.0f;
 
+extern vec2 spawnPoint;
+
 Entity archetypePlayer()
 {
     static unsigned int k = SPRITE_KID_STANDING;
 
     sprite_t* s = assetsGetSprite(k);
-    rect_t r = {(viewport.x / viewport.z) * 0.5f, (viewport.y / viewport.z) * 0.5f, s->textures->width, s->textures->height};
+    rect_t r = {spawnPoint.x, spawnPoint.y, s->textures->width, s->textures->height};
     return archetype_entity(ARCHETYPE_PLAYER, 5, &k, &r, &r, &vecZero, &bTrue);
 }
 

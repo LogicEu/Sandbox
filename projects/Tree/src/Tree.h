@@ -14,9 +14,9 @@ TREE FRAMEWORK HEADER
 #include <Heart.h>
 
 #define FULLSCREEN 0
-#define SCREEN_WIDTH 400
-#define SCREEN_HEIGHT 300
-#define SCREEN_SCALE 2
+#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 600
+#define SCREEN_SCALE 3
 
 #define SCREEN_XSCALE SCREEN_WIDTH / SCREEN_SCALE
 #define SCREEN_YSCALE SCREEN_HEIGHT / SCREEN_SCALE
@@ -173,6 +173,11 @@ typedef enum {
 } BulletKind;
 
 typedef struct {
+    unsigned int width, height;
+    uint8_t* data;
+} map_t;
+
+typedef struct {
     GranadeEnum state;
     float timer;
 } GranadeComponent;
@@ -313,7 +318,17 @@ void drawRect(rect_t rect, color_t color);
 
 void terrainReduce();
 void terrainRecalcTextures();
+void terrainRecalcSingleTexture(Entity e);
 void terraingGenRand(unsigned int width, unsigned int height);
+
+void map_save(const char* path, map_t map);
+map_t map_load(const char* path);
+map_t map_create(unsigned int w, unsigned int h);
+void map_destroy(map_t m);
+map_t map_from_module();
+void module_from_map(map_t* map);
+map_t map_generate(unsigned int w, unsigned int h, unsigned int stat, unsigned int block, unsigned int steps, unsigned int item);
+vec2 map_spawn(map_t map);
 
 void archetypesInit();
 Entity archetypePlayer();

@@ -1,23 +1,56 @@
 #include "Tree.h"
 #include "UI/UIcommon.h"
+#include <ctype.h>
 
 #define FILE_ECS_MODULE "assets/data/module.bin"
+#define FILE_MAP_MODULE "assets/data/world.map"
 #define SCALE_MULT 4.0f
 
 extern vec4 cam;
 extern vec2 mouse;
 extern wxDirectory wxDir;
 extern Entity player;
+extern unsigned int randSeed;
+
+vec2 spawnPoint;
 
 static vec2 cursor;
 static Entity selected;
-
 static wxGroup* group;
+
+static unsigned int mapWidth;
+static unsigned int mapHeight;
+static unsigned int mapStatic;
+static unsigned int mapNoise;
+static unsigned int mapSmoothStep;
+static unsigned int mapItem;
 
 typedef enum {
     WX_LE_TITLE_MAIN,
     WX_LE_TITLE_ZOOM,
+    WX_LE_TITLE_WIDTH,
+    WX_LE_TITTLE_HEIGHT,
+    WX_LE_TITTLE_STATIC,
+    WX_LE_TITTLE_NOISE,
+    WX_LE_TITLE_SMOOTH,
+    WX_LE_TITLE_ITEMS,
+    WX_LE_TITLE_SEED,
+
     WX_LE_BUTTON_MENU,
+    WX_LE_BUTTON_SAVE,
+    WX_LE_BUTTON_LOAD,
+    WX_LE_BUTTON_NEW,
+    WX_LE_BUTTON_GEN,
+    WX_LE_BUTTON_PLAY,
+
+    WX_LE_FIELD_WIDTH,
+    WX_LE_FIELD_HEIGHT,
+    WX_LE_FIELD_STATIC,
+    WX_LE_FIELD_NOISE,
+    WX_LE_FIELD_SMOOTH,
+    WX_LE_FIELD_ITEM,
+    WX_LE_FIELD_SEED,
+
     WX_LE_SLIDER_ZOOM
 } wxLevelEditorEnum;
 
@@ -36,6 +69,22 @@ typedef enum {
 } archSwitchEnum;
 
 static archSwitchEnum selectedIndex;
+
+static void str_to_varn(char* str, unsigned int* var)
+{
+    int i = atoi(str);
+    *var = (unsigned int)i;
+    sprintf(str, "%u", *var);
+}
+
+static void str_to_var(char* str, unsigned int* var)
+{
+    int i = atoi(str);
+    if (i < 0) i = 0;
+    else if (i > 100) i = 100;
+    *var = (unsigned int)i;
+    sprintf(str, "%u", *var);
+}
 
 static texture_t* textureGet()
 {
@@ -70,10 +119,16 @@ static texture_t* textureGet()
 static Entity entityCreate()
 {
     switch (selectedIndex) {
-        case ARCH_SWITCH_TILE_GRASS:
-            return archetypeTerrainTile(TEXTURE_TILE_GRASS, cursor);
-        case ARCH_SWITCH_TILE_DIRT:
-            return archetypeTerrainTile(TEXTURE_TILE_DIRT, cursor);
+        case ARCH_SWITCH_TILE_GRASS: {
+            Entity a = archetypeTerrainTile(TEXTURE_TILE_GRASS, cursor);
+            terrainRecalcSingleTexture(a);
+            return a;
+        }
+        case ARCH_SWITCH_TILE_DIRT: {
+            Entity a = archetypeTerrainTile(TEXTURE_TILE_DIRT, cursor);
+            terrainRecalcSingleTexture(a);
+            return a;
+        }
         case ARCH_SWITCH_GUN:
             return gunCreate(cursor, GUN_KIND_GUN);
         case ARCH_SWITCH_SHOTGUN:
@@ -97,25 +152,110 @@ static Entity entityCreate()
     return 0;
 }
 
+void levelGenerate()
+{
+    levelReset();
+    map_t map = map_generate(mapWidth, mapHeight, mapStatic, mapNoise, mapSmoothStep, mapItem);
+    module_from_map(&map);
+    spawnPoint = map_spawn(map);
+    while (spawnPoint.x < 40.0f && spawnPoint.y < 40.0f) {
+        spawnPoint = map_spawn(map);
+    }
+    map_destroy(map);
+    terrainRecalcTextures();
+    playerReset();
+    cam.x = spawnPoint.x - (viewport.x / viewport.z) * 0.5;
+    cam.y = spawnPoint.y - (viewport.y / viewport.z) * 0.5;
+}
+
 static void getMouseInput()
 {
     const float tileSize = 32.0f;
     vec2 center = {(viewport.x / viewport.z) * 0.5f, (viewport.y / viewport.z) * 0.5f};
 
+    bool mouseDown = mouse_down(GLFW_MOUSE_BUTTON_LEFT);
     bool mousePressed = mouse_pressed(GLFW_MOUSE_BUTTON_LEFT);
-    wxGroupUpdate(group, mouse, mousePressed, mouse_down(GLFW_MOUSE_BUTTON_LEFT));
+    
+    wxButton* button = group->widgets[WX_LE_BUTTON_SAVE].widget;
+    if (button->state == WIDGET_HOVER && mousePressed) {
+        module_save(FILE_ECS_MODULE, module_current());
+        return;
+    }
+    button = group->widgets[WX_LE_BUTTON_LOAD].widget;
+    if (button->state == WIDGET_HOVER && mousePressed) {
+        module_destroy(module_current());
+        module_load(FILE_ECS_MODULE);
+        cam.x = 0.0f;
+        cam.y = 0.0f;
+        cam.y = 1.0f;
+        return;
+    }
+    button = group->widgets[WX_LE_BUTTON_NEW].widget;
+    if (button->state == WIDGET_HOVER && mousePressed) {
+        levelReset();
+        return;
+    }
+    button = group->widgets[WX_LE_BUTTON_GEN].widget;
+    if (button->state == WIDGET_HOVER && mousePressed) {
+        levelGenerate();
+        return;
+    }
+    button = group->widgets[WX_LE_BUTTON_PLAY].widget;
+    if (button->state == WIDGET_HOVER && mousePressed) {
+        systemSetState(STATE_PLAY);
+        return;
+    }
+    
+    wxGroupUpdate(group, mouse, mousePressed, mouseDown);
 
     mouse = vec2_add(vec2_add(vec2_div(vec2_sub(mouse, center), cam.z), center), *(vec2*)&cam);
     cursor = vec2_add(vec2_mult(to_vec2(to_ivec2(vec2_div(mouse, tileSize))), tileSize), univec2(tileSize * 0.5f));
 
+    button = group->widgets[WX_LE_BUTTON_MENU].widget;
+    if (button->state == WIDGET_SELECTED) {
+        systemSetState(STATE_MENU);
+        return;
+    }
+
+    wxField* field = group->widgets[WX_LE_FIELD_WIDTH].widget;
+    if (field->state == WIDGET_SELECTED) {
+        str_to_var(field->text, &mapWidth);
+        return;
+    }
+    field = group->widgets[WX_LE_FIELD_HEIGHT].widget;
+    if (field->state == WIDGET_SELECTED) {
+        str_to_var(field->text, &mapHeight);
+        return;
+    }
+    field = group->widgets[WX_LE_FIELD_STATIC].widget;
+    if (field->state == WIDGET_SELECTED) {
+        str_to_var(field->text, &mapStatic);
+        return;
+    }
+    field = group->widgets[WX_LE_FIELD_NOISE].widget;
+    if (field->state == WIDGET_SELECTED) {
+        str_to_var(field->text, &mapNoise);
+        return;
+    }
+    field = group->widgets[WX_LE_FIELD_SMOOTH].widget;
+    if (field->state == WIDGET_SELECTED) {
+        str_to_var(field->text, &mapSmoothStep);
+        return;
+    }
+    field = group->widgets[WX_LE_FIELD_ITEM].widget;
+    if (field->state == WIDGET_SELECTED) {
+        str_to_var(field->text, &mapItem);
+        return;
+    }
+    field = group->widgets[WX_LE_FIELD_SEED].widget;
+    if (field->state == WIDGET_SELECTED) {
+        str_to_varn(field->text, &randSeed);
+        return;
+    }
+
     wxSlider* slider = group->widgets[WX_LE_SLIDER_ZOOM].widget;
     if (slider->selected) {
         cam.z = 0.6f + slider->lerp * SCALE_MULT;
-        return;
-    }
-    wxButton* button = group->widgets[WX_LE_BUTTON_MENU].widget;
-    if (button->state == WIDGET_SELECTED) {
-        systemSetState(STATE_MENU);
         return;
     }
 
@@ -161,8 +301,14 @@ static void getKeyboardInput(float deltaTime)
         return;
     }
     if (keyboard_pressed(GLFW_KEY_L)) {
-        module_destroy(module_current());
-        module_load(FILE_ECS_MODULE);
+        levelReset();
+        map_t m = map_load(FILE_MAP_MODULE);
+        module_from_map(&m);
+        map_destroy(m);
+        terrainRecalcTextures();
+    }
+    if (keyboard_pressed(GLFW_KEY_O)) {
+        levelGenerate();
     }
     if (keyboard_down(KEY_MOD) && keyboard_pressed(GLFW_KEY_P)) {
         entity_destroy(player);
@@ -171,7 +317,9 @@ static void getKeyboardInput(float deltaTime)
         printf("Without character!\n");
     }
     if (keyboard_pressed(GLFW_KEY_P)) {
-        module_save(FILE_ECS_MODULE, module_current());
+        map_t m = map_from_module();
+        map_save(FILE_MAP_MODULE, m);
+        map_destroy(m);
     }
     if (keyboard_pressed(GLFW_KEY_R)) {
         levelReset();
@@ -183,12 +331,6 @@ static void getKeyboardInput(float deltaTime)
     if (keyboard_pressed(GLFW_KEY_V)) {
         if (selectedIndex > ARCH_SWITCH_TILE_GRASS) selectedIndex --;
         else selectedIndex = ARCH_SWITCH_GRANADE;
-    }
-    if (keyboard_pressed(GLFW_KEY_T)) {
-        terrainReduce();
-    }
-    if (keyboard_pressed(GLFW_KEY_Y)) {
-        terrainRecalcTextures();
     }
     if (keyboard_pressed(GLFW_KEY_U)) {
         terraingGenRand(32, 32);
@@ -203,10 +345,7 @@ static void getKeyboardInput(float deltaTime)
 
 static void levelEditorDraw()
 {
-    static color_t white = {1.0f, 1.0f, 1.0f, 1.0f};
     static color_t alpha = {1.0f, 1.0f, 1.0f, 0.5f};
-    static float camera[] = {0.0f, 0.0f, 1.0f, 0.0f};
-    vec2 pos = {(viewport.x / viewport.z) * 0.5f + 90.0f, (viewport.y / viewport.z) - 24.0f};
 
     wxGroupDraw(group);
 
@@ -214,8 +353,6 @@ static void levelEditorDraw()
     glUseProgram(assetsGetShader(SHADER_TEXTURE));
     if (!selected) drawTextureColor(*textureGet(), cursor, alpha);
     drawTextureColor(*assetsGetTexture(TEXTURE_MOUSE_CURSOR), vec2_new(mouse.x + 4.0f, mouse.y - 4.0f), unicolor(1.0f));
-    shader_set_uniform(assetsGetShader(SHADER_TEXTURE), 4, "camera", &camera[0]);
-    drawTextureColor(*textureGet(), pos, white);
 }
 
 static void getInput(float deltaTime)
@@ -240,6 +377,7 @@ void levelReset()
     module_destroy(module_current());
     moduleInit();
     player = archetypePlayer();
+    playerReset();
 }
 
 void levelEditorInit()
@@ -247,4 +385,19 @@ void levelEditorInit()
     levelEditorDirectoryReset();
     selectedIndex = ARCH_SWITCH_TILE_GRASS;
     selected = 0;
+
+    wxField* field = group->widgets[WX_LE_FIELD_WIDTH].widget;
+    str_to_var(field->text, &mapWidth);
+    field = group->widgets[WX_LE_FIELD_HEIGHT].widget;
+    str_to_var(field->text, &mapHeight);
+    field = group->widgets[WX_LE_FIELD_STATIC].widget;
+    str_to_var(field->text, &mapStatic);
+    field = group->widgets[WX_LE_FIELD_NOISE].widget;
+    str_to_var(field->text, &mapNoise);
+    field = group->widgets[WX_LE_FIELD_SMOOTH].widget;
+    str_to_var(field->text, &mapSmoothStep);
+    field = group->widgets[WX_LE_FIELD_ITEM].widget;
+    str_to_var(field->text, &mapItem);
+
+    levelGenerate();
 }

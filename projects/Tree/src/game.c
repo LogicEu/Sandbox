@@ -7,6 +7,7 @@ static float camAlarm = 1.0f;
 extern vec2 mouse;
 extern vec4 cam;
 extern wxDirectory wxDir;
+extern vec2 spawnPoint;
 
 static wxGroup* group;
 

@@ -1,6 +1,7 @@
 #include "UIcommon.h"
 
 extern vec3 viewport;
+extern unsigned int randSeed;
 
 wxDirectory wxDir;
 
@@ -199,10 +200,75 @@ static wxGroup levelEditorGroup()
     wxGroupPush(&group, &title, WIDGET_TITLE);
     title = wxTitleCreate("Zoom", vec3_new(xscale - 48.0f, 90.0f, 0.8f), color(0.5f, 0.5f, 0.5f, 1.0f));
     wxGroupPush(&group, &title, WIDGET_TITLE);
+    title = wxTitleCreate("Width", vec3_new(17.0f, 28.0f, 0.6f), color(1.0f, 0.0f, 0.0f, 1.0f));
+    wxGroupPush(&group, &title, WIDGET_TITLE);
+    title = wxTitleCreate("Height", vec3_new(57.0f, 28.0f, 0.6f), color(1.0f, 0.0f, 0.0f, 1.0f));
+    wxGroupPush(&group, &title, WIDGET_TITLE);
+    title = wxTitleCreate("Rough", vec3_new(97.0f, 28.0f, 0.6f), color(1.0f, 0.0f, 0.0f, 1.0f));
+    wxGroupPush(&group, &title, WIDGET_TITLE);
+    title = wxTitleCreate("Noise", vec3_new(137.0f, 28.0f, 0.6f), color(1.0f, 0.0f, 0.0f, 1.0f));
+    wxGroupPush(&group, &title, WIDGET_TITLE);
+    title = wxTitleCreate("Smooth", vec3_new(177.0f, 28.0f, 0.6f), color(1.0f, 0.0f, 0.0f, 1.0f));
+    wxGroupPush(&group, &title, WIDGET_TITLE);
+    title = wxTitleCreate("Items", vec3_new(217.0f, 28.0f, 0.6f), color(1.0f, 0.0f, 0.0f, 1.0f));
+    wxGroupPush(&group, &title, WIDGET_TITLE);
+    title = wxTitleCreate("Seed", vec3_new(xscale - 24.0f, yscale - 16.0f, 0.6f), color(1.0f, 0.0f, 0.0f, 1.0f));
+    wxGroupPush(&group, &title, WIDGET_TITLE);
 
     wxButton button = wxButtonCreate("Menu", rect_new(32.0f, yscale - 32.0f, 50.0f, 15.0f));
     button.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
     wxGroupPush(&group, &button, WIDGET_BUTTON);
+    button = wxButtonCreate("Save", rect_new(32.0f, yscale - 52.0f, 50.0f, 15.0f));
+    button.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
+    wxGroupPush(&group, &button, WIDGET_BUTTON);
+    button = wxButtonCreate("Load", rect_new(32.0f, yscale - 72.0f, 50.0f, 15.0f));
+    button.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
+    wxGroupPush(&group, &button, WIDGET_BUTTON);
+    button = wxButtonCreate("New", rect_new(32.0f, yscale - 92.0f, 50.0f, 15.0f));
+    button.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
+    wxGroupPush(&group, &button, WIDGET_BUTTON);
+    button = wxButtonCreate("Rand", rect_new(32.0f, yscale - 112.0f, 50.0f, 15.0f));
+    button.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
+    wxGroupPush(&group, &button, WIDGET_BUTTON);
+    button = wxButtonCreate("Play", rect_new(32.0f, yscale - 132.0f, 50.0f, 15.0f));
+    button.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
+    wxGroupPush(&group, &button, WIDGET_BUTTON);
+
+    wxField field = wxFieldCreate(rect_new(32.0f, 16.0f, 32.0f, 15.0f), 3);
+    field.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
+    strcpy(field.text, "30");
+    field.strMark = strlen(field.text);
+    wxGroupPush(&group, &field, WIDGET_FIELD);
+    field = wxFieldCreate(rect_new(72.0f, 16.0f, 32.0f, 15.0f), 3);
+    field.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
+    strcpy(field.text, "20");
+    field.strMark = strlen(field.text);
+    wxGroupPush(&group, &field, WIDGET_FIELD);
+    field = wxFieldCreate(rect_new(112.0f, 16.0f, 32.0f, 15.0f), 3);
+    field.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
+    strcpy(field.text, "5");
+    field.strMark = strlen(field.text);
+    wxGroupPush(&group, &field, WIDGET_FIELD);
+    field = wxFieldCreate(rect_new(152.0f, 16.0f, 32.0f, 15.0f), 3);
+    field.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
+    strcpy(field.text, "40");
+    field.strMark = strlen(field.text);
+    wxGroupPush(&group, &field, WIDGET_FIELD);
+    field = wxFieldCreate(rect_new(192.0f, 16.0f, 32.0f, 15.0f), 3);
+    field.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
+    strcpy(field.text, "2");
+    field.strMark = strlen(field.text);
+    wxGroupPush(&group, &field, WIDGET_FIELD);
+    field = wxFieldCreate(rect_new(232.0f, 16.0f, 32.0f, 15.0f), 3);
+    field.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
+    strcpy(field.text, "25");
+    field.strMark = strlen(field.text);
+    wxGroupPush(&group, &field, WIDGET_FIELD);
+    field = wxFieldCreate(rect_new(xscale - 48.0f, yscale - 28.0f, 60.0f, 15.0f), 3);
+    field.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
+    sprintf(field.text, "%u", randSeed);
+    field.strMark = strlen(field.text);
+    wxGroupPush(&group, &field, WIDGET_FIELD);
 
     wxSlider slider = wxSliderCreate(vec2_new(xscale - 10.0f, 96.0f), 1.0f, true);
     wxGroupPush(&group, &slider, WIDGET_SLIDER);

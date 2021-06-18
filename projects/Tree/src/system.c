@@ -14,6 +14,7 @@ unsigned int quadVAO;
 
 extern unsigned int hp;
 extern wxDirectory wxDir;
+extern vec2 spawnPoint;
 
 vec2 mouse;
 vec3 viewport;
@@ -145,6 +146,11 @@ void systemSetState(unsigned int newState)
     if (oldState == STATE_MENU) {
         cam = vec4_new(0.0f, 0.0f, 1.0f, 0.0f);
     }
+    if (state == STATE_LEVEL_EDITOR) {
+        cam.x = spawnPoint.x - (viewport.x / viewport.z) * 0.5;
+        cam.y = spawnPoint.y - (viewport.y / viewport.z) * 0.5;
+        cam.z = 1.0f;
+    }
 
     if (state == STATE_PAUSE) blackAndWhite = true;
     if (oldState == STATE_PAUSE) blackAndWhite = false;
@@ -220,9 +226,9 @@ void treeInit()
     netMenuInit();
     UIeditorInit();
     optionsInit();
+    gameInit();
     levelEditorInit();
     spriteEditorInit();
-    gameInit();
 }
 
 void treeDirectoryReset()

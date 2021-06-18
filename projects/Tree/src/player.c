@@ -12,6 +12,7 @@ static unsigned int granadeCount = 0;
 extern Entity player;
 extern vec4 cam;
 extern bool blackAndWhite;
+extern vec2 spawnPoint;
 
 extern void cameraTriggerAlarm();
 
@@ -157,7 +158,7 @@ void playerReset()
     static vec2 vecZero = {0.0f, 0.0f};
 
     sprite_t* sprite = assetsGetSprite(k);
-    rect_t r = {(viewport.x / viewport.z) * 0.5f, (viewport.y / viewport.z) * 0.5f, sprite->textures->width, sprite->textures->height};
+    rect_t r = {spawnPoint.x, spawnPoint.y, sprite->textures->width, sprite->textures->height};
     entity_set(player, COMPONENT_GL_RECT, &r);
     entity_set(player, COMPONENT_PHI_RECT, &r);
     entity_set(player, COMPONENT_VEL_VEC2, &vecZero);
@@ -180,6 +181,15 @@ static void playerDeadStep(float deltaTime)
 void playerGameStep(float deltaTime)
 {
     if (hp == 0) {
+        if (usedWeapon) {
+            gunDrop(usedWeapon);
+            usedWeapon = 0;
+        }
+        if (jetpack) {
+            jetpackDrop(jetpack);
+            jetpack = 0;
+        }
+
         blackAndWhite = true;
         playerDeadStep(deltaTime);
         return;
