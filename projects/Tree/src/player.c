@@ -3,6 +3,9 @@
 #define GRANADE_MAX 4
 
 unsigned int hp = 100;
+bool stateWallSliding = false;
+bool stateDashing = false;
+bool stateJetpacking = false;
 
 static Entity usedWeapon = 0;
 static Entity jetpack = 0;
@@ -246,8 +249,12 @@ void playerGameStep(float deltaTime)
     else doubleKeyTimer -= deltaTime;
 
     if (keySpace) pickObject();
-    if (keyShift && jetpack) jetpackUse(jetpack);
     if (keyGranade && granadeCount) granadeThrow(granades[--granadeCount], vec2_new(playerPhi->x, playerPhi->y));
+    if (keyShift && jetpack) {
+        float mark = vel->y;
+        jetpackUse(jetpack);
+        if (vel->y > mark) stateJetpacking = true;
+    } else stateJetpacking = false;
 
     Entity explotion = checkPhiScaledCollision(player, COMPONENT_EXPLOTION);
     if (explotion) {
@@ -339,5 +346,9 @@ void playerGameStep(float deltaTime)
     entity_set(player, COMPONENT_SPRITE_ID, &sprite);
     sprite_frame_update(assetsGetSprite(sprite));
     if (camAlarm) cameraTriggerAlarm();
+
+    stateWallSliding = wallSliding && vel->y < 0.0f;
+    stateDashing = isDashing > 0.0f;
+
     playerDrawGUI();
 }

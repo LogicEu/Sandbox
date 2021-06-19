@@ -40,7 +40,14 @@ typedef enum {
     PACKET_TYPE_EVENT,
     PACKET_TYPE_OBJECT,
     PACKET_TYPE_MESSAGE
-} PacketEnum;
+} PacketTypeEnum;
+
+typedef enum {
+    PACKET_OP_NONE,
+    PACKET_OP_WALLSLIDING,
+    PACKET_OP_DASHING,
+    PACKET_OP_JETPACKING
+} PacketOpEnum;
 
 uint8_t packetNewId(array_t* users);
 Packet* packetFind(array_t* packets, uint8_t id);

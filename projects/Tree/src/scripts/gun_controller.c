@@ -56,7 +56,7 @@ static void gunFireBazooka(vec2 gun, vec2 theta, float off)
     vec2 pos = {gun.x + theta.x * off, gun.y + theta.y * off};
     vec2 vel = {bulletSpeed * theta.x, bulletSpeed * theta.y};
     archetypeBullet(pos, vel, BULLET_KIND_ROCKET);
-    archetypeSmoke(pos, TEXTURE_SMOKE2);
+    archetypeSmoke(pos, TEXTURE_SMOKE);
 }
 
 static void gunFireFlamethrower(vec2 gun, vec2 theta, float off) 
@@ -76,7 +76,7 @@ static void gunFireShotgun(vec2 gun, float rot, float off)
         archetypeBullet(pos, vel, BULLET_KIND_BALL);
         range += 0.05f;
     }
-    smokeEmit(pos, TEXTURE_SMOKE2);
+    archetypeSmoke(pos, TEXTURE_SMOKE2);
 }
 
 static void gunFireType(vec2 gun, vec2 theta, float rot, GunKind kind)

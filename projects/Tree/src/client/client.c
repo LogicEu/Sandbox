@@ -1,6 +1,7 @@
 #include "../TreeNet.h"
 
 #define FILE_NET_MODULE "assets/data/.net_module.bin"
+#define FILE_NET_MAP "assets/data/.net_map"
 
 static char clientUsername[256] = "\0";
 static char serverIp[16] = "\0";
@@ -9,6 +10,11 @@ static array_t* netEntities = NULL;
 static unsigned int received;
 
 extern Entity player;
+extern vec2 spawnPoint;
+
+extern bool stateWallSliding;
+extern bool stateDashing;
+extern bool stateJetpacking;
 
 typedef struct {
     uint8_t id;
@@ -33,20 +39,41 @@ static Entity netEntityFindById(uint8_t id)
 static void netEntityApply(Entity entity, Packet* packet)
 {
     rect_t* PhiRect = (rect_t*)entity_get(entity, COMPONENT_PHI_RECT);
+    memcpy(&PhiRect->x, &packet->data[PACKET_FLOAT_X], sizeof(float));
+    memcpy(&PhiRect->y, &packet->data[PACKET_FLOAT_Y], sizeof(float));
+
     rect_t* glRect = (rect_t*)entity_get(entity, COMPONENT_GL_RECT);
     unsigned int* sprite = (unsigned int*)entity_get(entity, COMPONENT_SPRITE_ID);
-    *sprite = (unsigned int)packet->data[PACKET_SPRITE_ID];
+    unsigned int sprite_pckg = (unsigned int)packet->data[PACKET_SPRITE_ID];
     int orientation = (int)(unsigned int)packet->data[PACKET_ORIENTATION];
     orientation = orientation * 2 - 1;
+
+    if (entity != player) {
+        if (packet->data[PACKET_OP] == PACKET_OP_WALLSLIDING) {
+            smokeEmit(vec2_new(PhiRect->x + (float)orientation * 8.0f, PhiRect->y - 12.0f), TEXTURE_SMOKE);
+        }
+        else if (packet->data[PACKET_OP] == PACKET_OP_JETPACKING) {
+            smokeEmit(vec2_new(PhiRect->x, PhiRect->y - 6.0f), TEXTURE_SMOKE2);
+        }
+        else if (packet->data[PACKET_OP] == PACKET_OP_DASHING) {
+            shadowEmit(vec2_new(PhiRect->x, PhiRect->y), (float)orientation);
+        }
+        else if (*sprite != SPRITE_KID_JUMPING && sprite_pckg == SPRITE_KID_JUMPING) {
+            smokeEmit(vec2_new(PhiRect->x, PhiRect->y - 12.0f), TEXTURE_SMOKE);
+        }
+        else if (sprite_pckg == SPRITE_KID_RUNNING) {
+            smokeEmit(vec2_new(PhiRect->x, PhiRect->y - 12.0f), TEXTURE_SMOKE);
+        }
+    }
+    
+    *sprite = sprite_pckg;
     if ((glRect->w > 0.0f && orientation < 0) ||
         (glRect->w < 0.0f && orientation > 0)) {
         glRect->w *= -1.0f;
     }
 
-    memcpy(&PhiRect->x, &packet->data[PACKET_FLOAT_X], sizeof(float));
-    memcpy(&PhiRect->y, &packet->data[PACKET_FLOAT_Y], sizeof(float));
-    memcpy(&glRect->x, &packet->data[PACKET_FLOAT_X], sizeof(float));
-    memcpy(&glRect->y, &packet->data[PACKET_FLOAT_Y], sizeof(float));
+    memcpy(&glRect->x, &PhiRect->x, sizeof(float));
+    memcpy(&glRect->y, &PhiRect->y, sizeof(float));
     sprite_frame_update(assetsGetSprite(*sprite));
 }
 
@@ -101,6 +128,11 @@ static void netSend()
     packet->data[PACKET_SPRITE_ID] = (uint8_t)*(unsigned int*)entity_get(player, COMPONENT_SPRITE_ID);
     packet->data[PACKET_ORIENTATION] = (glRect.w >= 0.0f);
 
+    if (stateJetpacking) packet->data[PACKET_OP] = PACKET_OP_JETPACKING;
+    else if (stateWallSliding) packet->data[PACKET_OP] = PACKET_OP_WALLSLIDING;
+    else if (stateDashing) packet->data[PACKET_OP] = PACKET_OP_DASHING;
+    else packet->data[PACKET_OP] = PACKET_OP_NONE;
+
     //packetPrint(packet);
     NNet_send(client->server, client->packet, client->buffer, sizeof(Packet), 0);
     received = 0;
@@ -143,8 +175,15 @@ void treeNetInit(const char* username, const char* ip)
     received = 0;
 
     module_destroy(module_current());
-    module_load(FILE_NET_MODULE);
-    entity_create(1, COMPONENT_TEX_ID, &received);
+    moduleInit();
+    map_t map = map_load(FILE_NET_MAP);
+    module_from_map(&map);
+    spawnPoint = map_spawn(map);
+    while (spawnPoint.x < 40.0f && spawnPoint.y < 40.0f) {
+        spawnPoint = map_spawn(map);
+    }
+    map_destroy(map);
+    terrainRecalcTextures();
 
     netEntities = array_new(NET_MAX_CLIENT_COUNT, sizeof(NetEntity));
     client = NNetHost_create(serverIp, NET_PORT, NET_MAX_CLIENT_COUNT, NET_CHANNELS, NET_BUFFER_SIZE, NET_TIMEOUT);
@@ -154,7 +193,12 @@ void treeNetInit(const char* username, const char* ip)
             Packet* p = (Packet*)client->buffer;
             for (unsigned int i = 0; i < size; i++) {
                 if (p->data[PACKET_TYPE] == PACKET_TYPE_USER) {
-                    NetEntity n = netEntityCreate(p->data[PACKET_ID], archetypePlayer());
+                    Entity e = archetypePlayer();
+                    rect_t* r = (rect_t*)entity_get(e, COMPONENT_PHI_RECT);
+                    r->x = spawnPoint.x;
+                    r->y = spawnPoint.y;
+
+                    NetEntity n = netEntityCreate(p->data[PACKET_ID], e);
                     array_push(netEntities, &n);
                     if (p->data[PACKET_STATE] == NET_CONNECTING) {
                         client->id = p->data[PACKET_ID];

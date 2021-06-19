@@ -15,6 +15,7 @@ void bulletStep(float deltaTime)
         Entity e = entity_find(COMPONENT_BULLET, i);
         vec2 pos = *(vec2*)entity_get(e, COMPONENT_PHI_RECT);
         bool rigidCollision = checkRigidCollision(e, vecZero);
+        Entity playerCollision = checkPhiCollision(e, COMPONENT_SPRITE_ID);
         Entity firebarrel = checkFirebarrelCollision(e);
 
         float force;
@@ -23,7 +24,7 @@ void bulletStep(float deltaTime)
             force = 50.0f;
         } else force = 5.0f;
 
-        if (!rigidCollision && !firebarrel) continue;
+        if (!rigidCollision && !firebarrel && !playerCollision) continue;
         entity_destroy(e);
         archetypeBlast(pos, force);
         i--;
