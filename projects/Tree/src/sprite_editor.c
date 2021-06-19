@@ -44,6 +44,20 @@ typedef enum {
     WX_SE_RECT_CURSOR
 } spriteEditorEnum;
 
+static void floodFill(bmp_t* bmp, pixel_t src, pixel_t stat, unsigned int x, unsigned int y)
+{
+    pixel_t* p = (pixel_t*)px_at(bmp, x, y);
+    if (!memcmp(p, &src, sizeof(pixel_t)) ||
+        memcmp(p, &stat, sizeof(pixel_t))) {
+        return;
+    }
+    memcpy(p, &src, sizeof(pixel_t));
+    if (x + 1 < bmp->width) floodFill(bmp, src, stat, x + 1, y);
+    if (x > 0) floodFill(bmp, src, stat, x - 1, y);
+    if (y + 1 < bmp->height) floodFill(bmp, src, stat, x, y + 1);
+    if (y > 0) floodFill(bmp, src, stat, x, y - 1);
+}
+
 static void slidersReset()
 {
     wxSlider* slider;
@@ -143,9 +157,13 @@ static void editorInput()
         if (point_meeting(mouse, r)) {
             float dx = mouse.x - r.x + r.w * 0.5f;
             float dy = mouse.y - r.y + r.h * 0.5f;
+            unsigned int x = (unsigned int)(int)clampf(dx / scale, 0.0f, bmp.width);
+            unsigned int y = (unsigned int)(int)clampf(dy / scale, 0.0f, bmp.height);
             pixel_t p = ctop(cursorColor);
-            void* ptr = px_at(&bmp, (unsigned)(int)clampf(dx / scale, 0.0f, bmp.width), (unsigned)(int)clampf(dy / scale, 0.0f, bmp.height));
-            memcpy(ptr, &p, sizeof(pixel_t));
+            uint8_t* ptr = px_at(&bmp, x, y);
+
+            if (keyboard_down(GLFW_KEY_F)) floodFill(&bmp, p, *(pixel_t*)ptr, x, y);
+            else memcpy(ptr, &p, sizeof(pixel_t));
         }
     }
 }
