@@ -23,9 +23,13 @@ void wxDirectorySave(const char* path, wxDirectory* dir)
 
 wxDirectory wxDirectoryLoad(const char* path)
 {
+    wxDirectory dir;
+    memset(&dir, 0, sizeof(wxDirectory));
+
     FILE* file = fopen(path, "rb");
     if (!file) {
         printf("Could not open file '%s\n", path);
+        return dir;
     }
     fseek(file, 0, SEEK_END);
     long size = ftell(file);
@@ -35,7 +39,6 @@ wxDirectory wxDirectoryLoad(const char* path)
     fclose(file);
 
     char* mark = &buffer[0];
-    wxDirectory dir;
     memcpy(&dir, mark, sizeof(wxDirectory));
     mark += sizeof(wxDirectory);
 

@@ -30,7 +30,7 @@ void module_activate(Module module);
 Module module_current();
 
 void module_save(const char* path, Module module);
-void module_load(const char* path);
+Module module_load(const char* path);
 
 Component component_create(unsigned int bytes);
 void component_destroy(Component component);

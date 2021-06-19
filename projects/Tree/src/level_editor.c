@@ -70,13 +70,6 @@ typedef enum {
 
 static archSwitchEnum selectedIndex;
 
-static void str_to_varn(char* str, unsigned int* var)
-{
-    int i = atoi(str);
-    *var = (unsigned int)i;
-    sprintf(str, "%u", *var);
-}
-
 static void str_to_var(char* str, unsigned int* var)
 {
     int i = atoi(str);
@@ -185,9 +178,10 @@ static void getMouseInput()
     if (button->state == WIDGET_HOVER && mousePressed) {
         module_destroy(module_current());
         module_load(FILE_ECS_MODULE);
-        cam.x = 0.0f;
-        cam.y = 0.0f;
-        cam.y = 1.0f;
+        rect_t r = *(rect_t*)entity_get(player, COMPONENT_GL_RECT);
+        cam.x = r.x - center.x;
+        cam.y = r.y - center.y;
+        cam.z = 1.0f;
         return;
     }
     button = group->widgets[WX_LE_BUTTON_NEW].widget;
@@ -249,7 +243,9 @@ static void getMouseInput()
     }
     field = group->widgets[WX_LE_FIELD_SEED].widget;
     if (field->state == WIDGET_SELECTED) {
-        str_to_varn(field->text, &randSeed);
+        sscanf(field->text, "%u", &randSeed);
+        srand(randSeed);
+        //printf("Rand: %u\n", randSeed);
         return;
     }
 

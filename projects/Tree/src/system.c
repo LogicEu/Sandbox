@@ -211,10 +211,6 @@ void systemInit(unsigned int startState)
     moduleInit();
     archetypesInit();
 
-    randSeed = rand_uint(rand_uint(time(NULL)));
-    srand(randSeed);
-    printf("Seed: %u\n", randSeed);
-
     blackAndWhite = false;
     initNanoNet();
     treeInit();

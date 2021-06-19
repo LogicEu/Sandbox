@@ -22,6 +22,9 @@ typedef enum {
 
     WX_SE_BUTTON_MENU,
     WX_SE_BUTTON_SAVE,
+    WX_SE_BUTTON_LOAD,
+    WX_SE_BUTTON_NEW,
+    
     WX_SE_FIELD_DIR,
 
     WX_SE_SLIDER_RED,
@@ -108,9 +111,25 @@ static void editorInput()
 
     bool mousePressed = mouse_pressed(GLFW_MOUSE_BUTTON_LEFT);
     bool mouseDown = mouse_down(GLFW_MOUSE_BUTTON_LEFT);
-    wxButton* button = group->widgets[WX_SE_BUTTON_SAVE].widget;
+    
     wxField* field = group->widgets[WX_SE_FIELD_DIR].widget;
-    if (button->state == WIDGET_HOVER && mousePressed) bmp_write(field->text, &bmp);
+    wxButton* button = group->widgets[WX_SE_BUTTON_NEW].widget;
+    if (button->state == WIDGET_HOVER && mousePressed) {
+        memset(bmp.pixels, 255, bmp.width * bmp.height * bmp.channels);
+    }
+    button = group->widgets[WX_SE_BUTTON_LOAD].widget;
+    if (button->state == WIDGET_HOVER && mousePressed) {
+        bmp_t tmp = bmp_load(field->text);
+        if (tmp.pixels != NULL) {
+            bmp_free(&bmp);
+            bmp = tmp;
+        }
+    }
+    button = group->widgets[WX_SE_BUTTON_SAVE].widget;
+    if (button->state == WIDGET_HOVER && mousePressed) {
+        bmp_write(field->text, &bmp);
+    }
+    
     wxGroupUpdate(group, mouse, mousePressed, mouseDown);
 
     if (mouseDown){

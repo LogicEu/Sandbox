@@ -5,6 +5,18 @@ extern vec4 cam;
 
 static wxGroup* group;
 
+typedef enum {
+    WX_TITLE_GAME,
+    WX_TITLE_MAIN_MENU,
+    WX_BUTTON_PLAY,
+    WX_BUTTON_LEVEL_EDITOR,
+    WX_BUTTON_QUIT,
+    WX_BUTTON_UI_EDITOR,
+    WX_BUTTON_SPRITE_EDITOR,
+    WX_BUTTON_OPTIONS,
+    WX_BUTTON_ONLINE
+} menuUIEnum;
+
 static void getInput()
 {
     bool mousePressed = mouse_pressed(GLFW_MOUSE_BUTTON_LEFT);

@@ -37,9 +37,9 @@ static void universeUI()
     );
 }
 
-static wxGroup mainMenuGroup()
+static wxGroup mainMenuGroup(float xscale)
 {
-    float x = viewport.x * 0.5f / viewport.z;
+    float x = xscale * 0.5f;
     wxGroup group = wxGroupCreate();
     
     wxTitle title = wxTitleCreate("TREE", vec3_new(100.0f, 170.0f, 2.5f), color(0.3f, 1.0f, 0.3f, 1.0f));
@@ -72,11 +72,9 @@ static wxGroup mainMenuGroup()
     return group;
 }
 
-static wxGroup spriteEditorGroup()
+static wxGroup spriteEditorGroup(float xscale, float yscale)
 {
-    float xscale = viewport.x / viewport.z;
-    float yscale = viewport.y / viewport.z;
-    
+   
     wxGroup group = wxGroupCreate();
     
     wxTitle title = wxTitleCreate("Sprite Editor Mode", vec3_new(4.0f, 185.0f, 1.0f), color(1.0f, 0.0f, 0.0f, 1.0f));
@@ -95,7 +93,13 @@ static wxGroup spriteEditorGroup()
     wxButton button = wxButtonCreate("Menu", rect_new(32.0f, yscale - 32.0f, 50.0f, 15.0f));
     button.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
     wxGroupPush(&group, &button, WIDGET_BUTTON);
-    button = wxButtonCreate("Save", rect_new(xscale * 0.5, 24.0f, 40.0f, 15.0f));
+    button = wxButtonCreate("Save", rect_new(32.0f, yscale - 52.0f, 50.0f, 15.0f));
+    button.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
+    wxGroupPush(&group, &button, WIDGET_BUTTON);
+    button = wxButtonCreate("Load", rect_new(32.0f, yscale - 72.0f, 50.0f, 15.0f));
+    button.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
+    wxGroupPush(&group, &button, WIDGET_BUTTON);
+    button = wxButtonCreate("New", rect_new(32.0f, yscale - 92.0f, 50.0f, 15.0f));
     button.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
     wxGroupPush(&group, &button, WIDGET_BUTTON);
     
@@ -138,10 +142,8 @@ static wxGroup spriteEditorGroup()
     return group;
 }
 
-static wxGroup optionsGroup()
+static wxGroup optionsGroup(float yscale)
 {
-    float yscale = viewport.y / viewport.z;
-
     wxGroup group = wxGroupCreate();
     wxTitle title = wxTitleCreate("Options", vec3_new(4.0f, 185.0f, 1.0f), color(1.0f, 0.0f, 0.0f, 1.0f));
     wxGroupPush(&group, &title, WIDGET_TITLE);
@@ -161,10 +163,8 @@ static wxGroup optionsGroup()
     return group;
 }
 
-static wxGroup netMenuGroup()
+static wxGroup netMenuGroup(float xscale, float yscale)
 {
-    float xscale = viewport.x / viewport.z;
-    float yscale = viewport.y / viewport.z;
 
     wxGroup group = wxGroupCreate();
     wxTitle title = wxTitleCreate("Online", vec3_new(4.0f, 185.0f, 1.0f), color(1.0f, 0.0f, 0.0f, 1.0f));
@@ -190,10 +190,8 @@ static wxGroup netMenuGroup()
     return group;
 }
 
-static wxGroup levelEditorGroup()
+static wxGroup levelEditorGroup(float xscale, float yscale)
 {
-    float xscale = viewport.x / viewport.z;
-    float yscale = viewport.y / viewport.z;
     wxGroup group = wxGroupCreate();
 
     wxTitle title = wxTitleCreate("Level Editor Mode", vec3_new(4.0f, 185.0f, 1.0f), color(1.0f, 0.0f, 0.0f, 1.0f));
@@ -264,8 +262,8 @@ static wxGroup levelEditorGroup()
     strcpy(field.text, "25");
     field.strMark = strlen(field.text);
     wxGroupPush(&group, &field, WIDGET_FIELD);
-    field = wxFieldCreate(rect_new(xscale - 48.0f, yscale - 28.0f, 60.0f, 15.0f), 3);
-    field.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
+    field = wxFieldCreate(rect_new(xscale - 48.0f, yscale - 28.0f, 70.0f, 10.0f), 10);
+    field.text_offset = vec3_new(1.0f, 1.0f, 2.5f);
     sprintf(field.text, "%u", randSeed);
     field.strMark = strlen(field.text);
     wxGroupPush(&group, &field, WIDGET_FIELD);
@@ -275,10 +273,8 @@ static wxGroup levelEditorGroup()
     return group;
 }
 
-static wxGroup UIeditorGroup()
+static wxGroup UIeditorGroup(float xscale, float yscale)
 {
-    float yscale = viewport.y / viewport.z;
-
     wxGroup group = wxGroupCreate();
     wxTitle title = wxTitleCreate("UI Editor Mode", vec3_new(4.0f, 185.0f, 0.8f), color(0.3f, 1.0f, 0.3f, 1.0f));
     wxGroupPush(&group, &title, WIDGET_TITLE);
@@ -292,16 +288,39 @@ static wxGroup UIeditorGroup()
     button = wxButtonCreate("Load", rect_new(32.0f, yscale - 72.0f, 50.0f, 15.0f));
     button.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
     wxGroupPush(&group, &button, WIDGET_BUTTON);
+    button = wxButtonCreate("Prev", rect_new(32.0f, 16.0f, 50.0f, 15.0f));
+    button.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
+    wxGroupPush(&group, &button, WIDGET_BUTTON);
+    button = wxButtonCreate("Next", rect_new(xscale - 32.0f, 16.0f, 50.0f, 15.0f));
+    button.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
+    wxGroupPush(&group, &button, WIDGET_BUTTON);
+    return group;
+}
+
+static wxGroup metaGroup(float xscale, float yscale)
+{
+    wxGroup group = wxGroupCreate();
+
+    float x = xscale * 0.5f, y = yscale * 0.5f;
+    wxButton button = wxButtonCreate("Prev", rect_new(x - 32.0f, y, 50.0f, 15.0f));
+    button.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
+    wxGroupPush(&group, &button, WIDGET_BUTTON);
+    button = wxButtonCreate("Next", rect_new(x + 32.0f, y, 50.0f, 15.0f));
+    button.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
+    wxGroupPush(&group, &button, WIDGET_BUTTON);
     return group;
 }
 
 static wxDirectory UIassetsDirectory()
 {
+    float xscale = viewport.x / viewport.z;
+    float yscale = viewport.y / viewport.z;
+
     wxDirectory dir = wxDirectoryCreate();
     wxGroup group;
     wxTitle title;
 
-    group = mainMenuGroup();
+    group = mainMenuGroup(xscale);
     wxDirectoryPushGroup(&dir, &group);
 
     group = wxGroupCreate();
@@ -309,19 +328,22 @@ static wxDirectory UIassetsDirectory()
     wxGroupPush(&group, &title, WIDGET_TITLE);
     wxDirectoryPushGroup(&dir, &group);
 
-    group = levelEditorGroup();
+    group = levelEditorGroup(xscale, yscale);
     wxDirectoryPushGroup(&dir, &group);
 
-    group = UIeditorGroup();
+    group = UIeditorGroup(xscale, yscale);
     wxDirectoryPushGroup(&dir, &group);
 
-    group = spriteEditorGroup();
+    group = spriteEditorGroup(xscale, yscale);
     wxDirectoryPushGroup(&dir, &group);
 
-    group = optionsGroup();
+    group = optionsGroup(yscale);
     wxDirectoryPushGroup(&dir, &group);
 
-    group = netMenuGroup();
+    group = netMenuGroup(xscale, yscale);
+    wxDirectoryPushGroup(&dir, &group);
+
+    group = metaGroup(xscale, yscale);
     wxDirectoryPushGroup(&dir, &group);
 
     dir.selected = WX_DIR_MAIN_MENU;

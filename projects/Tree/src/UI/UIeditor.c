@@ -3,14 +3,22 @@
 extern vec2 mouse;
 static wxGroup* group;
 static wxGroup* editorGroup;
+static wxGroup* metaGroup;
 
 typedef enum {
     WX_UIE_TITLE_MAIN,
     
     WX_UIE_BUTTON_MENU,
     WX_UIE_BUTTON_SAVE,
-    WX_UIE_BUTTON_LOAD
+    WX_UIE_BUTTON_LOAD,
+    WX_UIE_BUTTON_PREV,
+    WX_UIE_BUTTON_NEXT
 } wxUIeditorEnum;
+
+typedef enum {
+    WX_META_PREV,
+    WX_META_NEXT
+} wxMetaEnum;
 
 static void wxEditSlider(wxSlider* slider, vec2 mouse)
 {
@@ -78,6 +86,87 @@ static void wxEditTitle(wxTitle* title, vec2 mouse)
         printf("Title Y: %f\n", title->pos_scale.y);
         printf("Title: %f\n", title->pos_scale.z);
         printf("Title Color: %f - %f - %f - %f\n", title->color.r, title->color.g, title->color.b, title->color.a);
+    }
+}
+
+static void wxEditField(wxField* field, vec2 mouse)
+{
+    if (keyboard_down(GLFW_KEY_K)) {
+        field->rect.x += 0.2f;
+    }
+    if (keyboard_down(GLFW_KEY_H)) {
+        field->rect.x -= 0.2f;
+    }
+    if (keyboard_down(GLFW_KEY_U)) {
+        field->rect.y += 0.2f;
+    }
+    if (keyboard_down(GLFW_KEY_J)) {
+        field->rect.y -= 0.2f;
+    }
+    if (keyboard_down(GLFW_KEY_D)) {
+        field->rect.w += 0.2f;
+    }
+    if (keyboard_down(GLFW_KEY_A)) {
+        field->rect.w -= 0.2f;
+    }
+    if (keyboard_down(GLFW_KEY_W)) {
+        field->rect.h += 0.2f;
+    }
+    if (keyboard_down(GLFW_KEY_S)) {
+        field->rect.h -= 0.2f;
+    }
+    if (keyboard_pressed(GLFW_KEY_Z)) {
+        field->rect.w *= 1.1f;
+        field->rect.h *= 1.1f;
+    }  
+    if (keyboard_pressed(GLFW_KEY_X)) {
+        field->rect.w *= 0.9f;
+        field->rect.h *= 0.9f; 
+    }  
+    if (keyboard_down(GLFW_KEY_UP)) {
+        field->text_offset.y += 0.01f;
+    }
+    if (keyboard_down(GLFW_KEY_DOWN)) {
+        field->text_offset.y -= 0.01f;
+    }
+    if (keyboard_down(GLFW_KEY_RIGHT)) {
+        field->text_offset.x += 0.01f;
+    }
+    if (keyboard_down(GLFW_KEY_LEFT)) {
+        field->text_offset.x -= 0.01f;
+    }
+    if (keyboard_down(GLFW_KEY_M)) {
+        field->text_offset.z += 0.01f;
+    }
+    if (keyboard_down(GLFW_KEY_N)) {
+        field->text_offset.z -= 0.01f;
+    }
+    if (keyboard_pressed(GLFW_KEY_SPACE)) {
+        printf("X: %f\n", field->rect.x);
+        printf("Y: %f\n", field->rect.y);
+        printf("Width: %f\n", field->rect.w);
+        printf("Heigh: %f\n", field->rect.h);
+        printf("Text Offset X: %f\n", field->text_offset.x);
+        printf("Text Offset Y: %f\n", field->text_offset.y);
+        printf("Text Scale: %f\n", field->text_offset.z);
+        printf("Text: '%s'\n", field->text);
+    }
+
+    if (keyboard_pressed(GLFW_KEY_ENTER)) {
+        for (unsigned int i = 0; i < group->used; i++) {
+            wxPtr p = group->widgets[i];
+            if (p.type == WIDGET_FIELD) {
+                wxField* f = p.widget;
+                f->rect.w = field->rect.w;
+                f->rect.h = field->rect.h;
+                f->text_offset = field->text_offset;
+            }
+        }
+    }
+
+    if (vec2_dist(*(vec2*)&field->rect, mouse) < 10.0f) {
+        field->rect.x = mouse.x;
+        field->rect.y = mouse.y;
     }
 }
 
@@ -161,51 +250,68 @@ static void wxEditButton(wxButton* button, vec2 mouse)
     }
 }
 
+static void prevNextDir(wxGroup* g, bool mousePressed, unsigned int prev_index)
+{
+    wxButton* button = g->widgets[prev_index].widget;
+    if (button->state == WIDGET_HOVER && mousePressed) {
+        if (wxDir.selected > 0) wxDir.selected--;
+        else wxDir.selected = WX_DIR_META - 1;
+        group = &wxDir.groups[wxDir.selected];
+    }
+    button = g->widgets[++prev_index].widget;
+    if (button->state == WIDGET_HOVER && mousePressed) {
+        if (wxDir.selected < WX_DIR_META - 1) wxDir.selected++;
+        else wxDir.selected = WX_DIR_MAIN_MENU;
+        group = &wxDir.groups[wxDir.selected];
+    }
+}
+
 static void getInput()
 {
     bool mousePressed = mouse_pressed(GLFW_MOUSE_BUTTON_LEFT);
     bool mouseDown = mouse_down(GLFW_MOUSE_BUTTON_LEFT);
-    wxGroupUpdate(group, mouse, mousePressed, mouseDown);
+    bool isMeta = false;
+    
+    wxButton* button;
+    if (group == editorGroup) {
+        prevNextDir(metaGroup, mousePressed, WX_META_PREV);
+        wxGroupUpdate(metaGroup, mouse, mousePressed, mouseDown);
+        wxGroupUpdate(editorGroup, mouse, mousePressed, mouseDown);
+        wxGroupDraw(metaGroup);
+        isMeta = true;
+    } else wxGroupUpdate(group, mouse, mousePressed, mouseDown);
 
-    wxButton* button = editorGroup->widgets[WX_UIE_BUTTON_MENU].widget;
-    bool buttonPressed = button->state == WIDGET_HOVER && mousePressed;
-    if (keyboard_pressed(GLFW_KEY_ESCAPE) || button->state == WIDGET_SELECTED) {
-        systemSetState(STATE_MENU);
-        button->state = WIDGET_UNSELECTED;
-        return;
-    }
-
-    button = editorGroup->widgets[WX_UIE_BUTTON_SAVE].widget;
-    buttonPressed = button->state == WIDGET_HOVER && mousePressed;
-    if (keyboard_pressed(GLFW_KEY_P) || buttonPressed) {
-        wxDirectorySave(FILE_MENU_UI_SAVE, &wxDir);
-        return;
-    }
-
-    if (keyboard_down(KEY_MOD)) {
-        if (keyboard_pressed(GLFW_KEY_RIGHT)) {
-            if (wxDir.selected < wxDir.used - 1) wxDir.selected++;
-            else wxDir.selected = 0;
-            group = &wxDir.groups[wxDir.selected];
+    if (!isMeta) {
+        button = editorGroup->widgets[WX_UIE_BUTTON_MENU].widget;
+        bool buttonPressed = button->state == WIDGET_HOVER && mousePressed;
+        if (keyboard_pressed(GLFW_KEY_ESCAPE) || button->state == WIDGET_SELECTED) {
+            systemSetState(STATE_MENU);
+            button->state = WIDGET_UNSELECTED;
+            return;
         }
-        if (keyboard_pressed(GLFW_KEY_LEFT)) {
-            if (wxDir.selected > 0) wxDir.selected--;
-            else wxDir.selected = wxDir.used - 1;
-            group = &wxDir.groups[wxDir.selected];
-        }
-    }
 
-    button = editorGroup->widgets[WX_UIE_BUTTON_LOAD].widget;
-    buttonPressed = button->state == WIDGET_HOVER && mousePressed;
-    if (keyboard_pressed(GLFW_KEY_L) || buttonPressed) {
-        wxDirectoryFree(&wxDir);
-        wxDir = wxDirectoryLoad(FILE_MENU_UI_SAVE);
-        treeDirectoryReset();
-        return;
+        button = editorGroup->widgets[WX_UIE_BUTTON_SAVE].widget;
+        buttonPressed = button->state == WIDGET_HOVER && mousePressed;
+        if (keyboard_pressed(GLFW_KEY_P) || buttonPressed) {
+            wxDirectorySave(FILE_MENU_UI_SAVE, &wxDir);
+            return;
+        }
+
+        button = editorGroup->widgets[WX_UIE_BUTTON_LOAD].widget;
+        buttonPressed = button->state == WIDGET_HOVER && mousePressed;
+        if (keyboard_pressed(GLFW_KEY_L) || buttonPressed) {
+            wxDirectory tmp = wxDirectoryLoad(FILE_MENU_UI_SAVE);
+            if (tmp.groups != NULL) {
+                wxDirectoryFree(&wxDir);
+                wxDir = tmp;
+                treeDirectoryReset();
+            }
+            return;
+        }
+        prevNextDir(editorGroup, mousePressed, WX_UIE_BUTTON_PREV);
     }
 
     wxGroupUpdate(editorGroup, mouse, mousePressed, mouseDown);
-
     if (!mouseDown) return;
     for (unsigned int i = 0; i < group->used; i++) {
         wxPtr p = group->widgets[i];
@@ -220,6 +326,9 @@ static void getInput()
         } else if (p.type == WIDGET_RECT) {
             wxRect* rect = p.widget;
             wxEditRect(rect, mouse);
+        } else if (p.type == WIDGET_FIELD) {
+            wxField* field = p.widget;
+            wxEditField(field, mouse);
         }
     }
 }
@@ -235,6 +344,7 @@ void UIeditorDirectoryReset()
 {
     group = &wxDir.groups[wxDir.selected];
     editorGroup = &wxDir.groups[WX_DIR_UI_EDITOR];
+    metaGroup = &wxDir.groups[WX_DIR_META];
 }
 
 void UIeditorInit()

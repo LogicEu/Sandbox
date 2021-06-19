@@ -79,11 +79,14 @@ static ModuleHash modular_file_parse_module(char* buffer)
     return m;
 }
 
-void module_load(const char* path)
+Module module_load(const char* path)
 {
     char* buffer = modular_file_read(path);
+    if (buffer == NULL) return module_current();
+
     ModuleHash m = modular_file_parse_module(buffer);
     module_push(&m);
     free(buffer);
     printf("Succesfully loaded file '%s'\n", path);
+    return module_current();
 }

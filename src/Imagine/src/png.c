@@ -11,7 +11,7 @@ unsigned char* png_file_load(const char* path, unsigned int* width, unsigned int
     FILE *file = fopen(path, "rb");
     if (!file) {
         printf("Cannot open file '%s'\n", path);
-        exit(-1);
+        return NULL;
     }
     
     png_byte bit_depth;
@@ -19,12 +19,12 @@ unsigned char* png_file_load(const char* path, unsigned int* width, unsigned int
     png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
     if (!png) {
         printf("There was a problem reading PNG file '%s'\n", path);
-        exit(-1);
+        return NULL;
     }
     png_infop info = png_create_info_struct(png);
     if (!info || setjmp(png_jmpbuf(png))) {
         printf("There was a problem with the information of PNG file '%s'\n", path);
-        exit(-1);
+        return NULL;
     }
 
     png_init_io(png, file);

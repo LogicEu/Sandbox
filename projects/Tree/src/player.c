@@ -302,11 +302,13 @@ void playerGameStep(float deltaTime)
         isDashing -= deltaTime;
         shadowEmit(vec2_new(playerPhi->x, playerPhi->y), vel->x);
     }
-    else if (isGrounded || wallSliding) canDash = true;
+    else if (isGrounded || wallSliding) {
+        canDash = true;
+        doubleJump = true;
+    }
     
     //Vertical Phi
     if (isGrounded) {
-        doubleJump = true;
         if (keyUp && !checkRigidCollision(player, vec2_new(0.0f, jump * deltaTime))) {
             vel->y = jump;
             camAlarm = true;
