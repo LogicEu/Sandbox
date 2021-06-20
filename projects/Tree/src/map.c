@@ -53,10 +53,10 @@ map_t map_noise(unsigned int w, unsigned int h, unsigned int stat, unsigned int 
         for (unsigned int x = 0; x < m.width; x++) {
             if (x == 0 || y == 0 || x == m.width - 1 || y == m.height - 1) {
                 *map_tile(m, x, y) = MAP_TILE_STATIC;
-            } else if (rand() % 100 < stat) {
+            } else if ((unsigned int)(rand() % 100) < stat) {
                 *map_tile(m, x, y) = MAP_TILE_STATIC;
             } 
-            else if (rand() % 100 < block) {
+            else if ((unsigned int)(rand() % 100) < block) {
                 *map_tile(m, x, y) = MAP_TILE_BLOCK;
             }
         }
@@ -121,7 +121,7 @@ void map_itemify(map_t* m, unsigned int prob)
         for (unsigned int x = 0; x < m->width; x++) {
             if (IS_BLOCK(*m, x, y)) continue;
             if (IS_BLOCK(*m, x, y - 1) && IS_NULL(*m, x, y)) {
-                if (rand() % 100 < prob) *map_tile(*m, x, y) = item_rand();
+                if ((unsigned int)(rand() % 100) < prob) *map_tile(*m, x, y) = item_rand();
             }
         }
     }
@@ -170,7 +170,7 @@ uint8_t entity_to_item(Entity e)
     }
     else if (entity_has(e, COMPONENT_GRANADE)) return MAP_TILE_GRANADE;
     else if (entity_has(e, COMPONENT_JETPACK)) return MAP_TILE_JETPACK;
-    else return MAP_TILE_NULL;
+    return MAP_TILE_NULL;
 }
 
 void map_save(const char* path, map_t map)
