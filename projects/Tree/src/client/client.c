@@ -10,7 +10,12 @@ static array_t* netEntities = NULL;
 static unsigned int received;
 
 extern Entity player;
+extern Entity usedWeapon;
+extern Entity jetpack;
 extern vec2 spawnPoint;
+
+Entity netUsedWeapon;
+Entity netJetpack;
 
 extern bool stateWallSliding;
 extern bool stateDashing;
@@ -36,7 +41,7 @@ static Entity netEntityFindById(uint8_t id)
     return 0;
 }
 
-static void netEntityApply(Entity entity, Packet* packet)
+static void netPlayerUpdate(Entity entity, Packet* packet)
 {
     rect_t* PhiRect = (rect_t*)entity_get(entity, COMPONENT_PHI_RECT);
     memcpy(&PhiRect->x, &packet->data[PACKET_FLOAT_X], sizeof(float));
@@ -77,6 +82,80 @@ static void netEntityApply(Entity entity, Packet* packet)
     sprite_frame_update(assetsGetSprite(*sprite));
 }
 
+static void netWeaponUpdate(Packet* p)
+{
+    uint16_t id = packetId16(p);
+    Entity e = (Entity)id;
+    if (e == netUsedWeapon) return;
+
+    rect_t* r = (rect_t*)entity_get(e, COMPONENT_PHI_RECT);
+    rect_t* rg = (rect_t*)entity_get(e, COMPONENT_GL_RECT);
+    GunType* gun = (GunType*)entity_get(e, COMPONENT_GUN_CONTROLLER);
+    float* rot = (float*)entity_get(e, COMPONENT_ROTATION);
+    bool* g = (bool*)entity_get(e, COMPONENT_GRAVITY);
+
+    unsigned int ammo = (unsigned int)p->data[PACKET_OP];
+    if (ammo < gun->ammo) {
+        gunShoot(e);
+        gun->ammo = ammo;
+    }
+
+    if (p->data[PACKET_TYPE] == PACKET_TYPE_GUN_USED) {
+        *g = false;
+        gun->state = GUN_STATE_COLLECTED;
+    } else {
+        *g = true;
+        gun->state = GUN_STATE_LOOSE;
+    }
+
+    memcpy(&r->x, &p->data[PACKET_FLOAT_X], sizeof(float));
+    memcpy(&r->y, &p->data[PACKET_FLOAT_Y], sizeof(float));
+    memcpy(&rg->x, &p->data[PACKET_FLOAT_X], sizeof(float));
+    memcpy(&rg->y, &p->data[PACKET_FLOAT_Y], sizeof(float));
+    memcpy(rot, &p->data[PACKET_FLOAT_Z], sizeof(float));
+}
+
+static void netJetpackUpdate(Packet* p)
+{
+    uint16_t id = packetId16(p);
+    Entity e = (Entity)id;
+    if (e == netJetpack) return;
+
+    //bool* j = (bool*)entity_get(jetpack, COMPONENT_JETPACK);
+    rect_t* r = (rect_t*)entity_get(e, COMPONENT_PHI_RECT);
+    rect_t* rg = (rect_t*)entity_get(e, COMPONENT_GL_RECT);
+    unsigned int* fuel = (unsigned int*)entity_get(e, COMPONENT_AMMO);
+    bool* g = (bool*)entity_get(e, COMPONENT_GRAVITY);
+    int orientation = (int)(unsigned int)p->data[PACKET_ORIENTATION];
+    orientation = orientation * 2 - 1;
+
+    if (p->data[PACKET_TYPE] == PACKET_TYPE_JETPACK_USED) {
+        *g = false;
+    } else {
+        *g = true;
+    }
+
+    if ((rg->w > 0.0f && orientation < 0) ||
+        (rg->w < 0.0f && orientation > 0)) {
+        rg->w *= -1.0f;
+    }
+
+    memcpy(&r->x, &p->data[PACKET_FLOAT_X], sizeof(float));
+    memcpy(&r->y, &p->data[PACKET_FLOAT_Y], sizeof(float));
+    memcpy(&rg->x, &p->data[PACKET_FLOAT_X], sizeof(float));
+    memcpy(&rg->y, &p->data[PACKET_FLOAT_Y], sizeof(float));
+    *fuel = (unsigned int)p->data[PACKET_OP];
+}
+
+static void packetParse(Packet* p)
+{
+    if (p->data[PACKET_TYPE] == PACKET_TYPE_GUN_LOOSE || p->data[PACKET_TYPE] == PACKET_TYPE_GUN_USED) {
+        netWeaponUpdate(p);
+    } else if (p->data[PACKET_TYPE] == PACKET_TYPE_JETPACK_LOOSE || p->data[PACKET_TYPE] == PACKET_TYPE_JETPACK_USED) {
+        netJetpackUpdate(p);
+    }
+}
+
 static void netRead()
 {
     if (received) return;
@@ -87,16 +166,19 @@ static void netRead()
     Packet* p = client->buffer;
     unsigned int size = received / sizeof(Packet);
     for (unsigned int i = 0; i < size; i++) {
-        //packetPrint(p);
-        uint8_t id = p->data[PACKET_ID];
-        Entity e = netEntityFindById(id);
-        if (e) {
-            if (p->data[PACKET_STATE] == NET_DISCONNECTED) disconnected = id;
-            else if (p->data[PACKET_ID] != client->id) netEntityApply(e, p);
+        if (p->data[PACKET_TYPE] == PACKET_TYPE_USER) {
+            uint8_t id = p->data[PACKET_ID];
+            Entity e = netEntityFindById(id);
+            if (e) {
+                if (p->data[PACKET_STATE] == NET_DISCONNECTED) disconnected = id;
+                else if (p->data[PACKET_ID] != client->id) netPlayerUpdate(e, p);
+            } else {
+                NetEntity n = {id, archetypePlayer()};
+                array_push(netEntities, &n);
+                printf("Player %u has connected\n", id);
+            }
         } else {
-            NetEntity n = {id, archetypePlayer()};
-            array_push(netEntities, &n);
-            printf("Player %u has connected\n", id);
+            packetParse(p);
         }
         p++;
     }
@@ -114,11 +196,8 @@ static void netRead()
     printf("Player %u has disconnected\n", disconnected);
 }
 
-static void netSend()
-{   
-    if (!received) return;
-
-    Packet* packet = client->buffer;
+static void netSendPlayer(Packet* packet)
+{
     rect_t glRect = *(rect_t*)entity_get(player, COMPONENT_GL_RECT);
     packet->data[PACKET_ID] = client->id;
     packet->data[PACKET_STATE] = NET_CONNECTED;
@@ -132,9 +211,61 @@ static void netSend()
     else if (stateWallSliding) packet->data[PACKET_OP] = PACKET_OP_WALLSLIDING;
     else if (stateDashing) packet->data[PACKET_OP] = PACKET_OP_DASHING;
     else packet->data[PACKET_OP] = PACKET_OP_NONE;
+}
 
-    //packetPrint(packet);
-    NNet_send(client->server, client->packet, client->buffer, sizeof(Packet), 0);
+static void netSendWeapon(Packet* packet, Entity weapon)
+{
+    vec2 pos = *(vec2*)entity_get(weapon, COMPONENT_PHI_RECT);
+    float* rot = (float*)entity_get(weapon, COMPONENT_ROTATION);
+    GunType* g = (GunType*)entity_get(weapon, COMPONENT_GUN_CONTROLLER);
+    uint16_t id = (uint16_t)weapon;
+    
+    if (g->state == GUN_STATE_USED) packet->data[PACKET_TYPE] = PACKET_TYPE_GUN_USED;
+    else packet->data[PACKET_TYPE] = PACKET_TYPE_GUN_LOOSE;
+    packet->data[PACKET_OP] = (uint8_t)g->ammo;
+    memcpy(&packet->data[PACKET_ENTITY_ID], &id, sizeof(uint16_t));
+    memcpy(&packet->data[PACKET_FLOAT_X], &pos.x, sizeof(float));
+    memcpy(&packet->data[PACKET_FLOAT_Y], &pos.y, sizeof(float));
+    memcpy(&packet->data[PACKET_FLOAT_Z], rot, sizeof(float));
+}
+
+static void netSendJetpack(Packet* packet, Entity jetpack)
+{
+    unsigned int fuel = *(unsigned int*)entity_get(jetpack, COMPONENT_AMMO);
+    vec2 pos = *(vec2*)entity_get(jetpack, COMPONENT_PHI_RECT);
+    rect_t* rGl = (rect_t*)entity_get(player, COMPONENT_GL_RECT);
+    uint16_t id = (uint16_t)jetpack;
+
+    memcpy(&packet->data[PACKET_ENTITY_ID], &id, sizeof(uint16_t));
+    packet->data[PACKET_TYPE] = PACKET_TYPE_JETPACK_USED;
+    packet->data[PACKET_OP] = (uint8_t)fuel;
+    memcpy(&packet->data[PACKET_FLOAT_X], &pos.x, sizeof(float));
+    memcpy(&packet->data[PACKET_FLOAT_Y], &pos.y, sizeof(float));
+    packet->data[PACKET_ORIENTATION] = (rGl->w >= 0.0f);
+}
+
+static void netSend()
+{   
+    if (!received) return;
+
+    unsigned int size = 1;
+    Packet* packet = (Packet*)client->buffer;
+    netSendPlayer(packet);
+
+    if (netUsedWeapon) {
+        size++;
+        packet++;
+        netSendWeapon(packet, netUsedWeapon);
+        netUsedWeapon = usedWeapon;
+    }
+    if (netJetpack) {
+        size++;
+        packet++;
+        netSendJetpack(packet, netJetpack);
+        netJetpack = jetpack;
+    }
+
+    NNet_send(client->server, client->packet, client->buffer, size * sizeof(Packet), 0);
     received = 0;
 }
 
@@ -185,6 +316,8 @@ void treeNetInit(const char* username, const char* ip)
     map_destroy(map);
     terrainRecalcTextures();
 
+    netUsedWeapon = netJetpack = 0;
+
     netEntities = array_new(NET_MAX_CLIENT_COUNT, sizeof(NetEntity));
     client = NNetHost_create(serverIp, NET_PORT, NET_MAX_CLIENT_COUNT, NET_CHANNELS, NET_BUFFER_SIZE, NET_TIMEOUT);
     while (enet_host_service(client->host, &client->event, NET_TIMEOUT) > 0) {
@@ -204,6 +337,8 @@ void treeNetInit(const char* username, const char* ip)
                         client->id = p->data[PACKET_ID];
                         player = n.entity;
                     }
+                } else {
+                    packetParse(p);
                 }
                 p++;
             }

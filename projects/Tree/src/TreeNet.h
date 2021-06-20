@@ -21,15 +21,35 @@ typedef struct {
     uint8_t data[PACKET_SIZE];
 } Packet;
 
+/* PLAYER / USER
+0 -> ID
+1 -> CONNECTED / CONNECTING/ DISCONNECTED
+2 -> PACKET TYPE USER
+3 -> OP -> WALLSLIDING / DASHING / JETPACKING
+4 -> FLOAT X
+8 -> FLOAT Y
+12 -> Sprite ID
+13 -> Orientation
+
+ WEAPON
+0 -> Entity ID
+2 -> Packet Type Gun Loose or Used
+3 -> AMMO
+4 -> FLOAT X
+8 -> FLOAT Y
+12 -> FLOAT ROT
+
+*/
+
 typedef enum {
     PACKET_ID = 0,
+    PACKET_ENTITY_ID = 0,
     PACKET_STATE = 1,
     PACKET_TYPE = 2,
     PACKET_OP = 3,
     PACKET_FLOAT_X = 4,
     PACKET_FLOAT_Y = 8,
     PACKET_FLOAT_Z = 12,
-    PACKET_ENTITY_ID = 12,
     PACKET_SPRITE_ID = 12,
     PACKET_ORIENTATION = 13
 } packetBitsEnum;
@@ -37,9 +57,10 @@ typedef enum {
 typedef enum {
     PACKET_TYPE_NONE,
     PACKET_TYPE_USER,
-    PACKET_TYPE_EVENT,
-    PACKET_TYPE_OBJECT,
-    PACKET_TYPE_MESSAGE
+    PACKET_TYPE_GUN_LOOSE,
+    PACKET_TYPE_GUN_USED,
+    PACKET_TYPE_JETPACK_LOOSE,
+    PACKET_TYPE_JETPACK_USED
 } PacketTypeEnum;
 
 typedef enum {
@@ -52,5 +73,7 @@ typedef enum {
 uint8_t packetNewId(array_t* users);
 Packet* packetFind(array_t* packets, uint8_t id);
 void packetPrint(Packet* p);
+uint16_t packetId16(Packet* p);
+uint8_t packetId8(Packet* p);
 
 #endif

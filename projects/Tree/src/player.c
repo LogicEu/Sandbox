@@ -7,8 +7,8 @@ bool stateWallSliding = false;
 bool stateDashing = false;
 bool stateJetpacking = false;
 
-static Entity usedWeapon = 0;
-static Entity jetpack = 0;
+Entity usedWeapon = 0;
+Entity jetpack = 0;
 static Entity granades[GRANADE_MAX];
 static unsigned int granadeCount = 0;
 
@@ -16,6 +16,9 @@ extern Entity player;
 extern vec4 cam;
 extern bool blackAndWhite;
 extern vec2 spawnPoint;
+
+extern Entity netUsedWeapon;
+extern Entity netJetpack;
 
 extern void cameraTriggerAlarm();
 
@@ -136,12 +139,14 @@ static void pickObject()
         if (jetpack) jetpackDrop(jetpack);
         jetpackPick(jet);
         jetpack = jet;
+        netJetpack = jetpack;
         ret = true;
     }  
     if (gun) {
         if (usedWeapon) gunDrop(usedWeapon);
         gunPick(gun) ;
         usedWeapon = gun;
+        netUsedWeapon = usedWeapon;
         ret = true;
     } 
     if (ret) return;
@@ -349,6 +354,5 @@ void playerGameStep(float deltaTime)
 
     stateWallSliding = wallSliding && vel->y < 0.0f;
     stateDashing = isDashing > 0.0f;
-
     playerDrawGUI();
 }

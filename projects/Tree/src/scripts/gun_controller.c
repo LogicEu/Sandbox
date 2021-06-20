@@ -112,13 +112,13 @@ static void gunControllerApply(Entity e, float deltaTime)
     float* rot = (float*)entity_get(e, COMPONENT_ROTATION);
     
     GunType* gc = (GunType*)entity_get(e, COMPONENT_GUN_CONTROLLER);
-    if (rPhi->x > playerPhi->x){
-        if (rTex->h < 0.0f) rTex->h *= -1.0f;
-    } else if (rTex->h >= 0.0f) rTex->h *= -1.0f;
-
     vec2 pos = {playerPhi->x, playerPhi->y};
     float rads = vec2_to_rad(vec2_sub(mouse, pos));
     vec2 theta = {cosf(rads), sinf(rads)};
+
+    if (fabs(rads) > M_PI * 0.5) {
+        if (rTex->h > 0.0f) rTex->h *= -1.0f;
+    } else if (rTex->h <= 0.0f) rTex->h *= -1.0f;
 
     rPhi->x = pos.x + theta.x * gc->offset;      
     rPhi->y = pos.y + theta.y * gc->offset;
@@ -132,6 +132,14 @@ static void gunControllerApply(Entity e, float deltaTime)
         gc->ammo--;
         gc->latencyTimer = 1.0f;
     }
+}
+
+void gunShoot(Entity gun)
+{
+    vec2 pos = *(vec2*)entity_get(gun, COMPONENT_PHI_RECT);
+    GunType* g = (GunType*)entity_get(gun, COMPONENT_GUN_CONTROLLER);
+    float rot = *(float*)entity_get(gun, COMPONENT_ROTATION);
+    gunFireType(pos, vec2_new(cosf(rot), sinf(rot)), rot, g->kind);
 }
 
 Entity gunCreate(vec2 position, GunKind gunKind)

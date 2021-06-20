@@ -275,6 +275,7 @@ Entity gunCreate(vec2 position, GunKind gunKind);
 void gunControllerStep(float deltaTime);
 void gunPick(Entity gun);
 void gunDrop(Entity gun);
+void gunShoot(Entity gun);
 
 void blastStep(float deltaTime);
 

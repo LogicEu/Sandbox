@@ -38,3 +38,13 @@ void packetPrint(Packet* p)
         *(float*)&p->data[PACKET_FLOAT_Y]
     );
 }
+
+uint8_t packetId8(Packet* p)
+{
+    return p->data[PACKET_ID];
+}
+
+uint16_t packetId16(Packet* p)
+{
+    return *(uint16_t*)&p->data[PACKET_ENTITY_ID];
+}
