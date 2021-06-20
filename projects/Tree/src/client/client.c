@@ -103,6 +103,9 @@ static void netWeaponUpdate(Packet* p)
     if (p->data[PACKET_TYPE] == PACKET_TYPE_GUN_USED) {
         *g = false;
         gun->state = GUN_STATE_COLLECTED;
+        if (fabs(*rot) > M_PI * 0.5) {
+            if (rg->h > 0.0f) rg->h *= -1.0f;
+        } else if (rg->h <= 0.0f) rg->h *= -1.0f;
     } else {
         *g = true;
         gun->state = GUN_STATE_LOOSE;
@@ -121,7 +124,7 @@ static void netJetpackUpdate(Packet* p)
     Entity e = (Entity)id;
     if (e == netJetpack) return;
 
-    //bool* j = (bool*)entity_get(jetpack, COMPONENT_JETPACK);
+    unsigned int* state = (unsigned int*)entity_get(jetpack, COMPONENT_JETPACK);
     rect_t* r = (rect_t*)entity_get(e, COMPONENT_PHI_RECT);
     rect_t* rg = (rect_t*)entity_get(e, COMPONENT_GL_RECT);
     unsigned int* fuel = (unsigned int*)entity_get(e, COMPONENT_AMMO);
@@ -131,8 +134,10 @@ static void netJetpackUpdate(Packet* p)
 
     if (p->data[PACKET_TYPE] == PACKET_TYPE_JETPACK_USED) {
         *g = false;
+        *state = JETPACK_COLLECTED;
     } else {
         *g = true;
+        *state = JETPACK_LOOSE;
     }
 
     if ((rg->w > 0.0f && orientation < 0) ||
@@ -308,6 +313,10 @@ void treeNetInit(const char* username, const char* ip)
     module_destroy(module_current());
     moduleInit();
     map_t map = map_load(FILE_NET_MAP);
+    if (!map.data) {
+        systemSetState(STATE_MENU);
+        return;
+    }
     module_from_map(&map);
     spawnPoint = map_spawn(map);
     while (spawnPoint.x < 40.0f && spawnPoint.y < 40.0f) {

@@ -177,7 +177,7 @@ Module moduleInit()
         sizeof(bool), // Smoke
         sizeof(bool), // Shadow
         sizeof(bool), //Firebarrel
-        sizeof(bool), //Jetpack
+        sizeof(unsigned int), //Jetpack
         sizeof(GranadeComponent) //Granade
     );
 }

@@ -12,6 +12,10 @@ extern wxDirectory wxDir;
 extern Entity player;
 extern unsigned int randSeed;
 
+extern unsigned int usedWeapon;
+extern unsigned int jetpack;
+extern unsigned int granadeCount;
+
 vec2 spawnPoint;
 
 static vec2 cursor;
@@ -373,6 +377,9 @@ void levelReset()
     module_destroy(module_current());
     moduleInit();
     player = archetypePlayer();
+    usedWeapon = 0;
+    jetpack = 0;
+    granadeCount = 0;
     playerReset();
 }
 

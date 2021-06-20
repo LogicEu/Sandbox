@@ -22,7 +22,7 @@ static void jetpackApply(Entity e)
 
 void jetpackUse(Entity jetpack)
 {
-    if (!*(bool*)entity_get(jetpack, COMPONENT_JETPACK)) return;
+    if (*(unsigned int*)entity_get(jetpack, COMPONENT_JETPACK) != JETPACK_USED) return;
     unsigned int* fuel = (unsigned int*)entity_get(jetpack, COMPONENT_AMMO);
     if (!*fuel) return;
     vec2* playerVel = (vec2*)entity_get(player, COMPONENT_VEL_VEC2);
@@ -34,17 +34,15 @@ void jetpackUse(Entity jetpack)
 
 void jetpackPick(Entity jetpack)
 {
-    bool t = true;
     memset(entity_get(jetpack, COMPONENT_VEL_VEC2), 0, sizeof(vec2));
     memset(entity_get(jetpack, COMPONENT_GRAVITY), 0, sizeof(bool));
-    entity_set(jetpack, COMPONENT_JETPACK, &t);
+    *(unsigned int*)entity_get(jetpack, COMPONENT_JETPACK) = JETPACK_USED;
 }
 
 void jetpackDrop(Entity jetpack)
 {
-    bool t = true;
-    memset(entity_get(jetpack, COMPONENT_JETPACK), 0, sizeof(bool));
-    entity_set(jetpack, COMPONENT_GRAVITY, &t);
+    *(unsigned int*)entity_get(jetpack, COMPONENT_JETPACK) = JETPACK_LOOSE;
+    *(bool*)entity_get(jetpack, COMPONENT_GRAVITY) = true;
 }
 
 void jetpackControllerStep()
@@ -52,7 +50,7 @@ void jetpackControllerStep()
     unsigned int count = component_entity_count(COMPONENT_JETPACK);
     for (unsigned int i = 0; i < count; i++) {
         Entity e = entity_find(COMPONENT_JETPACK, i);
-        bool activated = *(bool*)entity_get(e, COMPONENT_JETPACK);
-        if (activated) jetpackApply(e);
+        unsigned int activated = *(unsigned int*)entity_get(e, COMPONENT_JETPACK);
+        if (activated == JETPACK_USED) jetpackApply(e);
     }
 }

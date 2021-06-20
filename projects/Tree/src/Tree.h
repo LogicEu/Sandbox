@@ -172,6 +172,12 @@ typedef enum {
     BULLET_KIND_ROCKET
 } BulletKind;
 
+typedef enum {
+    JETPACK_LOOSE,
+    JETPACK_USED,
+    JETPACK_COLLECTED
+} jetpackStateEnum;
+
 typedef struct {
     unsigned int width, height;
     uint8_t* data;

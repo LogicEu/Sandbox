@@ -10,7 +10,7 @@ bool stateJetpacking = false;
 Entity usedWeapon = 0;
 Entity jetpack = 0;
 static Entity granades[GRANADE_MAX];
-static unsigned int granadeCount = 0;
+unsigned int granadeCount = 0;
 
 extern Entity player;
 extern vec4 cam;
@@ -197,6 +197,9 @@ void playerGameStep(float deltaTime)
             jetpackDrop(jetpack);
             jetpack = 0;
         }
+        while(granadeCount > 0) {
+            granadeDrop(granades[--granadeCount]);
+        }
 
         blackAndWhite = true;
         playerDeadStep(deltaTime);
@@ -318,7 +321,7 @@ void playerGameStep(float deltaTime)
         canDash = true;
         doubleJump = true;
     }
-    
+
     //Vertical Phi
     if (isGrounded) {
         if (keyUp && !checkRigidCollision(player, vec2_new(0.0f, jump * deltaTime))) {

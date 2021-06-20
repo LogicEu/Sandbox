@@ -22,7 +22,7 @@ Entity checkGunCollision(Entity entity)
     const unsigned int count = component_entity_count(COMPONENT_GUN_CONTROLLER);
     for (unsigned int i = 0; i < count; i++) {
         Entity e = entity_find(COMPONENT_GUN_CONTROLLER, i);
-        if (*(bool*)entity_get(e, COMPONENT_GUN_CONTROLLER)) continue;
+        if (*(GunState*)entity_get(e, COMPONENT_GUN_CONTROLLER) != GUN_STATE_LOOSE) continue;
         rect_t r = *(rect_t*)entity_get(e, COMPONENT_PHI_RECT);
         if (place_meeting(rPhi, r)) return e;
     }
@@ -35,7 +35,7 @@ Entity checkJetpackCollision(Entity entity)
     const unsigned int count = component_entity_count(COMPONENT_JETPACK);
     for (unsigned int i = 0; i < count; i++) {
         Entity e = entity_find(COMPONENT_JETPACK, i);
-        if (*(bool*)entity_get(e, COMPONENT_JETPACK)) continue;
+        if (*(unsigned int*)entity_get(e, COMPONENT_JETPACK) != JETPACK_LOOSE) continue;
         rect_t r = *(rect_t*)entity_get(e, COMPONENT_PHI_RECT);
         if (place_meeting(rPhi, r)) return e;
     }

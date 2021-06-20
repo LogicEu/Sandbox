@@ -81,10 +81,10 @@ Entity archetypeFirebarrel(vec2 position)
 Entity archetypeJetpackController(vec2 position)
 {
     static unsigned int fuel = 300;
-
+    static unsigned int jetpack = 0;
     texture_t* t = assetsGetTexture(TEXTURE_JETPACK);
     rect_t r = {position.x, position.y, t->width, t->height};
-    return archetype_entity(ARCHETYPE_JETPACK, 7, &t->id, &r, &r, &vecZero, &bTrue, &bFalse, &fuel);
+    return archetype_entity(ARCHETYPE_JETPACK, 7, &t->id, &r, &r, &vecZero, &bTrue, &jetpack, &fuel);
 }
 
 Entity archetypeGranade(vec2 position)
