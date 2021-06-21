@@ -79,6 +79,25 @@ Entity checkPhiCollision(Entity entity, Component component)
     return 0;
 }
 
+unsigned int checkBlastCollision(Entity entity)
+{
+    rect_t rPhi = *(rect_t*)entity_get(entity, COMPONENT_PHI_RECT);
+    unsigned int count = component_entity_count(COMPONENT_EXPLOTION);
+    unsigned int dammage = 0;
+    for (unsigned int i = 0; i < count; i++) {
+        Entity e = entity_find(COMPONENT_EXPLOTION, i);
+        rect_t r = *(rect_t*)entity_get(e, COMPONENT_PHI_RECT);
+        float scale = *(float*)entity_get(e, COMPONENT_SCALE);
+        float exp = *(float*)entity_get(e, COMPONENT_EXPLOTION);
+        r.w *= scale;
+        r.h *= scale;
+        if (place_meeting(rPhi, r)) {
+            dammage += (unsigned int)(exp / scale);
+        }
+    }
+    return dammage;
+}
+
 Entity checkPhiScaledCollision(Entity entity, Component component)
 {
     rect_t rPhi = *(rect_t*)entity_get(entity, COMPONENT_PHI_RECT);

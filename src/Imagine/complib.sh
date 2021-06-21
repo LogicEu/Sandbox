@@ -23,6 +23,7 @@ inc=(
 
 lib=(
     -L../../lib/
+    -lzbug
     -lpng
     -ljpeg
 )
@@ -38,8 +39,8 @@ fail_os() {
 }
 
 mac_dlib() {
-        gcc ${flags[*]} ${inc[*]} ${lib[*]} -dynamiclib ${src[*]} -o ../../lib/$name.dylib
-        install_name_tool -id @executable_path/lib/$name.dylib ../../lib/$name.dylib 
+    gcc ${flags[*]} ${inc[*]} ${lib[*]} -dynamiclib ${src[*]} -o ../../lib/$name.dylib
+    install_name_tool -id @executable_path/lib/$name.dylib ../../lib/$name.dylib 
 }
 
 linux_dlib() {

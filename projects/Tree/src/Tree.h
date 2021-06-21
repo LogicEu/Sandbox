@@ -310,6 +310,7 @@ Entity checkGunCollision(Entity entity);
 Entity checkFirebarrelCollision(Entity entity);
 Entity checkJetpackCollision(Entity entity);
 Entity checkGranadeCollision(Entity entity);
+unsigned int checkBlastCollision(Entity entity);
 Entity checkPhiCollision(Entity entity, Component component);
 Entity checkPhiScaledCollision(Entity entity, Component component);
 

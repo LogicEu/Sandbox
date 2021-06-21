@@ -2,6 +2,7 @@
 To Do:
 --------@eulogic
 
+Random func equal between platforms and common seed generation online
 
 Networking:
     - User Name
@@ -27,4 +28,5 @@ Engine:
     - Be able to destroy block
 
 Fix:
+    - BUG! -> Seg fault when picking jetpack online
     - Discrepancies in map serialization between Mac and RasPi

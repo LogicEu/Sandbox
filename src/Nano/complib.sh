@@ -15,6 +15,12 @@ inc=(
     -I../../src/
 )
 
+lib=(
+    -L../../lib/
+    -lzbug
+    -lenet
+)
+
 fail_op() {
     echo "Run with -d to build dynamically, or -s to build statically."
     exit
@@ -26,8 +32,8 @@ fail_os() {
 }
 
 mac_dlib() {
-        gcc ${flags[*]} ${inc[*]} ${lib[*]} -lenet -dynamiclib src/*.c -o ../../lib/$name.dylib
-        install_name_tool -id @executable_path/lib/$name.dylib ../../lib/$name.dylib 
+    gcc ${flags[*]} ${inc[*]} ${lib[*]} -lenet -dynamiclib src/*.c -o ../../lib/$name.dylib
+    install_name_tool -id @executable_path/lib/$name.dylib ../../lib/$name.dylib 
 }
 
 linux_dlib() {

@@ -118,6 +118,7 @@ static void editorInput()
     if (window_file_has()) {
         bmp_t tmp = bmp_load(window_file_get());
         bmp_t tmp2 = bmp_resize_width(&tmp, 32);
+        bmp_free(&bmp);
         bmp = bmp_resize_height(&tmp2, 32);
         bmp_free(&tmp);
         bmp_free(&tmp2);

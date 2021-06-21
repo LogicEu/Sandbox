@@ -264,13 +264,8 @@ void playerGameStep(float deltaTime)
         if (vel->y > mark) stateJetpacking = true;
     } else stateJetpacking = false;
 
-    Entity explotion = checkPhiScaledCollision(player, COMPONENT_EXPLOTION);
-    if (explotion) {
-        float scale = *(float*)entity_get(explotion, COMPONENT_SCALE);
-        float exp = *(float*)entity_get(explotion, COMPONENT_EXPLOTION);
-        unsigned int dammage = (unsigned int)(exp / scale);
-        hp = (hp - dammage) * (dammage <= hp);
-    }
+    unsigned int dammage = checkBlastCollision(player);
+    hp = (hp - dammage) * (dammage <= hp);
 
     //Lateral Movement
     if (keyDir) {

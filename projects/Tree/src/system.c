@@ -225,7 +225,6 @@ void treeInit()
     gameInit();
     levelEditorInit();
     spriteEditorInit();
-    printf("%u\n entities", entity_count());
 }
 
 void treeDirectoryReset()

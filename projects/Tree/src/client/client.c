@@ -234,14 +234,17 @@ static void netSendWeapon(Packet* packet, Entity weapon)
     memcpy(&packet->data[PACKET_FLOAT_Z], rot, sizeof(float));
 }
 
-static void netSendJetpack(Packet* packet, Entity jetpack)
+static void netSendJetpack(Packet* packet, Entity jet)
 {
-    unsigned int fuel = *(unsigned int*)entity_get(jetpack, COMPONENT_AMMO);
-    vec2 pos = *(vec2*)entity_get(jetpack, COMPONENT_PHI_RECT);
+    unsigned int j = *(unsigned int*)entity_get(jet, COMPONENT_JETPACK);
+    unsigned int fuel = *(unsigned int*)entity_get(jet, COMPONENT_AMMO);
+    vec2 pos = *(vec2*)entity_get(jet, COMPONENT_PHI_RECT);
     rect_t* rGl = (rect_t*)entity_get(player, COMPONENT_GL_RECT);
-    uint16_t id = (uint16_t)jetpack;
+    uint16_t id = (uint16_t)jet;
 
     memcpy(&packet->data[PACKET_ENTITY_ID], &id, sizeof(uint16_t));
+    if (j == JETPACK_USED) packet->data[PACKET_TYPE] = PACKET_TYPE_JETPACK_USED;
+    else packet->data[PACKET_TYPE] = PACKET_TYPE_JETPACK_LOOSE;
     packet->data[PACKET_TYPE] = PACKET_TYPE_JETPACK_USED;
     packet->data[PACKET_OP] = (uint8_t)fuel;
     memcpy(&packet->data[PACKET_FLOAT_X], &pos.x, sizeof(float));

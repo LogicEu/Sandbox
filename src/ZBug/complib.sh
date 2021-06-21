@@ -26,12 +26,12 @@ fail_os() {
 }
 
 mac_dlib() {
-        gcc ${flags[*]} ${inc[*]} ${lib[*]} -dynamiclib src/*.c -o ../../lib/$name.dylib
-        install_name_tool -id @executable_path/lib/$name.dylib ../../lib/$name.dylib 
+    gcc ${flags[*]} ${inc[*]} -dynamiclib src/*.c -o ../../lib/$name.dylib
+    install_name_tool -id @executable_path/lib/$name.dylib ../../lib/$name.dylib 
 }
 
 linux_dlib() {
-    gcc -shared ${flags[*]} ${inc[*]} ${lib[*]} -fPIC src/*.c -o ../../lib/$name.so 
+    gcc -shared ${flags[*]} ${inc[*]} -fPIC src/*.c -o ../../lib/$name.so 
 }
 
 dlib() {

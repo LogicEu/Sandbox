@@ -18,7 +18,7 @@ image file format. Built on top of libpng.
 
 */
 
-//#include <Omega.h>
+#include <Omega.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
