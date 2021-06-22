@@ -180,7 +180,6 @@ static void playerDeadStep(float deltaTime)
     deadTimer -= deltaTime * 0.3f;
     if (deadTimer < 0.0f) {
         deadTimer = 1.0f;
-        playerDrawDead();
         playerReset();
         blackAndWhite = false;
     } else playerDrawDead();

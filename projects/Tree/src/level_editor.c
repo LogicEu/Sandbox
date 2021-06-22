@@ -339,8 +339,8 @@ static void getKeyboardInput(float deltaTime)
     if (keyboard_down(GLFW_KEY_A)) cam.x -= deltaTime * camSpeed;
     if (keyboard_down(GLFW_KEY_W)) cam.y += deltaTime * camSpeed;
     if (keyboard_down(GLFW_KEY_S)) cam.y -= deltaTime * camSpeed;
-    if (keyboard_down(GLFW_KEY_Z)) cam.z += deltaTime;
-    if (keyboard_down(GLFW_KEY_X)) cam.z -= deltaTime;
+    if (keyboard_down(GLFW_KEY_Z)) cam.z = clampf(cam.z + deltaTime, 0.01f, 10.0f);
+    if (keyboard_down(GLFW_KEY_X)) cam.z = clampf(cam.z - deltaTime, 0.01f, 10.0f);
 }
 
 static void levelEditorDraw()
