@@ -17,8 +17,6 @@ Networking:
     - Firebarrel
         -Explode event
 
-    Fix constant shooting not lowering HP bug
-
 UI:
     - Create Window, or MiniMenu
     - Create Info Pop-Up
@@ -26,7 +24,12 @@ UI:
 Engine:
     - Unite vertices of blocks.
     - Be able to destroy block
+    - IDEA: giant array with grid mesh of vertices, and algorithm for filling
+    the blocks accordingly.
+
+    - REFACTOR OLD SHADER SYSTEM TO NEW MAT4 PROJECTION SHADER SYSTEM
 
 Fix:
-    - BUG! -> Seg fault when picking jetpack online
     - Discrepancies in map serialization between Mac and RasPi
+    - Solution for when user suddenly disconnects and his items are marked as
+    his

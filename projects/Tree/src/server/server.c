@@ -98,6 +98,7 @@ int main(void)
 
             for (Packet* u = start; u != start + users_size; u++) {
                 memcpy(p, u, sizeof(Packet));
+                //packetPrint(p);
                 if (u->data[PACKET_STATE] == NET_DISCONNECTED) {
                     array_remove(users, index);
                 } else index++;
@@ -126,6 +127,12 @@ int main(void)
             unsigned int size = (users_size + objects_size) * sizeof(Packet);
             NNet_broadcast(server->host, server->packet, server->buffer, size, 1);
             received = 0;
+
+            if (!users->used) {
+                queue->used = 0;
+                deltas->used = 0;
+                printf("All users left. Reseted all server data.\n");
+            }
         }
     }
     exitNanoNet(server->host);

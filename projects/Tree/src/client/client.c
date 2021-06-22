@@ -124,7 +124,7 @@ static void netJetpackUpdate(Packet* p)
     Entity e = (Entity)id;
     if (e == netJetpack) return;
 
-    unsigned int* state = (unsigned int*)entity_get(jetpack, COMPONENT_JETPACK);
+    unsigned int* state = (unsigned int*)entity_get(e, COMPONENT_JETPACK);
     rect_t* r = (rect_t*)entity_get(e, COMPONENT_PHI_RECT);
     rect_t* rg = (rect_t*)entity_get(e, COMPONENT_GL_RECT);
     unsigned int* fuel = (unsigned int*)entity_get(e, COMPONENT_AMMO);
@@ -167,7 +167,7 @@ static void netRead()
     received = NNetHost_read(client, 0);
     if (!received) return;
 
-    uint8_t disconnected = 0;
+    uint8_t disconnected = 255;
     Packet* p = client->buffer;
     unsigned int size = received / sizeof(Packet);
     for (unsigned int i = 0; i < size; i++) {
@@ -188,7 +188,7 @@ static void netRead()
         p++;
     }
 
-    if (!disconnected) return;
+    if (disconnected == 255) return;
     NetEntity* n = netEntities->data;
     for (unsigned int i = 0; i < netEntities->used; i++) {
         if (n->id == disconnected) {
