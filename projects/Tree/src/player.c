@@ -1,7 +1,5 @@
 #include "Tree.h"
 
-#define GRANADE_MAX 4
-
 unsigned int hp = 100;
 bool stateWallSliding = false;
 bool stateDashing = false;
@@ -9,16 +7,20 @@ bool stateJetpacking = false;
 
 Entity usedWeapon = 0;
 Entity jetpack = 0;
-static Entity granades[GRANADE_MAX];
+Entity granades[GRANADE_MAX];
 unsigned int granadeCount = 0;
 
 extern Entity player;
 extern vec4 cam;
+extern vec2 mouse;
 extern bool blackAndWhite;
 extern vec2 spawnPoint;
 
 extern Entity netUsedWeapon;
 extern Entity netJetpack;
+extern Entity netGranadePick;
+extern Entity netGranadeThrow;
+extern queue_t* netGranadeDrop;
 
 extern void cameraTriggerAlarm();
 
@@ -131,22 +133,23 @@ static void pickObject()
 
     if (granade && granadeCount < GRANADE_MAX - 1) {
         granadeCollect(granade);
+        netGranadePick = granade;
         granades[granadeCount] = granade;
-        granadeCount ++;
+        granadeCount++;
         ret = true;
     }
     if (jet) {
         if (jetpack) jetpackDrop(jetpack);
+        else netJetpack = jet;
         jetpackPick(jet);
         jetpack = jet;
-        netJetpack = jetpack;
         ret = true;
     }  
     if (gun) {
         if (usedWeapon) gunDrop(usedWeapon);
+        else netUsedWeapon = gun;
         gunPick(gun) ;
         usedWeapon = gun;
-        netUsedWeapon = usedWeapon;
         ret = true;
     } 
     if (ret) return;
@@ -197,7 +200,8 @@ void playerGameStep(float deltaTime)
             jetpack = 0;
         }
         while(granadeCount > 0) {
-            granadeDrop(granades[--granadeCount]);
+            if (netGranadeDrop) queue_push(netGranadeDrop, &granades[granadeCount]);
+            granadeDrop(granades[--granadeCount], *(vec2*)entity_get(player, COMPONENT_PHI_RECT));
         }
 
         blackAndWhite = true;
@@ -256,7 +260,12 @@ void playerGameStep(float deltaTime)
     else doubleKeyTimer -= deltaTime;
 
     if (keySpace) pickObject();
-    if (keyGranade && granadeCount) granadeThrow(granades[--granadeCount], vec2_new(playerPhi->x, playerPhi->y));
+    if (keyGranade && granadeCount) {
+        vec2 pos = {playerPhi->x, playerPhi->y};
+        float rot = vec2_to_rad(vec2_sub(mouse, pos));
+        granadeThrow(granades[--granadeCount], pos, rot);
+        netGranadeThrow = granades[granadeCount];
+    }
     if (keyShift && jetpack) {
         float mark = vel->y;
         jetpackUse(jetpack);

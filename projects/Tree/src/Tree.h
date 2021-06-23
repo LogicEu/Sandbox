@@ -14,9 +14,9 @@ TREE FRAMEWORK HEADER
 #include <Heart.h>
 
 #define FULLSCREEN 0
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 600
-#define SCREEN_SCALE 3
+#define SCREEN_WIDTH 400
+#define SCREEN_HEIGHT 300
+#define SCREEN_SCALE 2
 
 #define SCREEN_XSCALE SCREEN_WIDTH / SCREEN_SCALE
 #define SCREEN_YSCALE SCREEN_HEIGHT / SCREEN_SCALE
@@ -26,6 +26,8 @@ TREE FRAMEWORK HEADER
 #else
 #define KEY_MOD GLFW_KEY_LEFT_CONTROL
 #endif
+
+#define GRANADE_MAX 4
 
 typedef enum {
     STATE_MENU,
@@ -302,8 +304,8 @@ void jetpackUse(Entity jetpack);
 
 void granadeStep(float deltaTime);
 void granadeCollect(Entity granade);
-void granadeDrop(Entity granade);
-void granadeThrow(Entity e, vec2 position);
+void granadeDrop(Entity granade, vec2 pos);
+void granadeThrow(Entity e, vec2 position, float rot);
 
 bool checkRigidCollision(Entity entity, vec2 off);
 Entity checkGunCollision(Entity entity);

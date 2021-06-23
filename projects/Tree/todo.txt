@@ -30,6 +30,9 @@ Engine:
     - REFACTOR OLD SHADER SYSTEM TO NEW MAT4 PROJECTION SHADER SYSTEM
 
 Fix:
+    - Implement explotion event for granade
+    - Implement item disconnect system
+
     - Discrepancies in map serialization between Mac and RasPi
     - Solution for when user suddenly disconnects and his items are marked as
     his

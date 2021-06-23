@@ -41,6 +41,7 @@ void jetpackPick(Entity jetpack)
 
 void jetpackDrop(Entity jetpack)
 {
+    memset(entity_get(jetpack, COMPONENT_VEL_VEC2), 0, sizeof(vec2));
     *(unsigned int*)entity_get(jetpack, COMPONENT_JETPACK) = JETPACK_LOOSE;
     *(bool*)entity_get(jetpack, COMPONENT_GRAVITY) = true;
 }

@@ -111,6 +111,7 @@ int main(void)
                 start = (Packet*)deltas->data;
                 for (Packet* pp = start; pp != start + deltas->used; pp++) {
                     memcpy(p, pp, sizeof(Packet));
+                    //packetPrint(p);
                     p++;
                 }
                 userConnected = false;
@@ -120,6 +121,7 @@ int main(void)
                 start = (Packet*)queue->data;
                 while(!queue_is_empty(queue)) {
                     memcpy(p, queue_pop(queue), sizeof(Packet));
+                    //packetPrint(p);
                     p++;
                 }
             }

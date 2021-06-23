@@ -11,20 +11,21 @@ void granadeCollect(Entity granade)
     memset(entity_get(granade, COMPONENT_GL_RECT), 0, sizeof(rect_t));
 }
 
-void granadeDrop(Entity granade)
+void granadeDrop(Entity granade, vec2 pos)
 {
     GranadeComponent* granadeComponent = (GranadeComponent*)entity_get(granade, COMPONENT_GRANADE);
+    rect_t* r = entity_get(granade, COMPONENT_PHI_RECT);
+    memcpy(r, &pos, sizeof(vec2));
     granadeComponent->state = GRANADE_LOOSE;
     *(bool*)entity_get(granade, COMPONENT_GRAVITY) = true;
-    entity_set(granade, COMPONENT_GL_RECT, entity_get(granade, COMPONENT_PHI_RECT));
+    entity_set(granade, COMPONENT_GL_RECT, r);
 }
 
-void granadeThrow(Entity granade, vec2 position)
+void granadeThrow(Entity granade, vec2 position, float rot)
 {
     GranadeComponent* granadeComponent = (GranadeComponent*)entity_get(granade, COMPONENT_GRANADE);
     granadeComponent->state = GRANADE_THROWED;
     static const int granadeSpeed = 200.0f;
-    float rot = vec2_to_rad(vec2_sub(mouse, position));
     vec2 vel = {cosf(rot) * granadeSpeed, sinf(rot) * granadeSpeed};
     entity_set(granade, COMPONENT_VEL_VEC2, &vel);
     *(bool*)entity_get(granade, COMPONENT_GRAVITY) = true;

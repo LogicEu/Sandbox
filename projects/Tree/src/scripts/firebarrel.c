@@ -1,5 +1,7 @@
 #include "../Tree.h"
 
+extern Entity netFirebarrelExp;
+
 void firebarrelStep()
 {
     unsigned int count = component_entity_count(COMPONENT_FIREBARREL);
@@ -9,6 +11,7 @@ void firebarrelStep()
         if (*b || checkPhiScaledCollision(e, COMPONENT_EXPLOTION)) {
             archetypeBlast(*(vec2*)entity_get(e, COMPONENT_PHI_RECT), 80.0f);
             entity_destroy(e);
+            netFirebarrelExp = e;
             count--;
             i--;
         } 

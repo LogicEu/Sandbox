@@ -13,9 +13,15 @@ extern Entity player;
 extern Entity usedWeapon;
 extern Entity jetpack;
 extern vec2 spawnPoint;
+extern Entity granades[GRANADE_MAX];
+extern unsigned int granadeCount;
 
 Entity netUsedWeapon;
 Entity netJetpack;
+Entity netGranadePick;
+Entity netGranadeThrow;
+Entity netFirebarrelExp;
+queue_t* netGranadeDrop = NULL;
 
 extern bool stateWallSliding;
 extern bool stateDashing;
@@ -84,8 +90,8 @@ static void netPlayerUpdate(Entity entity, Packet* packet)
 
 static void netWeaponUpdate(Packet* p)
 {
-    uint16_t id = packetId16(p);
-    Entity e = (Entity)id;
+    Entity e = (Entity)packetId16(p);
+    if (e >= entity_count() || !entity_has(e, COMPONENT_GUN_CONTROLLER)) return;
     if (e == netUsedWeapon) return;
 
     rect_t* r = (rect_t*)entity_get(e, COMPONENT_PHI_RECT);
@@ -100,13 +106,17 @@ static void netWeaponUpdate(Packet* p)
         gun->ammo = ammo;
     }
 
-    if (p->data[PACKET_TYPE] == PACKET_TYPE_GUN_USED) {
+    memcpy(rot, &p->data[PACKET_FLOAT_Z], sizeof(float));
+    if (fabs(*rot) > M_PI * 0.5) {
+        if (rg->h > 0.0f) rg->h *= -1.0f;
+    } else if (rg->h <= 0.0f) rg->h *= -1.0f;
+
+    if (p->data[PACKET_TYPE] == PACKET_TYPE_GUN_USED && gun->state != GUN_STATE_COLLECTED) {
+        memset(entity_get(e, COMPONENT_VEL_VEC2), 0, sizeof(vec2));
         *g = false;
         gun->state = GUN_STATE_COLLECTED;
-        if (fabs(*rot) > M_PI * 0.5) {
-            if (rg->h > 0.0f) rg->h *= -1.0f;
-        } else if (rg->h <= 0.0f) rg->h *= -1.0f;
-    } else {
+    } else if (p->data[PACKET_TYPE] == PACKET_TYPE_GUN_LOOSE && gun->state != GUN_STATE_LOOSE) {
+        memset(entity_get(e, COMPONENT_VEL_VEC2), 0, sizeof(vec2));
         *g = true;
         gun->state = GUN_STATE_LOOSE;
     }
@@ -115,13 +125,12 @@ static void netWeaponUpdate(Packet* p)
     memcpy(&r->y, &p->data[PACKET_FLOAT_Y], sizeof(float));
     memcpy(&rg->x, &p->data[PACKET_FLOAT_X], sizeof(float));
     memcpy(&rg->y, &p->data[PACKET_FLOAT_Y], sizeof(float));
-    memcpy(rot, &p->data[PACKET_FLOAT_Z], sizeof(float));
 }
 
 static void netJetpackUpdate(Packet* p)
 {
-    uint16_t id = packetId16(p);
-    Entity e = (Entity)id;
+    Entity e = (Entity)packetId16(p);
+    if (e >= entity_count() || !entity_has(e, COMPONENT_JETPACK)) return;
     if (e == netJetpack) return;
 
     unsigned int* state = (unsigned int*)entity_get(e, COMPONENT_JETPACK);
@@ -132,10 +141,12 @@ static void netJetpackUpdate(Packet* p)
     int orientation = (int)(unsigned int)p->data[PACKET_ORIENTATION];
     orientation = orientation * 2 - 1;
 
-    if (p->data[PACKET_TYPE] == PACKET_TYPE_JETPACK_USED) {
+    if (p->data[PACKET_TYPE] == PACKET_TYPE_JETPACK_USED && *state != JETPACK_COLLECTED) {
+        memset(entity_get(e, COMPONENT_VEL_VEC2), 0, sizeof(vec2));
         *g = false;
         *state = JETPACK_COLLECTED;
-    } else {
+    } else if (p->data[PACKET_TYPE] == PACKET_TYPE_JETPACK_LOOSE && *state != JETPACK_LOOSE) {
+        memset(entity_get(e, COMPONENT_VEL_VEC2), 0, sizeof(vec2));
         *g = true;
         *state = JETPACK_LOOSE;
     }
@@ -152,12 +163,54 @@ static void netJetpackUpdate(Packet* p)
     *fuel = (unsigned int)p->data[PACKET_OP];
 }
 
+static void netGranadeUpdate(Packet* p)
+{
+    Entity e = (Entity)packetId16(p);
+    if (e >= entity_count() || !entity_has(e, COMPONENT_GRANADE)) return;
+    for (unsigned int i = 0; i < granadeCount; i++) {
+        if (granades[i] == e) return;
+    }
+
+    rect_t* r = (rect_t*)entity_get(e, COMPONENT_PHI_RECT);
+    rect_t* rg = (rect_t*)entity_get(e, COMPONENT_GL_RECT);
+    GranadeComponent* granade = (GranadeComponent*)entity_get(e, COMPONENT_GRANADE);
+    if (p->data[PACKET_TYPE] == PACKET_TYPE_GRANADE_PICK && granade->state != GRANADE_COLLECTED) {
+        granadeCollect(e);
+    } else if (p->data[PACKET_TYPE] == PACKET_TYPE_GRANADE_THROW && granade->state != GRANADE_THROWED) {
+        granadeThrow(e, vec2_new(r->x, r->y), *(float*)&p->data[PACKET_FLOAT_Z]);
+    } else if (p->data[PACKET_TYPE] == PACKET_TYPE_GRANADE_DROP) {
+        granadeDrop(e, *(vec2*)&p->data[PACKET_FLOAT_X]);
+    } else if (p->data[PACKET_TYPE] == PACKET_TYPE_GRANADE_EXPLODE) {
+        if (granade->state == GRANADE_THROWED) {
+            archetypeBlast(*(vec2*)r, 80.0f);
+        } 
+        entity_destroy(e);
+        return;
+    }
+
+    memcpy(&r->x, &p->data[PACKET_FLOAT_X], sizeof(float));
+    memcpy(&r->y, &p->data[PACKET_FLOAT_Y], sizeof(float));
+    memcpy(&rg->x, &p->data[PACKET_FLOAT_X], sizeof(float));
+    memcpy(&rg->y, &p->data[PACKET_FLOAT_Y], sizeof(float));
+}
+
+static void netFirebarrelUpdate(Packet* p)
+{
+    Entity e = (Entity)packetId16(p);
+    if (e >= entity_count() || !entity_has(e, COMPONENT_FIREBARREL)) return;
+    entity_destroy(e);
+}
+
 static void packetParse(Packet* p)
 {
     if (p->data[PACKET_TYPE] == PACKET_TYPE_GUN_LOOSE || p->data[PACKET_TYPE] == PACKET_TYPE_GUN_USED) {
         netWeaponUpdate(p);
     } else if (p->data[PACKET_TYPE] == PACKET_TYPE_JETPACK_LOOSE || p->data[PACKET_TYPE] == PACKET_TYPE_JETPACK_USED) {
         netJetpackUpdate(p);
+    } else if (p->data[PACKET_TYPE] >= PACKET_TYPE_GRANADE_PICK && p->data[PACKET_TYPE] <= PACKET_TYPE_GRANADE_EXPLODE) {
+        netGranadeUpdate(p);
+    } else if (p->data[PACKET_TYPE] == PACKET_TYPE_FIREBARREL_EXPLODE) {
+        netFirebarrelUpdate(p);
     }
 }
 
@@ -245,11 +298,51 @@ static void netSendJetpack(Packet* packet, Entity jet)
     memcpy(&packet->data[PACKET_ENTITY_ID], &id, sizeof(uint16_t));
     if (j == JETPACK_USED) packet->data[PACKET_TYPE] = PACKET_TYPE_JETPACK_USED;
     else packet->data[PACKET_TYPE] = PACKET_TYPE_JETPACK_LOOSE;
-    packet->data[PACKET_TYPE] = PACKET_TYPE_JETPACK_USED;
     packet->data[PACKET_OP] = (uint8_t)fuel;
     memcpy(&packet->data[PACKET_FLOAT_X], &pos.x, sizeof(float));
     memcpy(&packet->data[PACKET_FLOAT_Y], &pos.y, sizeof(float));
     packet->data[PACKET_ORIENTATION] = (rGl->w >= 0.0f);
+}
+
+static void netSendGranadePick(Packet* packet, Entity e)
+{
+    vec2 pos = *(vec2*)entity_get(e, COMPONENT_PHI_RECT);
+    uint16_t id = (uint16_t)e;
+
+    memcpy(&packet->data[PACKET_ENTITY_ID], &id, sizeof(uint16_t));
+    packet->data[PACKET_TYPE] = PACKET_TYPE_GRANADE_PICK;
+    memcpy(&packet->data[PACKET_FLOAT_X], &pos.x, sizeof(float));
+    memcpy(&packet->data[PACKET_FLOAT_Y], &pos.y, sizeof(float));
+}
+
+static void netSendGranadeThrow(Packet* packet, Entity e)
+{
+    vec2 pos = *(vec2*)entity_get(e, COMPONENT_PHI_RECT);
+    float rot = vec2_to_rad(*(vec2*)entity_get(e, COMPONENT_VEL_VEC2));
+    uint16_t id = (uint16_t)e;
+
+    memcpy(&packet->data[PACKET_ENTITY_ID], &id, sizeof(uint16_t));
+    packet->data[PACKET_TYPE] = PACKET_TYPE_GRANADE_THROW;
+    memcpy(&packet->data[PACKET_FLOAT_X], &pos.x, sizeof(float));
+    memcpy(&packet->data[PACKET_FLOAT_Y], &pos.y, sizeof(float));
+    memcpy(&packet->data[PACKET_FLOAT_Z], &rot, sizeof(float));
+}
+
+static void netSendGranadeDrop(Packet* packet, Entity e)
+{
+    uint16_t id = (uint16_t)e;
+    vec2 pos = *(vec2*)entity_get(e, COMPONENT_PHI_RECT);
+    memcpy(&packet->data[PACKET_ENTITY_ID], &id, sizeof(uint16_t));
+    packet->data[PACKET_TYPE] = PACKET_TYPE_GRANADE_DROP;
+    memcpy(&packet->data[PACKET_FLOAT_X], &pos.x, sizeof(float));
+    memcpy(&packet->data[PACKET_FLOAT_Y], &pos.y, sizeof(float));
+}
+
+static void netSendFirebarrelExp(Packet* packet, Entity firebarrel)
+{
+    uint16_t id = (uint16_t)firebarrel;
+    memcpy(&packet->data[PACKET_ENTITY_ID], &id, sizeof(uint16_t));
+    packet->data[PACKET_TYPE] = PACKET_TYPE_FIREBARREL_EXPLODE;
 }
 
 static void netSend()
@@ -264,13 +357,53 @@ static void netSend()
         size++;
         packet++;
         netSendWeapon(packet, netUsedWeapon);
+        //packetPrint(packet);
+        if (usedWeapon && usedWeapon != netUsedWeapon) {
+            size++;
+            packet++;
+            netSendWeapon(packet, usedWeapon);
+            //packetPrint(packet);
+        }
         netUsedWeapon = usedWeapon;
     }
     if (netJetpack) {
         size++;
         packet++;
         netSendJetpack(packet, netJetpack);
+        //packetPrint(packet);
+        if (jetpack && netJetpack != jetpack) {
+            size++;
+            packet++;
+            netSendJetpack(packet, jetpack);
+            //packetPrint(packet);
+        }
         netJetpack = jetpack;
+    }
+
+    if (netGranadePick) {
+        size++;
+        packet++;
+        netSendGranadePick(packet, netGranadePick);
+        netGranadePick = 0;
+    }
+    if (netGranadeThrow) {
+        size++;
+        packet++;
+        netSendGranadeThrow(packet, netGranadeThrow);
+        netGranadeThrow = 0;
+    }
+    while(!queue_is_empty(netGranadeDrop)) {
+        size++;
+        packet++;
+        printf("Dropping net granade.\n");
+        netSendGranadeDrop(packet, *(Entity*)queue_pop(netGranadeDrop));
+    }
+
+    if (netFirebarrelExp) {
+        size++;
+        packet++;
+        netSendFirebarrelExp(packet, netFirebarrelExp);
+        netFirebarrelExp = 0;
     }
 
     NNet_send(client->server, client->packet, client->buffer, size * sizeof(Packet), 0);
@@ -292,7 +425,9 @@ void netGameStep(float deltaTime)
 
 void treeNetExit()
 {
-    if (client->connected) NNet_disconnect(client->host, client->server, &client->event, NET_TIMEOUT);
+    if (client->connected) {
+        NNet_disconnect(client->host, client->server, &client->event, NET_TIMEOUT);
+    }
     exitNanoNet(client->host);
     NNetHost_free(client);
 
@@ -328,8 +463,8 @@ void treeNetInit(const char* username, const char* ip)
     map_destroy(map);
     terrainRecalcTextures();
 
-    netUsedWeapon = netJetpack = 0;
-
+    netGranadeDrop = queue_new(GRANADE_MAX, sizeof(Entity));
+    netUsedWeapon = netJetpack = netGranadeThrow = netGranadePick = netFirebarrelExp = 0;
     netEntities = array_new(NET_MAX_CLIENT_COUNT, sizeof(NetEntity));
     client = NNetHost_create(serverIp, NET_PORT, NET_MAX_CLIENT_COUNT, NET_CHANNELS, NET_BUFFER_SIZE, NET_TIMEOUT);
     while (enet_host_service(client->host, &client->event, NET_TIMEOUT) > 0) {

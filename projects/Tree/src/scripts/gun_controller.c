@@ -175,6 +175,7 @@ void gunDrop(Entity gun)
     gc->state = GUN_STATE_LOOSE;
     gc->latencyTimer = 0.0f;
     *(bool*)entity_get(gun, COMPONENT_GRAVITY) = true;
+    memset(entity_get(gun, COMPONENT_VEL_VEC2), 0, sizeof(vec2));
 }
 
 void gunControllerStep(float deltaTime)
