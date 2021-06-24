@@ -53,10 +53,10 @@ map_t map_noise(unsigned int w, unsigned int h, unsigned int stat, unsigned int 
         for (unsigned int x = 0; x < m.width; x++) {
             if (x == 0 || y == 0 || x == m.width - 1 || y == m.height - 1) {
                 *map_tile(m, x, y) = MAP_TILE_STATIC;
-            } else if ((unsigned int)(rand() % 100) < stat) {
+            } else if ((unsigned int)(rand_next() % 100) < stat) {
                 *map_tile(m, x, y) = MAP_TILE_STATIC;
             } 
-            else if ((unsigned int)(rand() % 100) < block) {
+            else if ((unsigned int)(rand_next() % 100) < block) {
                 *map_tile(m, x, y) = MAP_TILE_BLOCK;
             }
         }
@@ -102,7 +102,7 @@ map_t map_cellular_generate(unsigned int width, unsigned int height, unsigned in
 
 uint8_t item_rand()
 {
-    unsigned int num = rand() % 100;
+    unsigned int num = rand_next() % 100;
     if (num < 5) return MAP_TILE_JETPACK;
     if (num < 25) return MAP_TILE_FIREBARREL;
     if (num < 40) return MAP_TILE_GUN;
@@ -121,7 +121,7 @@ void map_itemify(map_t* m, unsigned int prob)
         for (unsigned int x = 0; x < m->width; x++) {
             if (IS_BLOCK(*m, x, y)) continue;
             if (IS_BLOCK(*m, x, y - 1) && IS_NULL(*m, x, y)) {
-                if ((unsigned int)(rand() % 100) < prob) *map_tile(*m, x, y) = item_rand();
+                if ((unsigned int)(rand_next() % 100) < prob) *map_tile(*m, x, y) = item_rand();
             }
         }
     }
@@ -252,7 +252,7 @@ vec2 map_spawn(map_t map)
     for (unsigned int y = 0; y < map.height; y++) {
         for (unsigned int x = 0; x < map.width; x++) {
             if (!(IS_NULL(map, x, y))) continue;
-            if (IS_BLOCK(map, x, y - 1) && rand() % 100 < 5) {
+            if (IS_BLOCK(map, x, y - 1) && rand_next() % 100 < 5) {
                 pos = vec2_new((float)(x * 32) + 16.0f, (float)(y * 32) + 16.0f);
                 return pos;
             } 

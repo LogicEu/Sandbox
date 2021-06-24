@@ -2,6 +2,7 @@
 #include <math.h>
 
 extern vec2 mouse;
+extern Entity netGranadeExp;
 
 void granadeCollect(Entity granade)
 {
@@ -58,6 +59,7 @@ void granadeStep(float deltaTime)
             vec2* v = (vec2*)entity_get(e, COMPONENT_PHI_RECT);
             archetypeBlast(*v, 80.0f);
             entity_destroy(e);
+            netGranadeExp = e;
             i--;
             count--;
             continue;

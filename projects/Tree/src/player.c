@@ -231,7 +231,7 @@ void playerGameStep(float deltaTime)
     rect_t* const playerTex = (rect_t*)entity_get(player, COMPONENT_GL_RECT);
     vec2* const vel = (vec2*)entity_get(player, COMPONENT_VEL_VEC2);
 
-    bool keyGranade = keyboard_pressed(GLFW_KEY_N);
+    bool keyGranade = mouse_pressed(GLFW_MOUSE_BUTTON_RIGHT);
     bool keySpace = keyboard_pressed(GLFW_KEY_SPACE);
     bool keyShift = keyboard_down(GLFW_KEY_LEFT_SHIFT);
     bool keyUp = (keyboard_pressed(GLFW_KEY_UP) || keyboard_pressed(GLFW_KEY_W));

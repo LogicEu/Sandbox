@@ -158,5 +158,23 @@ int main(int argc, char** argv)
     for (int i = 0; i < array->used; i++) {
         printf("%f\n", *(float*)array_index(array, i));
     }
+
+    printf("\n");
+
+    queue_t* queue = queue_new(100, sizeof(int));
+    ustack_t* stack = stack_new(100, sizeof(int));
+    for (int i = 0; i < 100; i++) {
+        queue_push(queue, &i);
+        stack_push(stack, &i);
+    }
+
+    while (!stack_is_empty(stack)) {
+        printf("Stack: %d\n", *(int*)stack_pop(stack));
+    }
+
+    while (!queue_is_empty(queue)) {
+        printf("Queue: %d\n", *(int*)queue_pop(queue));
+    }
+
     return 0;
 }

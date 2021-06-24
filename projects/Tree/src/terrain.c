@@ -43,7 +43,7 @@ void terraingGenRand(unsigned int width, unsigned int height)
 {
     for (unsigned int y = 0; y < height; y++) {
         for (unsigned int x = 0; x < width; x++) {
-            if (rand() % 100 > 90) {
+            if (rand_next() % 100 > 90) {
                 archetypeTerrainTile(TEXTURE_TILE_GRASS, vec2_new((x - width / 2) * 32.0f + 16.0f, (y - height / 2) * 32.0f + 16.0f));
             }
         }

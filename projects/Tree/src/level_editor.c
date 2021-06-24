@@ -249,6 +249,7 @@ static void getMouseInput()
     if (field->state == WIDGET_SELECTED) {
         sscanf(field->text, "%u", &randSeed);
         srand(randSeed);
+        rand_seed(randSeed);
         //printf("Rand: %u\n", randSeed);
         return;
     }

@@ -6,15 +6,6 @@
 ---------------------------
 */
 
-// Pseudo Random Number Generator
-
-unsigned int rand_uint(unsigned int seed)
-{
-    seed = (seed << 13) ^ seed;
-    return ((seed * (seed * seed * 15731 + 789221) + 1376312589) & 0x7fffffff);
-}
-
-
 // General Purpose Utilities
 
 float signf(float f)

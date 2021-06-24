@@ -20,6 +20,7 @@ Entity netUsedWeapon;
 Entity netJetpack;
 Entity netGranadePick;
 Entity netGranadeThrow;
+Entity netGranadeExp;
 Entity netFirebarrelExp;
 queue_t* netGranadeDrop = NULL;
 
@@ -338,6 +339,13 @@ static void netSendGranadeDrop(Packet* packet, Entity e)
     memcpy(&packet->data[PACKET_FLOAT_Y], &pos.y, sizeof(float));
 }
 
+static void netSendGranadeExp(Packet* packet, Entity e)
+{
+    uint16_t id = (uint16_t)e;
+    memcpy(&packet->data[PACKET_ENTITY_ID], &id, sizeof(uint16_t));
+    packet->data[PACKET_TYPE] = PACKET_TYPE_GRANADE_EXPLODE;
+}
+
 static void netSendFirebarrelExp(Packet* packet, Entity firebarrel)
 {
     uint16_t id = (uint16_t)firebarrel;
@@ -391,6 +399,12 @@ static void netSend()
         packet++;
         netSendGranadeThrow(packet, netGranadeThrow);
         netGranadeThrow = 0;
+    }
+    if (netGranadeExp) {
+        size++;
+        packet++;
+        netSendGranadeExp(packet, netGranadeExp);
+        netGranadeExp = 0;
     }
     while(!queue_is_empty(netGranadeDrop)) {
         size++;
@@ -464,7 +478,7 @@ void treeNetInit(const char* username, const char* ip)
     terrainRecalcTextures();
 
     netGranadeDrop = queue_new(GRANADE_MAX, sizeof(Entity));
-    netUsedWeapon = netJetpack = netGranadeThrow = netGranadePick = netFirebarrelExp = 0;
+    netUsedWeapon = netJetpack = netGranadeThrow = netGranadePick = netGranadeExp = netFirebarrelExp = 0;
     netEntities = array_new(NET_MAX_CLIENT_COUNT, sizeof(NetEntity));
     client = NNetHost_create(serverIp, NET_PORT, NET_MAX_CLIENT_COUNT, NET_CHANNELS, NET_BUFFER_SIZE, NET_TIMEOUT);
     while (enet_host_service(client->host, &client->event, NET_TIMEOUT) > 0) {

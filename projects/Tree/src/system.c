@@ -202,6 +202,7 @@ void systemInit(unsigned int startState)
 
     randSeed = rand_uint(rand_uint(time(NULL)));
     srand(randSeed);
+    rand_seed(randSeed);
     printf("Seed: %u\n", randSeed);
 
     assetsLoad();

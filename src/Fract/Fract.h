@@ -67,7 +67,10 @@ typedef struct {
 -----------------------------
 */
 
-unsigned int rand_uint(unsigned int seed);
+unsigned int rand_uint(unsigned int num);
+unsigned int rand_num();
+unsigned int rand_next();
+void rand_seed(unsigned int seed);
 
 float signf(float f);
 float clampf(float val, float min, float max);
