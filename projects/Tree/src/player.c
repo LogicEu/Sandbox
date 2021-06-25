@@ -188,22 +188,26 @@ static void playerDeadStep(float deltaTime)
     } else playerDrawDead();
 }
 
+void playerKill()
+{
+    if (usedWeapon) {
+        gunDrop(usedWeapon);
+        usedWeapon = 0;
+    }
+    if (jetpack) {
+        jetpackDrop(jetpack);
+        jetpack = 0;
+    }
+    while(granadeCount > 0) {
+        if (netGranadeDrop) queue_push(netGranadeDrop, &granades[granadeCount - 1]);
+        granadeDrop(granades[--granadeCount], *(vec2*)entity_get(player, COMPONENT_PHI_RECT));
+    }
+}
+
 void playerGameStep(float deltaTime)
 {
     if (hp == 0) {
-        if (usedWeapon) {
-            gunDrop(usedWeapon);
-            usedWeapon = 0;
-        }
-        if (jetpack) {
-            jetpackDrop(jetpack);
-            jetpack = 0;
-        }
-        while(granadeCount > 0) {
-            if (netGranadeDrop) queue_push(netGranadeDrop, &granades[granadeCount]);
-            granadeDrop(granades[--granadeCount], *(vec2*)entity_get(player, COMPONENT_PHI_RECT));
-        }
-
+        playerKill();
         blackAndWhite = true;
         playerDeadStep(deltaTime);
         return;

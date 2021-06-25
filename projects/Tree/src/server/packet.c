@@ -27,18 +27,6 @@ Packet* packetFind(array_t* packets, uint8_t id)
     return NULL;
 }
 
-void packetPrint(Packet* p)
-{
-    printf(
-        "Packet -> Id: %u, Type: %u, State: %u, X: %f, Y: %f\n", 
-        p->data[PACKET_ID], 
-        p->data[PACKET_TYPE], 
-        p->data[PACKET_STATE],
-        *(float*)&p->data[PACKET_FLOAT_X], 
-        *(float*)&p->data[PACKET_FLOAT_Y]
-    );
-}
-
 uint8_t packetId8(Packet* p)
 {
     return p->data[PACKET_ID];
@@ -47,4 +35,38 @@ uint8_t packetId8(Packet* p)
 uint16_t packetId16(Packet* p)
 {
     return *(uint16_t*)&p->data[PACKET_ENTITY_ID];
+}
+
+Packet packetSeed(unsigned int seed)
+{
+    Packet p;
+    memset(&p, 0, sizeof(Packet));
+    p.data[PACKET_TYPE] = PACKET_TYPE_SEED;
+    memcpy(&p.data[PACKET_SEED], &seed, sizeof(unsigned int));
+    return p;
+}
+
+void packetPrint(Packet* p)
+{
+    if (p->data[PACKET_TYPE] == PACKET_TYPE_USER) {
+        printf(
+            "User Id: %u, State: %u, X: %f, Y: %f\n", 
+            p->data[PACKET_ID], 
+            p->data[PACKET_STATE],
+            *(float*)&p->data[PACKET_FLOAT_X], 
+            *(float*)&p->data[PACKET_FLOAT_Y]
+        );
+    } else if (p->data[PACKET_TYPE] == PACKET_TYPE_SEED) {
+        printf("Seed: %u\n", *(unsigned int*)&p->data[PACKET_SEED]);
+    } else {
+        printf(
+            "Entity ID: %u, Type: %u, Ammo %u, X: %f, Y: %f, Z: %f\n",
+            *(uint16_t*)&p->data[PACKET_ENTITY_ID],
+            p->data[PACKET_TYPE],
+            p->data[PACKET_OP],
+            *(float*)&p->data[PACKET_FLOAT_X], 
+            *(float*)&p->data[PACKET_FLOAT_Y],
+            *(float*)&p->data[PACKET_FLOAT_Z]
+        );
+    }
 }

@@ -248,6 +248,7 @@ void gameInit();
 Entity playerInit();
 void playerReset();
 void playerGameStep(float deltaTime);
+void playerKill();
 
 void levelEditorStep(float deltaTime);
 void levelEditorInit();

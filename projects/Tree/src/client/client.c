@@ -9,6 +9,8 @@ static NNetHost* client = NULL;
 static array_t* netEntities = NULL; 
 static unsigned int received;
 
+extern unsigned int randSeed;
+
 extern Entity player;
 extern Entity usedWeapon;
 extern Entity jetpack;
@@ -93,7 +95,7 @@ static void netWeaponUpdate(Packet* p)
 {
     Entity e = (Entity)packetId16(p);
     if (e >= entity_count() || !entity_has(e, COMPONENT_GUN_CONTROLLER)) return;
-    if (e == netUsedWeapon) return;
+    if (e == netUsedWeapon || e == usedWeapon) return;
 
     rect_t* r = (rect_t*)entity_get(e, COMPONENT_PHI_RECT);
     rect_t* rg = (rect_t*)entity_get(e, COMPONENT_GL_RECT);
@@ -132,7 +134,7 @@ static void netJetpackUpdate(Packet* p)
 {
     Entity e = (Entity)packetId16(p);
     if (e >= entity_count() || !entity_has(e, COMPONENT_JETPACK)) return;
-    if (e == netJetpack) return;
+    if (e == netJetpack || e == jetpack) return;
 
     unsigned int* state = (unsigned int*)entity_get(e, COMPONENT_JETPACK);
     rect_t* r = (rect_t*)entity_get(e, COMPONENT_PHI_RECT);
@@ -239,6 +241,7 @@ static void netRead()
         } else {
             packetParse(p);
         }
+        //packetPrint(p);
         p++;
     }
 
@@ -355,8 +358,6 @@ static void netSendFirebarrelExp(Packet* packet, Entity firebarrel)
 
 static void netSend()
 {   
-    if (!received) return;
-
     unsigned int size = 1;
     Packet* packet = (Packet*)client->buffer;
     netSendPlayer(packet);
@@ -366,50 +367,44 @@ static void netSend()
         packet++;
         netSendWeapon(packet, netUsedWeapon);
         //packetPrint(packet);
-        if (usedWeapon && usedWeapon != netUsedWeapon) {
-            size++;
-            packet++;
-            netSendWeapon(packet, usedWeapon);
-            //packetPrint(packet);
-        }
-        netUsedWeapon = usedWeapon;
+    }
+    if (usedWeapon && usedWeapon != netUsedWeapon) {
+        size++;
+        packet++;
+        netSendWeapon(packet, usedWeapon);
+        //packetPrint(packet);
     }
     if (netJetpack) {
         size++;
         packet++;
         netSendJetpack(packet, netJetpack);
         //packetPrint(packet);
-        if (jetpack && netJetpack != jetpack) {
-            size++;
-            packet++;
-            netSendJetpack(packet, jetpack);
-            //packetPrint(packet);
-        }
-        netJetpack = jetpack;
+    }
+    if (jetpack && netJetpack != jetpack) {
+        size++;
+        packet++;
+        netSendJetpack(packet, jetpack);
+        //packetPrint(packet);
     }
 
     if (netGranadePick) {
         size++;
         packet++;
         netSendGranadePick(packet, netGranadePick);
-        netGranadePick = 0;
     }
     if (netGranadeThrow) {
         size++;
         packet++;
         netSendGranadeThrow(packet, netGranadeThrow);
-        netGranadeThrow = 0;
     }
     if (netGranadeExp) {
         size++;
         packet++;
         netSendGranadeExp(packet, netGranadeExp);
-        netGranadeExp = 0;
     }
     while(!queue_is_empty(netGranadeDrop)) {
         size++;
         packet++;
-        printf("Dropping net granade.\n");
         netSendGranadeDrop(packet, *(Entity*)queue_pop(netGranadeDrop));
     }
 
@@ -417,8 +412,14 @@ static void netSend()
         size++;
         packet++;
         netSendFirebarrelExp(packet, netFirebarrelExp);
-        netFirebarrelExp = 0;
     }
+
+    netUsedWeapon = usedWeapon;
+    netJetpack = jetpack;
+    netGranadePick = 0;
+    netGranadeThrow = 0;
+    netGranadeExp = 0;
+    netFirebarrelExp = 0;
 
     NNet_send(client->server, client->packet, client->buffer, size * sizeof(Packet), 0);
     received = 0;
@@ -434,12 +435,22 @@ void netGameStep(float deltaTime)
 
     netRead();
     gameStep(deltaTime);
-    netSend();
+    if (received) netSend();
 }
 
 void treeNetExit()
 {
     if (client->connected) {
+        if (player) {
+            playerKill();
+            while (!received) {
+                received = NNetHost_read(client, 0);
+            }
+            netSend();
+            while (!received) {
+                received = NNetHost_read(client, 0);
+            }
+        }
         NNet_disconnect(client->host, client->server, &client->event, NET_TIMEOUT);
     }
     exitNanoNet(client->host);
@@ -456,15 +467,11 @@ void treeNetExit()
     systemSetState(STATE_MENU);
 }
 
-void treeNetInit(const char* username, const char* ip)
+static void map_world_net() 
 {
-    strcpy(clientUsername, username);
-    strcpy(serverIp, ip);
-    received = 0;
-
     module_destroy(module_current());
     moduleInit();
-    map_t map = map_load(FILE_NET_MAP);
+    map_t map = map_generate(30, 20, 5, 40, 2, 30);
     if (!map.data) {
         systemSetState(STATE_MENU);
         return;
@@ -476,6 +483,14 @@ void treeNetInit(const char* username, const char* ip)
     }
     map_destroy(map);
     terrainRecalcTextures();
+}
+
+void treeNetInit(const char* username, const char* ip)
+{
+    strcpy(clientUsername, username);
+    strcpy(serverIp, ip);
+    received = 0;
+    player = 0;
 
     netGranadeDrop = queue_new(GRANADE_MAX, sizeof(Entity));
     netUsedWeapon = netJetpack = netGranadeThrow = netGranadePick = netGranadeExp = netFirebarrelExp = 0;
@@ -498,6 +513,12 @@ void treeNetInit(const char* username, const char* ip)
                         client->id = p->data[PACKET_ID];
                         player = n.entity;
                     }
+                } else if (p->data[PACKET_TYPE] == PACKET_TYPE_SEED) {
+                    unsigned int seed = *(unsigned int*)&p->data[PACKET_SEED];
+                    randSeed = seed;
+                    rand_seed(randSeed);
+                    map_world_net();
+                    printf("Random Net Seed is : %u\n", randSeed);
                 } else {
                     packetParse(p);
                 }

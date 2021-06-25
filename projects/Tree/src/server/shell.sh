@@ -26,11 +26,19 @@ lib=(
     -lutopia
     -lnano
     -lzbug
+    -lfract
 )
 
 
 compile() {
-    $comp ${flags[*]} ${inc[*]} ${lib[*]} ${mac[*]} $src -o $dir'bin/'$exe
+    if echo "$OSTYPE" | grep -q "darwin"; then 
+        $comp ${flags[*]} ${inc[*]} ${lib[*]} $src -o $dir'bin/'$exe
+    elif echo "$OSTYPE" | grep -q "linux"; then
+        $comp ${flags[*]} ${inc[*]} ${lib[*]} -lm $src -o $dir'bin/'$exe
+    else
+        echo "OS not supported yet..."
+        exit
+    fi
 }
 
 execute() {
