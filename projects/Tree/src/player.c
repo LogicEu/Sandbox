@@ -10,11 +10,13 @@ Entity jetpack = 0;
 Entity granades[GRANADE_MAX];
 unsigned int granadeCount = 0;
 
+extern unsigned int currentPlayerSprite;
 extern Entity player;
 extern vec4 cam;
 extern vec2 mouse;
 extern bool blackAndWhite;
 extern vec2 spawnPoint;
+extern unsigned int currentPlayerSprite;
 
 extern Entity netUsedWeapon;
 extern Entity netJetpack;
@@ -115,8 +117,8 @@ static void playerDrawGUI()
 
 static void playerDrawDead()
 {
-    static unsigned int sprite = SPRITE_KID_DEAD;
-    texture_t* t = assetsGetSprite(sprite)->textures;
+    static unsigned int sprite = SPRITE_DEAD;
+    texture_t* t = assetsGetSprite(currentPlayerSprite, sprite)->textures;
     entity_set(player, COMPONENT_SPRITE_ID, &sprite);
 
     rect_t* rPhi = entity_get(player, COMPONENT_PHI_RECT);
@@ -165,10 +167,10 @@ static void pickObject()
 
 void playerReset()
 {
-    static unsigned int k = SPRITE_KID_STANDING;
+    static unsigned int k = SPRITE_IDLE;
     static vec2 vecZero = {0.0f, 0.0f};
 
-    sprite_t* sprite = assetsGetSprite(k);
+    sprite_t* sprite = assetsGetSprite(currentPlayerSprite, k);
     rect_t r = {spawnPoint.x, spawnPoint.y, sprite->textures->width, sprite->textures->height};
     entity_set(player, COMPONENT_GL_RECT, &r);
     entity_set(player, COMPONENT_PHI_RECT, &r);
@@ -230,7 +232,7 @@ void playerGameStep(float deltaTime)
     static float doubleKeyTimer = 0.2f;
     static int doubleKeyDir = 0;
 
-    unsigned int sprite = SPRITE_KID_STANDING;
+    unsigned int sprite = SPRITE_IDLE;
     rect_t* const playerPhi = (rect_t*)entity_get(player, COMPONENT_PHI_RECT);
     rect_t* const playerTex = (rect_t*)entity_get(player, COMPONENT_GL_RECT);
     vec2* const vel = (vec2*)entity_get(player, COMPONENT_VEL_VEC2);
@@ -284,7 +286,7 @@ void playerGameStep(float deltaTime)
         if (!checkRigidCollision(player, vec2_new((float)keyDir * speed * deltaTime, 1.0f))) {
             playerPhi->x += (float)keyDir * deltaTime * speed;
             playerTex->x = playerPhi->x;
-            sprite = SPRITE_KID_RUNNING;
+            sprite = SPRITE_RUNNING;
             playerTex->w = (float)keyDir;
             camAlarm = true;
             if (isGrounded) {
@@ -319,7 +321,7 @@ void playerGameStep(float deltaTime)
     }
     if (isDashing > 0.0f) {
         vel->y = 0.0f;
-        sprite = SPRITE_KID_JUMPING;
+        sprite = SPRITE_JUMPING;
         camAlarm = true;
         isDashing -= deltaTime;
         shadowEmit(vec2_new(playerPhi->x, playerPhi->y), vel->x);
@@ -344,8 +346,8 @@ void playerGameStep(float deltaTime)
             doubleJump = false;
             smokeEmit(vec2_new(playerPhi->x, playerPhi->y - 12.0f), TEXTURE_SMOKE);
         }
-        if (vel->y > 0.0f) sprite = SPRITE_KID_JUMPING;
-        else sprite = SPRITE_KID_FALLING;
+        if (vel->y > 0.0f) sprite = SPRITE_JUMPING;
+        else sprite = SPRITE_FALLING;
     } 
 
     //Horizontal Phi
@@ -359,7 +361,7 @@ void playerGameStep(float deltaTime)
     //Set calculated values
     if (playerPhi->y < -600.0f) playerReset();
     entity_set(player, COMPONENT_SPRITE_ID, &sprite);
-    sprite_frame_update(assetsGetSprite(sprite));
+    sprite_frame_update(assetsGetSprite(currentPlayerSprite, sprite));
     if (camAlarm) cameraTriggerAlarm();
 
     stateWallSliding = wallSliding && vel->y < 0.0f;

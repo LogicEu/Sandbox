@@ -5,12 +5,13 @@ static const bool bTrue = true, bFalse = false;
 static const float fOne = 1.0f;
 
 extern vec2 spawnPoint;
+extern unsigned int currentPlayerSprite;
 
 Entity archetypePlayer()
 {
-    static unsigned int k = SPRITE_KID_STANDING;
+    static unsigned int k = SPRITE_IDLE;
 
-    sprite_t* s = assetsGetSprite(k);
+    sprite_t* s = assetsGetSprite(currentPlayerSprite ,k);
     rect_t r = {spawnPoint.x, spawnPoint.y, s->textures->width, s->textures->height};
     return archetype_entity(ARCHETYPE_PLAYER, 5, &k, &r, &r, &vecZero, &bTrue);
 }
@@ -66,7 +67,7 @@ Entity archetypeShadow(vec2 position, float side)
 {
     static float a = 0.6f;
 
-    texture_t* t = assetsGetSprite(SPRITE_KID_JUMPING)->textures;
+    texture_t* t = assetsGetSprite(currentPlayerSprite, SPRITE_JUMPING)->textures;
     rect_t r = {position.x, position.y, t->width * (-1.0f + 2.0f * (float)(side > 0.0f)), t->height};
     return archetype_entity(ARCHETYPE_SHADOW, 4, &t->id, &r, &a, &bTrue);
 }

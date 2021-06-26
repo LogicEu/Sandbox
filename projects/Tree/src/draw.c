@@ -2,6 +2,7 @@
 
 extern Entity player;
 extern unsigned int quadVAO;
+extern unsigned int currentPlayerSprite;
 
 static float white[] = {1.0f, 1.0f, 1.0f, 1.0f};
 static float scale_rot[] = {1.0f, 0.0f};
@@ -164,7 +165,7 @@ static void drawEntity(Entity e)
         shader_set_uniform(shader, 4, "trans", &r->x);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     } else {
-        sprite_t* s = assetsGetSprite(*(unsigned int*)entity_get(e, COMPONENT_SPRITE_ID));
+        sprite_t* s = assetsGetSprite(currentPlayerSprite, *(unsigned int*)entity_get(e, COMPONENT_SPRITE_ID));
         texture_t* t = s->textures + s->current_frame;
         rect_t rect = {r->x, r->y, t->width * signf(r->w), t->height * signf(r->h)};
         glBindTexture(GL_TEXTURE_2D, t->id);

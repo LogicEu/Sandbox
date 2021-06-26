@@ -170,35 +170,46 @@ static void assetsLoadFramebuffers()
     array_push(assets, &a);
 }
 
-static void assetsLoadSprites()
+static spriteCollection assetsLoadKidSprite()
 {
-    array_t a = array(5, sizeof(sprite_t));
-    sprite_t s = sprite_load(FILE_TEXTURE_KID_STANDING);
-    array_push(&a, &s);
-    s = sprite_load_index(FILE_SPRITE_KID_RUNNING);
-    s.speed = 0.5f;
-    array_push(&a, &s);
-    s = sprite_load(FILE_TEXTURE_KID_JUMPING);
-    array_push(&a, &s);
-    s = sprite_load(FILE_TEXTURE_KID_FALLING);
-    array_push(&a, &s);
-    s = sprite_load(FILE_TEXTURE_KID_DEAD);
-    array_push(&a, &s);
-    array_push(assets, &a);
+    spriteCollection sc;
+    sc.idle = sprite_load(FILE_TEXTURE_KID_STANDING);
+    sc.running = sprite_load_index(FILE_SPRITE_KID_RUNNING);
+    sc.running.speed = 0.5f;
+    sc.jumping = sprite_load(FILE_TEXTURE_KID_JUMPING);
+    sc.falling = sprite_load(FILE_TEXTURE_KID_FALLING);
+    sc.dead = sprite_load(FILE_TEXTURE_KID_DEAD);
+    return sc;
+}
+
+static void spriteCollectionFree(spriteCollection* sc)
+{
+    sprite_free(&sc->idle);
+    sprite_free(&sc->running);
+    sprite_free(&sc->jumping);
+    sprite_free(&sc->falling);
+    sprite_free(&sc->dead);
 }
 
 static void assetsFreeSprites()
 {
     array_t* a = assetsGetArray(ASSET_SPRITE);
-    sprite_t* s = a->data;
-    for (sprite_t* end = s + a->used; s != end; s++) {
-        sprite_free(s);
-    }
+    spriteCollection* s = a->data;
+    spriteCollectionFree(s++);
+    sprite_free(&s->idle);
+}
+
+static void assetsLoadSprites()
+{
+    array_t a = array(2, sizeof(spriteCollection));
+    spriteCollection sc = assetsLoadKidSprite();
+    array_push(&a, &sc);
+    array_push(assets, &a);
 }
 
 void assetsLoad()
 {
-    assets = array_new(4, sizeof(array_t));
+    assets = array_new(6, sizeof(array_t));
     assetsLoadShaders();
     assetsLoadTextures();
     assetsLoadParallax();
@@ -243,7 +254,27 @@ framebuffer_t* assetsGetFramebuffer(unsigned int index)
     return (framebuffer_t*)assetsGetArray(ASSET_FRAMEBUFFER)->data + index;
 }
 
-sprite_t* assetsGetSprite(unsigned int index)
+spriteCollection* assetsGetSpriteCollection(unsigned int index)
+{
+    return (spriteCollection*)(assetsGetArray(ASSET_SPRITE)->data) + index;
+}
+
+void spriteCollectionSubmit(bmp_t* bmp)
+{
+    sprite_t s = sprite_new(texture_from_bmp(bmp));
+    spriteCollection sc = {s, s, s, s, s};
+    array_t* a = assetsGetArray(ASSET_SPRITE);
+    a->used = 1;
+    array_push(a, &sc);
+}
+
+sprite_t* assetsGetSprite(unsigned int spriteIndex, unsigned int spriteState)
+{
+    spriteCollection* sc = assetsGetSpriteCollection(spriteIndex);
+    return (sprite_t*)sc + spriteState;
+}
+
+sprite_t* assetsGetSpriteKid(unsigned int index)
 {
     return (sprite_t*)(assetsGetArray(ASSET_SPRITE)->data) + index;
 }

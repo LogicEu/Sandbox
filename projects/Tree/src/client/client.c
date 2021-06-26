@@ -10,6 +10,7 @@ static array_t* netEntities = NULL;
 static unsigned int received;
 
 extern unsigned int randSeed;
+extern unsigned int currentPlayerSprite;
 
 extern Entity player;
 extern Entity usedWeapon;
@@ -72,10 +73,10 @@ static void netPlayerUpdate(Entity entity, Packet* packet)
         else if (packet->data[PACKET_OP] == PACKET_OP_DASHING) {
             shadowEmit(vec2_new(PhiRect->x, PhiRect->y), (float)orientation);
         }
-        else if (*sprite != SPRITE_KID_JUMPING && sprite_pckg == SPRITE_KID_JUMPING) {
+        else if (*sprite != SPRITE_JUMPING && sprite_pckg == SPRITE_JUMPING) {
             smokeEmit(vec2_new(PhiRect->x, PhiRect->y - 12.0f), TEXTURE_SMOKE);
         }
-        else if (sprite_pckg == SPRITE_KID_RUNNING) {
+        else if (sprite_pckg == SPRITE_RUNNING) {
             smokeEmit(vec2_new(PhiRect->x, PhiRect->y - 12.0f), TEXTURE_SMOKE);
         }
     }
@@ -88,7 +89,7 @@ static void netPlayerUpdate(Entity entity, Packet* packet)
 
     memcpy(&glRect->x, &PhiRect->x, sizeof(float));
     memcpy(&glRect->y, &PhiRect->y, sizeof(float));
-    sprite_frame_update(assetsGetSprite(*sprite));
+    sprite_frame_update(assetsGetSprite(currentPlayerSprite, *sprite));
 }
 
 static void netWeaponUpdate(Packet* p)
@@ -223,6 +224,7 @@ static void netRead()
     received = NNetHost_read(client, 0);
     if (!received) return;
 
+    bool entire_world_package = false;
     uint8_t disconnected = 255;
     Packet* p = client->buffer;
     unsigned int size = received / sizeof(Packet);
@@ -238,7 +240,9 @@ static void netRead()
                 array_push(netEntities, &n);
                 printf("Player %u has connected\n", id);
             }
-        } else {
+        } else if (p->data[PACKET_TYPE] == PACKET_TYPE_SEED) {
+            entire_world_package = true;
+        } else if (!entire_world_package) {
             packetParse(p);
         }
         //packetPrint(p);

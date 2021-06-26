@@ -11,6 +11,7 @@ static unsigned int oldState;
 
 unsigned int randSeed;
 unsigned int quadVAO;
+unsigned int currentPlayerSprite;
 
 extern unsigned int hp;
 extern wxDirectory wxDir;
@@ -200,6 +201,7 @@ void systemInit(unsigned int startState)
 
     screen_color(0.3f, 0.3f, 1.0f, 1.0f);
 
+    currentPlayerSprite = SPRITE_KID;
     randSeed = rand_uint(rand_uint(time(NULL)));
     srand(randSeed);
     rand_seed(randSeed);

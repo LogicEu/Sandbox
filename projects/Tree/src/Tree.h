@@ -125,12 +125,21 @@ typedef enum {
 } textureEnum;
 
 typedef enum {
-    SPRITE_KID_STANDING,
-    SPRITE_KID_RUNNING,
-    SPRITE_KID_JUMPING,
-    SPRITE_KID_FALLING,
-    SPRITE_KID_DEAD
-} kidSpriteEnum;
+    SPRITE_IDLE,
+    SPRITE_RUNNING,
+    SPRITE_JUMPING,
+    SPRITE_FALLING,
+    SPRITE_DEAD
+} spriteAnimationEnum;
+
+typedef struct {
+    sprite_t idle, running, jumping, falling, dead;
+} spriteCollection;
+
+typedef enum {
+    SPRITE_KID,
+    SPRITE_CUSTOM
+} spriteCollectionEnum;
 
 typedef enum {
     PARALLAX_1,
@@ -219,6 +228,8 @@ unsigned int shaderLoadFont();
 unsigned int shaderLoadFramebuffer();
 unsigned int shaderLoadColor();
 
+void spriteCollectionSubmit(bmp_t* bmp);
+
 void assetsLoad();
 void assetsFree();
 texture_t* assetsGetTexture(unsigned int index);
@@ -226,7 +237,7 @@ texture_t* assetsGetParallax(unsigned int index);
 unsigned int assetsGetShader(unsigned int index);
 font_t* assetsGetFont(unsigned int index);
 framebuffer_t* assetsGetFramebuffer(unsigned int index);
-sprite_t* assetsGetSprite(unsigned int index);
+sprite_t* assetsGetSprite(unsigned int spriteIndex, unsigned int spriteState);
 
 void treeInit();
 void treeDirectoryReset();

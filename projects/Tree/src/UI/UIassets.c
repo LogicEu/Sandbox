@@ -102,6 +102,9 @@ static wxGroup spriteEditorGroup(float xscale, float yscale)
     button = wxButtonCreate("New", rect_new(32.0f, yscale - 92.0f, 50.0f, 15.0f));
     button.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
     wxGroupPush(&group, &button, WIDGET_BUTTON);
+    button = wxButtonCreate("Submit", rect_new(32.0f, yscale - 112.0f, 50.0f, 15.0f));
+    button.text_offset = vec3_new(2.0f, 2.0f, 2.5f);
+    wxGroupPush(&group, &button, WIDGET_BUTTON);
     
     wxField field = wxFieldCreate(rect_new(xscale * 0.5f, 8.0f, 160.0f, 8.0f), 32);
     field.text_offset = vec3_new(2.0f, 0.2f, 2.5f);

@@ -4,6 +4,7 @@
 extern vec3 viewport;
 extern vec2 mouse;
 extern wxDirectory wxDir;
+extern unsigned int currentPlayerSprite;
 
 static wxGroup* group;
 static bmp_t bmp;
@@ -24,6 +25,7 @@ typedef enum {
     WX_SE_BUTTON_SAVE,
     WX_SE_BUTTON_LOAD,
     WX_SE_BUTTON_NEW,
+    WX_SE_BUTTON_SUBMIT,
     
     WX_SE_FIELD_DIR,
 
@@ -144,6 +146,13 @@ static void editorInput()
     button = group->widgets[WX_SE_BUTTON_SAVE].widget;
     if (button->state == WIDGET_HOVER && mousePressed) {
         bmp_write(field->text, &bmp);
+    }
+    button = group->widgets[WX_SE_BUTTON_SUBMIT].widget;
+    if (button->state == WIDGET_HOVER && mousePressed) {
+        bmp_t tmp = bmp_flip_vertical(&bmp);
+        spriteCollectionSubmit(&tmp);
+        bmp_free(&tmp);
+        currentPlayerSprite = SPRITE_CUSTOM;
     }
     
     wxGroupUpdate(group, mouse, mousePressed, mouseDown);
