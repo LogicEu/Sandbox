@@ -160,11 +160,12 @@ void systemSetState(unsigned int newState)
 Module moduleInit()
 {
     return module_create(   
-        19, 
+        20, 
         sizeof(rect_t), // PhiPos
         sizeof(rect_t), // GLPos
         sizeof(unsigned int), // TexId
         sizeof(unsigned int), // SpriteId
+        sizeof(unsigned int), //sprite collection
         sizeof(vec2), // Velocity
         sizeof(bool), // Gravity
         sizeof(bool), // RigidCollider

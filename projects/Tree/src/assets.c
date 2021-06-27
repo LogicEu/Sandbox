@@ -43,6 +43,8 @@
 
 #define FILE_FONT_1 "assets/fonts/Emulogic.ttf"
 
+extern unsigned int currentPlayerSprite;
+
 static array_t* assets;
 
 static array_t* assetsGetArray(unsigned int index)
@@ -196,12 +198,12 @@ static void assetsFreeSprites()
     array_t* a = assetsGetArray(ASSET_SPRITE);
     spriteCollection* s = a->data;
     spriteCollectionFree(s++);
-    sprite_free(&s->idle);
+    if (currentPlayerSprite) sprite_free(&s->idle);
 }
 
 static void assetsLoadSprites()
 {
-    array_t a = array(2, sizeof(spriteCollection));
+    array_t a = array(17, sizeof(spriteCollection));
     spriteCollection sc = assetsLoadKidSprite();
     array_push(&a, &sc);
     array_push(assets, &a);
@@ -259,13 +261,23 @@ spriteCollection* assetsGetSpriteCollection(unsigned int index)
     return (spriteCollection*)(assetsGetArray(ASSET_SPRITE)->data) + index;
 }
 
-void spriteCollectionSubmit(bmp_t* bmp)
+void spriteCollectionSubmitCustom(bmp_t* bmp)
 {
     sprite_t s = sprite_new(texture_from_bmp(bmp));
     spriteCollection sc = {s, s, s, s, s};
     array_t* a = assetsGetArray(ASSET_SPRITE);
-    a->used = 1;
-    array_push(a, &sc);
+    if (a->used < 2) array_push(a, &sc);
+    else memcpy(array_index(a, 1), &sc, sizeof(spriteCollection));
+}
+
+unsigned int spriteCollectionSubmit(bmp_t* bmp)
+{
+    sprite_t s = sprite_new(texture_from_bmp(bmp));
+    spriteCollection sc = {s, s, s, s, s};
+    array_t* a = assetsGetArray(ASSET_SPRITE);
+    unsigned int index = a->used;
+    if (a->used < a->size) array_push(a, &sc);
+    return index;
 }
 
 sprite_t* assetsGetSprite(unsigned int spriteIndex, unsigned int spriteState)

@@ -12,6 +12,9 @@ static unsigned int received;
 extern unsigned int randSeed;
 extern unsigned int currentPlayerSprite;
 
+unsigned int sprites[NET_MAX_CLIENT_COUNT];
+
+extern bmp_t bmp;
 extern Entity player;
 extern Entity usedWeapon;
 extern Entity jetpack;
@@ -89,7 +92,7 @@ static void netPlayerUpdate(Entity entity, Packet* packet)
 
     memcpy(&glRect->x, &PhiRect->x, sizeof(float));
     memcpy(&glRect->y, &PhiRect->y, sizeof(float));
-    sprite_frame_update(assetsGetSprite(currentPlayerSprite, *sprite));
+    //sprite_frame_update(assetsGetSprite(currentPlayerSprite, *sprite));
 }
 
 static void netWeaponUpdate(Packet* p)
@@ -236,15 +239,23 @@ static void netRead()
                 if (p->data[PACKET_STATE] == NET_DISCONNECTED) disconnected = id;
                 else if (p->data[PACKET_ID] != client->id) netPlayerUpdate(e, p);
             } else {
-                NetEntity n = {id, archetypePlayer()};
+                NetEntity n = {id, archetypePlayer(sprites[id])};
                 array_push(netEntities, &n);
                 printf("Player %u has connected\n", id);
             }
+        } else if (p->data[PACKET_TYPE] == PACKET_TYPE_BMP) {
+            uint8_t id = p->data[PACKET_ID];
+            p++;
+            bmp_t bitmap = bmp_new(32, 32, 4);
+            memcpy(bitmap.pixels, p, 4096);
+            sprites[id] = spriteCollectionSubmit(&bitmap);
+            bmp_free(&bitmap);
+            break;
         } else if (p->data[PACKET_TYPE] == PACKET_TYPE_SEED) {
             entire_world_package = true;
         } else if (!entire_world_package) {
             packetParse(p);
-        }
+        } 
         //packetPrint(p);
         p++;
     }
@@ -429,6 +440,18 @@ static void netSend()
     received = 0;
 }
 
+void netSendBmp()
+{
+    Packet b = packetBmp(client->id, 1);
+    Packet* p = client->buffer;
+    bmp_t tmp = bmp_flip_vertical(&bmp);
+    memcpy(p++, &b, sizeof(Packet));
+    memcpy(p, tmp.pixels, 4096);
+    bmp_free(&tmp);
+    NNet_send(client->server, client->packet, client->buffer, 4096 + sizeof(Packet), 0);
+    received = 0;
+}
+
 void netGameStep(float deltaTime)
 {
     if (!client->connected) {
@@ -489,24 +512,56 @@ static void map_world_net()
     terrainRecalcTextures();
 }
 
+static void netReadBmp()
+{
+    uint8_t buff[(4096 + sizeof(Packet)) * NET_MAX_CLIENT_COUNT];
+    while (enet_host_service(client->host, &client->event, NET_TIMEOUT) > 0) {
+        if (client->event.type == ENET_EVENT_TYPE_RECEIVE) {
+            received = NNet_read(client->event.packet, buff);
+            break;
+        }
+        else continue;
+    }
+
+    unsigned int size = received / (4096 + sizeof(Packet));
+    printf("Number of external net bitmaps: %u\n", size);
+    for (unsigned int i = 0; i < size; i++) {
+        Packet* p = (Packet*)&buff[i * (4096 + sizeof(Packet))];
+        uint8_t id = p->data[PACKET_ID];
+        p++;
+
+        bmp_t bitmap = bmp_new(32, 32, 4);
+        memcpy(bitmap.pixels, p, 4096);
+        sprites[id] = spriteCollectionSubmit(&bitmap);
+        bmp_free(&bitmap);
+    }
+}
+
 void treeNetInit(const char* username, const char* ip)
 {
     strcpy(clientUsername, username);
     strcpy(serverIp, ip);
     received = 0;
     player = 0;
+    for (int i = 0; i < NET_MAX_CLIENT_COUNT; i++) {
+        sprites[i] = currentPlayerSprite;
+    }
 
     netGranadeDrop = queue_new(GRANADE_MAX, sizeof(Entity));
     netUsedWeapon = netJetpack = netGranadeThrow = netGranadePick = netGranadeExp = netFirebarrelExp = 0;
     netEntities = array_new(NET_MAX_CLIENT_COUNT, sizeof(NetEntity));
     client = NNetHost_create(serverIp, NET_PORT, NET_MAX_CLIENT_COUNT, NET_CHANNELS, NET_BUFFER_SIZE, NET_TIMEOUT);
+    netReadBmp();
+    netSendBmp();
+initiation:
     while (enet_host_service(client->host, &client->event, NET_TIMEOUT) > 0) {
         if (client->event.type == ENET_EVENT_TYPE_RECEIVE) {
             unsigned int size = NNet_read(client->event.packet, client->buffer) / sizeof(Packet);
             Packet* p = (Packet*)client->buffer;
+            if (p->data[PACKET_TYPE] == PACKET_TYPE_BMP) goto initiation;
             for (unsigned int i = 0; i < size; i++) {
                 if (p->data[PACKET_TYPE] == PACKET_TYPE_USER) {
-                    Entity e = archetypePlayer();
+                    Entity e = archetypePlayer(sprites[p->data[PACKET_ID]]);
                     rect_t* r = (rect_t*)entity_get(e, COMPONENT_PHI_RECT);
                     r->x = spawnPoint.x;
                     r->y = spawnPoint.y;

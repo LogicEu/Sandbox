@@ -3,6 +3,32 @@
 
 static unsigned int global_world_seed;
 
+static void send_users_bmp(bmp_t* bitmaps, array_t* users, ENetPeer* peer, ENetPacket* packet)
+{
+    unsigned int size = users->used, i = 0;
+    uint8_t buff[(4096 + sizeof(Packet)) * size];
+    Packet* p = users->data;
+    for (Packet* end = p + size; p != end; p++) {
+        Packet b = packetBmp(p->data[PACKET_ID], size);
+        memcpy(&buff[i * (4096 + sizeof(Packet))], &b, sizeof(Packet));
+        memcpy(&buff[i * (4096 + sizeof(Packet)) + sizeof(Packet)], bitmaps[p->data[PACKET_ID]].pixels, 4096);
+        i++;
+    }
+
+    packet = enet_packet_create(&buff[0], size * (4096 + sizeof(Packet)), ENET_PACKET_FLAG_RELIABLE);
+    enet_peer_send(peer, 1, packet);
+}
+
+static void send_user_bmp_new(bmp_t* bmp, uint8_t id, NNetHost* server)
+{
+    Packet b = packetBmp(id, 1);
+    unsigned int size = 4096 + sizeof(Packet);
+    uint8_t buff[size];
+    memcpy(&buff[0], &b, sizeof(Packet));
+    memcpy(&buff[sizeof(Packet)], bmp->pixels, 4096);
+    NNet_broadcast(server->host, server->packet, &buff[0], size, 1);
+}
+
 static Packet userNew(uint8_t id)
 {
     Packet p;
@@ -41,6 +67,11 @@ int main(int argc, char** argv)
     if (argc > 1) global_world_seed = (unsigned int)atoi(argv[1]);
     else seed_new();
 
+    bmp_t bitmaps[NET_MAX_CLIENT_COUNT];
+    for (int i = 0; i < NET_MAX_CLIENT_COUNT; i++) {
+        bitmaps[i] = bmp_new(32, 32, 4);
+    }
+
     array_t* users = array_new(NET_MAX_CLIENT_COUNT, sizeof(Packet));
     array_t* deltas = array_new(64, sizeof(Packet));
     queue_t* queue = queue_new(64, sizeof(Packet));
@@ -65,6 +96,7 @@ int main(int argc, char** argv)
                         server->event.peer->data = malloc(sizeof(uint8_t));
                         memcpy(server->event.peer->data, &id, sizeof(uint8_t));
 
+                        send_users_bmp(bitmaps, users, server->event.peer, server->packet);
                         Packet user = userNew(id);
                         array_push(users, &user);
                     }
@@ -78,20 +110,24 @@ int main(int argc, char** argv)
                     Packet* user = packetFind(users, id);
                     unsigned int size = NNet_read(server->event.packet, server->buffer) / sizeof(Packet);
                     Packet* p = (Packet*)server->buffer;
-                    memcpy(user, p, sizeof(Packet));
-                    if (user->data[PACKET_STATE] == NET_CONNECTING) {
-                        user->data[PACKET_STATE] = NET_CONNECTED;
-                    }
-                    
-                    //printf("Receive:\n");
-                    //packetPrint(p);
-                    p++;
-                    for (unsigned int i = 1; i < size; i++) {
+                    if (p->data[PACKET_TYPE] == PACKET_TYPE_USER) {
+                        memcpy(user, p, sizeof(Packet));
+                        if (user->data[PACKET_STATE] == NET_CONNECTING) {
+                            user->data[PACKET_STATE] = NET_CONNECTED;
+                        }  
+                        //printf("Receive:\n");
                         //packetPrint(p);
-                        deltas_commit(deltas, queue, p++);
+                        p++;
+                        for (unsigned int i = 1; i < size; i++) {
+                            //packetPrint(p);
+                            deltas_commit(deltas, queue, p++);
+                        }
+                        received++;
+                    } else {
+                        p++;
+                        memcpy(bitmaps[id].pixels, p, 4096);
+                        send_user_bmp_new(&bitmaps[id], id, server);
                     }
-
-                    received++;
                     break;
                 }
                 case ENET_EVENT_TYPE_DISCONNECT: {
@@ -111,7 +147,6 @@ int main(int argc, char** argv)
 
         if (users->used && received >= users->used) {
             Packet* p = server->buffer, *start; 
-
             //printf("Send:\n");
             unsigned int objects_size = 0;
             if (userConnected) {
@@ -119,7 +154,6 @@ int main(int argc, char** argv)
                 memcpy(p, &seed, sizeof(Packet));
                 //packetPrint(p);
                 p++;
-
                 start = (Packet*)deltas->data;
                 for (Packet* pp = start; pp != start + deltas->used; pp++) {
                     memcpy(p, pp, sizeof(Packet));
@@ -164,6 +198,9 @@ int main(int argc, char** argv)
         }
     }
     exitNanoNet(server->host);
+    for (int i = 0; i < NET_MAX_CLIENT_COUNT; i++) {
+        bmp_free(&bitmaps[i]);
+    }
     array_destroy(users);
     return 0;
 }

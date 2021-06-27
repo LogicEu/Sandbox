@@ -6,7 +6,7 @@
 #define NET_MAX_CLIENT_COUNT 16
 #define NET_PORT 7777
 #define NET_CHANNELS 2
-#define NET_BUFFER_SIZE 4096
+#define NET_BUFFER_SIZE 4096 + 16
 #define NET_TIMEOUT 5000
 
 #define PACKET_SIZE 16
@@ -59,10 +59,7 @@ typedef enum {
     PACKET_TYPE_NONE,
     PACKET_TYPE_USER,
     PACKET_TYPE_SEED,
-    PACKET_TYPE_BMP_1,
-    PACKET_TYPE_BMP_2,
-    PACKET_TYPE_BMP_3,
-    PACKET_TYPE_BMP_4,
+    PACKET_TYPE_BMP,
     PACKET_TYPE_GUN_LOOSE,
     PACKET_TYPE_GUN_USED,
     PACKET_TYPE_JETPACK_LOOSE,
@@ -87,5 +84,6 @@ void packetPrint(Packet* p);
 uint16_t packetId16(Packet* p);
 uint8_t packetId8(Packet* p);
 Packet packetSeed(unsigned int seed);
+Packet packetBmp(uint8_t id, unsigned int size);
 
 #endif

@@ -7,13 +7,13 @@ static const float fOne = 1.0f;
 extern vec2 spawnPoint;
 extern unsigned int currentPlayerSprite;
 
-Entity archetypePlayer()
+Entity archetypePlayer(unsigned int sprite)
 {
     static unsigned int k = SPRITE_IDLE;
 
     sprite_t* s = assetsGetSprite(currentPlayerSprite ,k);
     rect_t r = {spawnPoint.x, spawnPoint.y, s->textures->width, s->textures->height};
-    return archetype_entity(ARCHETYPE_PLAYER, 5, &k, &r, &r, &vecZero, &bTrue);
+    return archetype_entity(ARCHETYPE_PLAYER, 6, &k, &sprite, &r, &r, &vecZero, &bTrue);
 }
 
 Entity archetypeTerrainTile(unsigned int texture_index, vec2 position)
@@ -100,7 +100,7 @@ Entity archetypeGranade(vec2 position)
 void archetypesInit()
 {
     // Player
-    archetype_create(5, COMPONENT_SPRITE_ID, COMPONENT_GL_RECT, COMPONENT_PHI_RECT, COMPONENT_VEL_VEC2, COMPONENT_GRAVITY);
+    archetype_create(6, COMPONENT_SPRITE_ID, COMPONENT_SPRITE_COLLECTION, COMPONENT_GL_RECT, COMPONENT_PHI_RECT, COMPONENT_VEL_VEC2, COMPONENT_GRAVITY);
     // Tile
     archetype_create(4, COMPONENT_TEX_ID, COMPONENT_GL_RECT, COMPONENT_PHI_RECT, COMPONENT_RIGID_COLLIDER);
     // Gun

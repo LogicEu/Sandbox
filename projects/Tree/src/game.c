@@ -8,6 +8,7 @@ extern vec2 mouse;
 extern vec4 cam;
 extern wxDirectory wxDir;
 extern vec2 spawnPoint;
+extern unsigned int currentPlayerSprite;
 
 static wxGroup* group;
 
@@ -93,5 +94,5 @@ void gameDirectoryReset()
 void gameInit()
 {
     gameDirectoryReset();
-    player = archetypePlayer();
+    player = archetypePlayer(currentPlayerSprite);
 }

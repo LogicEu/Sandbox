@@ -7,7 +7,7 @@ extern wxDirectory wxDir;
 extern unsigned int currentPlayerSprite;
 
 static wxGroup* group;
-static bmp_t bmp;
+bmp_t bmp;
 static color_t cursorColor;
 static float scale;
 
@@ -150,7 +150,7 @@ static void editorInput()
     button = group->widgets[WX_SE_BUTTON_SUBMIT].widget;
     if (button->state == WIDGET_HOVER && mousePressed) {
         bmp_t tmp = bmp_flip_vertical(&bmp);
-        spriteCollectionSubmit(&tmp);
+        spriteCollectionSubmitCustom(&tmp);
         bmp_free(&tmp);
         currentPlayerSprite = SPRITE_CUSTOM;
     }

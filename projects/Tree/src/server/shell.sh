@@ -27,6 +27,7 @@ lib=(
     -lnano
     -lzbug
     -lfract
+    -limagine
 )
 
 

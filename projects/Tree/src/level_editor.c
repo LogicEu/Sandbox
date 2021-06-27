@@ -11,6 +11,7 @@ extern vec2 mouse;
 extern wxDirectory wxDir;
 extern Entity player;
 extern unsigned int randSeed;
+extern unsigned int currentPlayerSprite;
 
 extern unsigned int usedWeapon;
 extern unsigned int jetpack;
@@ -314,7 +315,7 @@ static void getKeyboardInput(float deltaTime)
     if (keyboard_down(KEY_MOD) && keyboard_pressed(GLFW_KEY_P)) {
         entity_destroy(player);
         module_save(FILE_ECS_MODULE, module_current());
-        player = archetypePlayer();
+        player = archetypePlayer(currentPlayerSprite);
         printf("Without character!\n");
     }
     if (keyboard_pressed(GLFW_KEY_P)) {
@@ -377,7 +378,7 @@ void levelReset()
 {
     module_destroy(module_current());
     moduleInit();
-    player = archetypePlayer();
+    player = archetypePlayer(currentPlayerSprite);
     usedWeapon = 0;
     jetpack = 0;
     granadeCount = 0;

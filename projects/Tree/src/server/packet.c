@@ -1,5 +1,15 @@
 #include "../TreeNet.h"
 
+Packet packetBmp(uint8_t id, unsigned int size)
+{
+    Packet p;
+    memset(p.data, 0, sizeof(Packet));
+    p.data[PACKET_TYPE] = PACKET_TYPE_BMP;
+    p.data[PACKET_STATE] = size;
+    p.data[PACKET_ID] = id;
+    return p;
+}
+
 uint8_t packetNewId(array_t* users)
 {
     unsigned int i;

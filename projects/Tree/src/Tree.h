@@ -79,6 +79,7 @@ typedef enum componentEnum {
     COMPONENT_GL_RECT,
     COMPONENT_TEX_ID,
     COMPONENT_SPRITE_ID,
+    COMPONENT_SPRITE_COLLECTION,
     COMPONENT_VEL_VEC2,
     COMPONENT_GRAVITY,
     COMPONENT_RIGID_COLLIDER,
@@ -228,7 +229,8 @@ unsigned int shaderLoadFont();
 unsigned int shaderLoadFramebuffer();
 unsigned int shaderLoadColor();
 
-void spriteCollectionSubmit(bmp_t* bmp);
+void spriteCollectionSubmitCustom(bmp_t* bmp);
+unsigned int spriteCollectionSubmit(bmp_t* bmp);
 
 void assetsLoad();
 void assetsFree();
@@ -353,7 +355,7 @@ map_t map_generate(unsigned int w, unsigned int h, unsigned int stat, unsigned i
 vec2 map_spawn(map_t map);
 
 void archetypesInit();
-Entity archetypePlayer();
+Entity archetypePlayer(unsigned int sprite);
 Entity archetypeTerrainTile(unsigned int texture_index, vec2 position);
 Entity archetypeSmoke(vec2 position, unsigned int textureIndex);
 Entity archetypeBlast(vec2 position, float explotionForce);

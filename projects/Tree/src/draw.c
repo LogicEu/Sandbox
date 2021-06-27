@@ -165,7 +165,10 @@ static void drawEntity(Entity e)
         shader_set_uniform(shader, 4, "trans", &r->x);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     } else {
-        sprite_t* s = assetsGetSprite(currentPlayerSprite, *(unsigned int*)entity_get(e, COMPONENT_SPRITE_ID));
+        unsigned int k;
+        if (e == player) k = currentPlayerSprite;
+        else k = *(unsigned int*)entity_get(e, COMPONENT_SPRITE_COLLECTION);
+        sprite_t* s = assetsGetSprite(k, *(unsigned int*)entity_get(e, COMPONENT_SPRITE_ID));
         texture_t* t = s->textures + s->current_frame;
         rect_t rect = {r->x, r->y, t->width * signf(r->w), t->height * signf(r->h)};
         glBindTexture(GL_TEXTURE_2D, t->id);
