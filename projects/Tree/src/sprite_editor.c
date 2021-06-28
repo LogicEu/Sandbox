@@ -10,6 +10,7 @@ static wxGroup* group;
 bmp_t bmp;
 static color_t cursorColor;
 static float scale;
+static unsigned int fieldWidth, fieldHeight;
 
 #define SCALE_MULT 4.0f
 
@@ -28,6 +29,8 @@ typedef enum {
     WX_SE_BUTTON_SUBMIT,
     
     WX_SE_FIELD_DIR,
+    WX_SE_FIELD_WIDTH,
+    WX_SE_FIELD_HEIGHT,
 
     WX_SE_SLIDER_RED,
     WX_SE_SLIDER_GREEN,
@@ -130,11 +133,23 @@ static void editorInput()
     bool mousePressed = mouse_pressed(GLFW_MOUSE_BUTTON_LEFT);
     bool mouseDown = mouse_down(GLFW_MOUSE_BUTTON_LEFT);
     
-    wxField* field = group->widgets[WX_SE_FIELD_DIR].widget;
     wxButton* button = group->widgets[WX_SE_BUTTON_NEW].widget;
     if (button->state == WIDGET_HOVER && mousePressed) {
+        wxField* field = group->widgets[WX_SE_FIELD_WIDTH].widget;
+        sscanf(field->text, "%u", &fieldWidth);
+        fieldWidth = fieldWidth * (fieldWidth <= 128) + 128 * (fieldWidth > 128);
+        sprintf(field->text, "%u", fieldWidth);
+
+        field = group->widgets[WX_SE_FIELD_HEIGHT].widget;
+        sscanf(field->text, "%u", &fieldHeight);
+        fieldHeight = fieldHeight * (fieldHeight <= 128) + 128 * (fieldHeight > 128);
+        sprintf(field->text, "%u", fieldHeight);
+
+        bmp_free(&bmp);
+        bmp = bmp_new(fieldWidth, fieldHeight, 4);
         memset(bmp.pixels, 255, bmp.width * bmp.height * bmp.channels);
     }
+    wxField* field = group->widgets[WX_SE_FIELD_DIR].widget;
     button = group->widgets[WX_SE_BUTTON_LOAD].widget;
     if (button->state == WIDGET_HOVER && mousePressed) {
         bmp_t tmp = bmp_load(field->text);
@@ -157,7 +172,7 @@ static void editorInput()
     
     wxGroupUpdate(group, mouse, mousePressed, mouseDown);
 
-    if (mouseDown){
+    if (mouseDown) {
         rect_t r = {
             0.5f * viewport.x / viewport.z, 
             0.5f * viewport.y / viewport.z, 

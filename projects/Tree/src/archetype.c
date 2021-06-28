@@ -63,11 +63,11 @@ Entity archetypeSmoke(vec2 position, unsigned int textureIndex)
     return archetype_entity(ARCHETYPE_SMOKE, 6, &t->id, &r, &fOne, &s, &rot, &bTrue);
 }
 
-Entity archetypeShadow(vec2 position, float side)
+Entity archetypeShadow(vec2 position, unsigned int sprite, float side)
 {
     static float a = 0.6f;
 
-    texture_t* t = assetsGetSprite(currentPlayerSprite, SPRITE_JUMPING)->textures;
+    texture_t* t = assetsGetSprite(sprite, SPRITE_JUMPING)->textures;
     rect_t r = {position.x, position.y, t->width * (-1.0f + 2.0f * (float)(side > 0.0f)), t->height};
     return archetype_entity(ARCHETYPE_SHADOW, 4, &t->id, &r, &a, &bTrue);
 }

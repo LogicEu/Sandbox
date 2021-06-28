@@ -307,7 +307,7 @@ void smokeStep(float deltaTime);
 void smokeEmit(vec2 position, unsigned int textureIndex);
 
 void shadowStep(float deltaTime);
-void shadowEmit(vec2 position, float side);
+void shadowEmit(Entity e, float side);
 
 void firebarrelStep();
 
@@ -361,7 +361,7 @@ Entity archetypeSmoke(vec2 position, unsigned int textureIndex);
 Entity archetypeBlast(vec2 position, float explotionForce);
 Entity archetypeFire(vec2 position, vec2 vel);
 Entity archetypeBullet(vec2 position, vec2 vel, BulletKind kind);
-Entity archetypeShadow(vec2 position, float side);
+Entity archetypeShadow(vec2 position, unsigned int sprite, float side);
 Entity archetypeFirebarrel(vec2 position);
 Entity archetypeJetpackController(vec2 position);
 Entity archetypeGranade(vec2 position);

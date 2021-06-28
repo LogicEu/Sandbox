@@ -74,7 +74,7 @@ static void netPlayerUpdate(Entity entity, Packet* packet)
             smokeEmit(vec2_new(PhiRect->x, PhiRect->y - 6.0f), TEXTURE_SMOKE2);
         }
         else if (packet->data[PACKET_OP] == PACKET_OP_DASHING) {
-            shadowEmit(vec2_new(PhiRect->x, PhiRect->y), (float)orientation);
+            shadowEmit(entity, (float)orientation);
         }
         else if (*sprite != SPRITE_JUMPING && sprite_pckg == SPRITE_JUMPING) {
             smokeEmit(vec2_new(PhiRect->x, PhiRect->y - 12.0f), TEXTURE_SMOKE);

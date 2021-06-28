@@ -2,10 +2,12 @@
 
 static float shadowAlarm = 1.0f;
 
-void shadowEmit(vec2 position, float side)
+void shadowEmit(Entity e, float side)
 {
+    vec2 position = *(vec2*)entity_get(e, COMPONENT_PHI_RECT);
+    unsigned int sprite = *(unsigned int*)entity_get(e, COMPONENT_SPRITE_COLLECTION);
     if (shadowAlarm < 0.0f) {
-        archetypeShadow(position, side);
+        archetypeShadow(position, sprite, side);
         shadowAlarm = 1.0f;
     }
 }

@@ -4,6 +4,12 @@ To Do:
 
 Random func equal between platforms and common seed generation online
 
+
+Fix Hitbox Being Constant 12 x 24
+
+SpriteEditor
+    - Add Icons 
+
 Networking:
     - User Name
     - Messaging

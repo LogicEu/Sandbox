@@ -324,7 +324,7 @@ void playerGameStep(float deltaTime)
         sprite = SPRITE_JUMPING;
         camAlarm = true;
         isDashing -= deltaTime;
-        shadowEmit(vec2_new(playerPhi->x, playerPhi->y), vel->x);
+        shadowEmit(player, vel->x);
     }
     else if (isGrounded || wallSliding) {
         canDash = true;
