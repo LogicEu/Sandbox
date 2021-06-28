@@ -8,6 +8,7 @@ lib=(
    '-L'$dir'lib/'
     -lcore
     -lglfw
+    -lzbug
 )
 
 mac=(
