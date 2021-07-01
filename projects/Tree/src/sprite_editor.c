@@ -5,6 +5,7 @@ extern vec3 viewport;
 extern vec2 mouse;
 extern wxDirectory wxDir;
 extern unsigned int currentPlayerSprite;
+extern Entity player;
 
 static wxGroup* group;
 bmp_t bmp;
@@ -168,6 +169,7 @@ static void editorInput()
         spriteCollectionSubmitCustom(&tmp);
         bmp_free(&tmp);
         currentPlayerSprite = SPRITE_CUSTOM;
+        *(unsigned int*)entity_get(player, COMPONENT_SPRITE_COLLECTION) = currentPlayerSprite;
     }
     
     wxGroupUpdate(group, mouse, mousePressed, mouseDown);

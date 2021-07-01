@@ -63,7 +63,18 @@ static void assetsLoadShaders()
     array_push(&a, &shader);
     shader = shaderLoadFramebuffer();
     array_push(&a, &shader);
+    shader = shaderLoadMesh();
+    array_push(&a, &shader);
     array_push(assets, &a);
+}
+
+static Atlas assetsLoadAtlas()
+{
+    char* paths[2] = {
+        FILE_TEXTURE_TILE_1,
+        FILE_TEXTURE_TILE_2
+    };
+    return atlasLoad(paths, 2);
 }
 
 static void assetsLoadTextures()
@@ -75,8 +86,9 @@ static void assetsLoadTextures()
     t = texture_load(FILE_TEXTURE_TILE_1);
     array_push(&a, &t);
 
-    t = texture_load(FILE_TEXTURE_TILE_2);
-    array_push(&a, &t);
+    Atlas atlas = assetsLoadAtlas();
+    array_push(&a, &atlas.texture);
+    atlasFree(&atlas);
 
     t = texture_load(FILE_TEXTURE_AIM);
     array_push(&a, &t);

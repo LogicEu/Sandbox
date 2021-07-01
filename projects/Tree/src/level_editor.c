@@ -18,6 +18,7 @@ extern unsigned int jetpack;
 extern unsigned int granadeCount;
 
 vec2 spawnPoint;
+Mesh mesh;
 
 static vec2 cursor;
 static Entity selected;
@@ -60,8 +61,7 @@ typedef enum {
 } wxLevelEditorEnum;
 
 typedef enum {
-    ARCH_SWITCH_TILE_GRASS,
-    ARCH_SWITCH_TILE_DIRT,
+    ARCH_SWITCH_TILE,
     ARCH_SWITCH_GUN,
     ARCH_SWITCH_SHOTGUN,
     ARCH_SWITCH_RIFLE,
@@ -70,7 +70,8 @@ typedef enum {
     ARCH_SWITCH_BAZOOKA,
     ARCH_SWITCH_FIREBARREL,
     ARCH_SWITCH_JETPACK,
-    ARCH_SWITCH_GRANADE
+    ARCH_SWITCH_GRANADE,
+    ARCH_SWITCH_BOX,
 } archSwitchEnum;
 
 static archSwitchEnum selectedIndex;
@@ -87,10 +88,8 @@ static void str_to_var(char* str, unsigned int* var)
 static texture_t* textureGet()
 {
     switch (selectedIndex) {
-        case ARCH_SWITCH_TILE_GRASS:
-            return assetsGetTexture(TEXTURE_TILE_GRASS);
-        case ARCH_SWITCH_TILE_DIRT:
-            return assetsGetTexture(TEXTURE_TILE_DIRT);
+        case ARCH_SWITCH_TILE:
+            return assetsGetTexture(TEXTURE_TILE);
         case ARCH_SWITCH_GUN:
             return assetsGetTexture(TEXTURE_GUN);
         case ARCH_SWITCH_SHOTGUN:
@@ -109,6 +108,8 @@ static texture_t* textureGet()
             return assetsGetTexture(TEXTURE_JETPACK);
         case ARCH_SWITCH_GRANADE:
             return assetsGetTexture(TEXTURE_GRANADE);
+        case ARCH_SWITCH_BOX:
+            return assetsGetTexture(TEXTURE_BOX);
         break;
     }
     return NULL;
@@ -117,14 +118,9 @@ static texture_t* textureGet()
 static Entity entityCreate()
 {
     switch (selectedIndex) {
-        case ARCH_SWITCH_TILE_GRASS: {
-            Entity a = archetypeTerrainTile(TEXTURE_TILE_GRASS, cursor);
-            terrainRecalcSingleTexture(a);
-            return a;
-        }
-        case ARCH_SWITCH_TILE_DIRT: {
-            Entity a = archetypeTerrainTile(TEXTURE_TILE_DIRT, cursor);
-            terrainRecalcSingleTexture(a);
+        case ARCH_SWITCH_TILE: {
+            Entity a = archetypeTerrainTile(TEXTURE_TILE, cursor);
+            //terrainRecalcSingleTexture(a);
             return a;
         }
         case ARCH_SWITCH_GUN:
@@ -145,6 +141,8 @@ static Entity entityCreate()
             return archetypeJetpackController(cursor);
         case ARCH_SWITCH_GRANADE:
             return archetypeGranade(cursor);
+        case ARCH_SWITCH_BOX:
+            return archetypeBox(cursor);
         break;
     }
     return 0;
@@ -153,14 +151,17 @@ static Entity entityCreate()
 void levelGenerate()
 {
     levelReset();
+
     map_t map = map_generate(mapWidth, mapHeight, mapStatic, mapNoise, mapSmoothStep, mapItem);
     module_from_map(&map);
+    mesh = meshFromMap(map);
+
     spawnPoint = map_spawn(map);
     while (spawnPoint.x < 40.0f && spawnPoint.y < 40.0f) {
         spawnPoint = map_spawn(map);
     }
+
     map_destroy(map);
-    terrainRecalcTextures();
     playerReset();
     cam.x = spawnPoint.x - (viewport.x / viewport.z) * 0.5;
     cam.y = spawnPoint.y - (viewport.y / viewport.z) * 0.5;
@@ -251,7 +252,6 @@ static void getMouseInput()
         sscanf(field->text, "%u", &randSeed);
         srand(randSeed);
         rand_seed(randSeed);
-        //printf("Rand: %u\n", randSeed);
         return;
     }
 
@@ -307,7 +307,6 @@ static void getKeyboardInput(float deltaTime)
         map_t m = map_load(FILE_MAP_MODULE);
         module_from_map(&m);
         map_destroy(m);
-        terrainRecalcTextures();
     }
     if (keyboard_pressed(GLFW_KEY_O)) {
         levelGenerate();
@@ -327,15 +326,12 @@ static void getKeyboardInput(float deltaTime)
         levelReset();
     }
     if (keyboard_pressed(GLFW_KEY_C)) {
-        if (selectedIndex < ARCH_SWITCH_GRANADE) selectedIndex ++;
-        else selectedIndex = ARCH_SWITCH_TILE_GRASS;
+        if (selectedIndex < ARCH_SWITCH_BOX) selectedIndex ++;
+        else selectedIndex = ARCH_SWITCH_TILE;
     }
     if (keyboard_pressed(GLFW_KEY_V)) {
-        if (selectedIndex > ARCH_SWITCH_TILE_GRASS) selectedIndex --;
-        else selectedIndex = ARCH_SWITCH_GRANADE;
-    }
-    if (keyboard_pressed(GLFW_KEY_U)) {
-        terraingGenRand(32, 32);
+        if (selectedIndex > ARCH_SWITCH_TILE) selectedIndex --;
+        else selectedIndex = ARCH_SWITCH_BOX;
     }
     if (keyboard_down(GLFW_KEY_D)) cam.x += deltaTime * camSpeed;
     if (keyboard_down(GLFW_KEY_A)) cam.x -= deltaTime * camSpeed;
@@ -388,7 +384,7 @@ void levelReset()
 void levelEditorInit()
 {
     levelEditorDirectoryReset();
-    selectedIndex = ARCH_SWITCH_TILE_GRASS;
+    selectedIndex = ARCH_SWITCH_TILE;
     selected = 0;
 
     wxField* field = group->widgets[WX_LE_FIELD_WIDTH].widget;

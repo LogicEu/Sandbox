@@ -1,20 +1,5 @@
 #include "Tree.h"
 
-typedef enum {
-    MAP_TILE_NULL,
-    MAP_TILE_BLOCK,
-    MAP_TILE_STATIC,
-    MAP_TILE_GUN,
-    MAP_TILE_SHOTGUN,
-    MAP_TILE_RIFLE,
-    MAP_TILE_MACHINEGUN,
-    MAP_TILE_FLAMETHROWER,
-    MAP_TILE_BAZOOKA,
-    MAP_TILE_FIREBARREL,
-    MAP_TILE_JETPACK,
-    MAP_TILE_GRANADE
-} tile_t;
-
 map_t map_create(unsigned int w, unsigned int h)
 {
     map_t m;
@@ -120,8 +105,24 @@ void map_itemify(map_t* m, unsigned int prob)
     for (unsigned int y = 0; y < m->height; y++) {
         for (unsigned int x = 0; x < m->width; x++) {
             if (IS_BLOCK(*m, x, y)) continue;
-            if (IS_BLOCK(*m, x, y - 1) && IS_NULL(*m, x, y)) {
+            if (y > 0 && IS_BLOCK(*m, x, y - 1) && IS_NULL(*m, x, y)) {
                 if ((unsigned int)(rand_next() % 100) < prob) *map_tile(*m, x, y) = item_rand();
+            }
+        }
+    }
+}
+
+void map_negative(map_t* map)
+{
+    for (unsigned int y = 0; y < map->height; y++) {
+        for (unsigned int x = 0; x < map->width; x++) {
+            uint8_t* t = map_tile(*map, x, y);
+            
+            if (*t == MAP_TILE_NULL) {
+                *t = MAP_TILE_BLOCK;
+            }
+            else if (*t == MAP_TILE_BLOCK || *t == MAP_TILE_STATIC) {
+                *t = MAP_TILE_NULL;
             }
         }
     }
@@ -130,6 +131,7 @@ void map_itemify(map_t* m, unsigned int prob)
 map_t map_generate(unsigned int w, unsigned int h, unsigned int stat, unsigned int block, unsigned int steps, unsigned int item)
 {
     map_t map = map_cellular_generate(w, h, stat, block, steps);
+    map_negative(&map);
     map_itemify(&map, item);
     return map;
 }
@@ -138,8 +140,8 @@ Entity item_to_entity(uint8_t item, unsigned int xPos, unsigned int yPos)
 {
     vec2 pos = {(float)(xPos * 32) + 16.0f, (float)(yPos * 32) + 16.0f};
     switch (item) {
-        case MAP_TILE_BLOCK: return archetypeTerrainTile(TEXTURE_TILE_GRASS, pos);
-        case MAP_TILE_STATIC: return archetypeTerrainTile(TEXTURE_TILE_GRASS, pos);
+        case MAP_TILE_BLOCK: return archetypeTerrainTile(TEXTURE_TILE, pos);
+        case MAP_TILE_STATIC: return archetypeTerrainTile(TEXTURE_TILE, pos);
         case MAP_TILE_GUN: return gunCreate(pos, GUN_KIND_GUN);
         case MAP_TILE_SHOTGUN: return gunCreate(pos, GUN_KIND_SHOTGUN);
         case MAP_TILE_RIFLE: return gunCreate(pos, GUN_KIND_RIFLE);
@@ -252,7 +254,7 @@ vec2 map_spawn(map_t map)
     for (unsigned int y = 0; y < map.height; y++) {
         for (unsigned int x = 0; x < map.width; x++) {
             if (!(IS_NULL(map, x, y))) continue;
-            if (IS_BLOCK(map, x, y - 1) && rand_next() % 100 < 5) {
+            if (y > 0 && IS_BLOCK(map, x, y - 1) && rand_next() % 100 < 5) {
                 pos = vec2_new((float)(x * 32) + 16.0f, (float)(y * 32) + 16.0f);
                 return pos;
             } 

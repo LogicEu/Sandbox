@@ -21,7 +21,7 @@ Entity archetypeTerrainTile(unsigned int texture_index, vec2 position)
     static bool rc = true;
 
     texture_t* t = assetsGetTexture(texture_index);
-    rect_t r = {position.x, position.y, t->width, t->height};
+    rect_t r = {position.x, position.y, 32.0f, 32.0f};
     return archetype_entity(ARCHETYPE_TERRAIN, 4, &t->id, &r, &r, &rc);
 }
 
@@ -97,6 +97,14 @@ Entity archetypeGranade(vec2 position)
     return archetype_entity(ARCHETYPE_GRANADE, 6, &t->id, &r, &r, &vecZero, &bTrue, &gc);
 }
 
+Entity archetypeBox(vec2 position)
+{
+    static BoxState state = BOX_STATE_LOOSE;
+    texture_t* t = assetsGetTexture(TEXTURE_BOX);
+    rect_t r = {position.x, position.y, t->width, t->height};
+    return archetype_entity(ARCHETYPE_BOX, 6, &t->id, &r, &r, &vecZero, &bTrue, &state);
+}
+
 void archetypesInit()
 {
     // Player
@@ -119,4 +127,6 @@ void archetypesInit()
     archetype_create(7, COMPONENT_TEX_ID, COMPONENT_GL_RECT, COMPONENT_PHI_RECT, COMPONENT_VEL_VEC2, COMPONENT_GRAVITY, COMPONENT_JETPACK, COMPONENT_AMMO);
     // Granade
     archetype_create(6, COMPONENT_TEX_ID, COMPONENT_GL_RECT, COMPONENT_PHI_RECT, COMPONENT_VEL_VEC2, COMPONENT_GRAVITY, COMPONENT_GRANADE);
+    // Box
+    archetype_create(6, COMPONENT_TEX_ID, COMPONENT_GL_RECT, COMPONENT_PHI_RECT, COMPONENT_VEL_VEC2, COMPONENT_GRAVITY, COMPONENT_BOX);
 }

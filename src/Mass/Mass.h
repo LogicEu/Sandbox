@@ -73,6 +73,7 @@ void wavefront_file_write(const char* path, const unsigned int size,
 
 array_t* array_map(array_t* buffer);
 void array_map_indexed(array_t* buffer, array_t** map, array_t** indices);
+void array_push_indexed(array_t* map, array_t* indices, void* data);
 
 /*
 --------------------------

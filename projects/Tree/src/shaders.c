@@ -8,6 +8,8 @@
 #define FILE_SHADER_FRAG_COLOR "assets/shaders/quad.frag"
 #define FILE_SHADER_VERT_FRAMEBUFFER "assets/shaders/framebufferv.frag"
 #define FILE_SHADER_FRAG_FRAMEBUFFER "assets/shaders/framebufferf.frag"
+#define FILE_SHADER_VERT_MESH "assets/shaders/treeTexture.vs"
+#define FILE_SHADER_FRAG_MESH "assets/shaders/treeTexture.fs"
 
 static float white[] = {1.0f, 1.0f, 1.0f, 1.0f};
 static float cam[] = {0.0f, 0.0f, 1.0f, 0.0f};
@@ -50,4 +52,15 @@ unsigned int shaderLoadColor()
 unsigned int shaderLoadFramebuffer()
 {
     return shader_load(FILE_SHADER_VERT_FRAMEBUFFER, FILE_SHADER_FRAG_FRAMEBUFFER);
+}
+
+unsigned int shaderLoadMesh()
+{
+    mat4 m = ortho(0.0f, (float)(viewport.x / viewport.z), 0.0f, (float)(viewport.y / viewport.z));
+    unsigned int shader = shader_load(FILE_SHADER_VERT_MESH, FILE_SHADER_FRAG_MESH);
+    glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1, GL_FALSE, &m.data[0][0]);
+    shader_set_uniform(shader, 4, "color", &white[0]);
+    shader_set_uniform(shader, 4, "camera", &cam[0]);
+    shader_set_uniform(shader, 3, "resolution", &viewport.x);
+    return shader;
 }

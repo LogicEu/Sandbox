@@ -3,13 +3,15 @@
 extern Entity player;
 extern unsigned int quadVAO;
 extern unsigned int currentPlayerSprite;
+extern Mesh mesh;
+extern vec4 cam;
 
 static float white[] = {1.0f, 1.0f, 1.0f, 1.0f};
 static float scale_rot[] = {1.0f, 0.0f};
 
-void drawSetCamera(float* cam)
+void drawSetCamera(float* camera)
 {
-    shader_set_uniform(assetsGetShader(SHADER_TEXTURE), 4, "camera", cam);
+    shader_set_uniform(assetsGetShader(SHADER_TEXTURE), 4, "camera", camera);
 }
 
 void drawTextureColor(texture_t t, vec2 pos, color_t c)
@@ -143,6 +145,7 @@ static void drawEntity(Entity e)
 {
     static const rect_t rectZero = {0.0f, 0.0f, 0.0f, 0.0f};
     unsigned int shader = assetsGetShader(SHADER_TEXTURE);
+
     float sr[] = {1.0f, 0.0f};
     float color[] = {1.0f, 1.0f, 1.0f, 1.0f};
 
@@ -185,12 +188,26 @@ static void drawComponent(Component component)
     }
 }
 
-extern array_t* netEntities;
+static void drawMesh()
+{
+    unsigned int shader = assetsGetShader(SHADER_MESH);
+    glUseProgram(shader);
+    shader_set_uniform(shader, 4, "camera", (float*)&cam);
+    glBindVertexArray(mesh.id);
+    glBindTexture(GL_TEXTURE_2D, assetsGetTexture(TEXTURE_TILE_ATLAS)->id);
+    glDrawElements(GL_TRIANGLES, mesh.indices->used, GL_UNSIGNED_INT, 0);
+   
+    glBindVertexArray(quadVAO);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glUseProgram(assetsGetShader(SHADER_TEXTURE));
+}
 
 void drawComponents()
 {
-    drawComponent(COMPONENT_RIGID_COLLIDER);
+    drawMesh();
+    //drawComponent(COMPONENT_RIGID_COLLIDER);
     drawComponent(COMPONENT_FIREBARREL);
+    drawComponent(COMPONENT_BOX);
     drawComponent(COMPONENT_SMOKE);
     drawComponent(COMPONENT_JETPACK);
     drawComponent(COMPONENT_SHADOW);

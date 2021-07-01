@@ -56,6 +56,7 @@ typedef struct {
 texture_t texture_load(const char* path);
 texture_t texture_from_bitmap(bitmap_t* bitmap);
 texture_t texture_from_bmp(bmp_t* bmp);
+texture_t texture_atlas(bmp_t* bmp);
 texture_t texture_framebuffer(unsigned int fbo);
 texture_t texture_cubemap(char** paths);
 void texture_remap(texture_t* texture, bitmap_t* bitmap);

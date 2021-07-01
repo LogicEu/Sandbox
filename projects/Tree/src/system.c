@@ -160,7 +160,7 @@ void systemSetState(unsigned int newState)
 Module moduleInit()
 {
     return module_create(   
-        20, 
+        21, 
         sizeof(rect_t), // PhiPos
         sizeof(rect_t), // GLPos
         sizeof(unsigned int), // TexId
@@ -180,7 +180,8 @@ Module moduleInit()
         sizeof(bool), // Shadow
         sizeof(bool), //Firebarrel
         sizeof(unsigned int), //Jetpack
-        sizeof(GranadeComponent) //Granade
+        sizeof(GranadeComponent), //Granade
+        sizeof(BoxState)
     );
 }
 

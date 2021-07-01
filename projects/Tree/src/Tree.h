@@ -14,9 +14,9 @@ TREE FRAMEWORK HEADER
 #include <Heart.h>
 
 #define FULLSCREEN 0
-#define SCREEN_WIDTH 400
-#define SCREEN_HEIGHT 300
-#define SCREEN_SCALE 2
+#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 600
+#define SCREEN_SCALE 3
 
 #define SCREEN_XSCALE SCREEN_WIDTH / SCREEN_SCALE
 #define SCREEN_YSCALE SCREEN_HEIGHT / SCREEN_SCALE
@@ -52,7 +52,8 @@ typedef enum {
     ARCHETYPE_SHADOW,
     ARCHETYPE_FIREBARREL,
     ARCHETYPE_JETPACK,
-    ARCHETYPE_GRANADE
+    ARCHETYPE_GRANADE,
+    ARCHETYPE_BOX,
 } archetypeEnum;
 
 typedef enum assetEnum {
@@ -69,9 +70,10 @@ typedef enum {
     SHADER_FONT,
     SHADER_COLOR,
     SHADER_FRAMEBUFFER_BYN,
+    SHADER_MESH,
     SHADER_WX_FONT,
     SHADER_WX_COLOR,
-    SHADER_WX_TEXTURE
+    SHADER_WX_TEXTURE,
 } shaderEnum;
 
 typedef enum componentEnum {
@@ -95,13 +97,13 @@ typedef enum componentEnum {
     COMPONENT_FIREBARREL,
     COMPONENT_JETPACK,
     COMPONENT_GRANADE,
-    COMPONENT_USED,
+    COMPONENT_BOX,
 } componentEnum;
 
 typedef enum {
     TEXTURE_WHITE,
-    TEXTURE_TILE_GRASS,
-    TEXTURE_TILE_DIRT,
+    TEXTURE_TILE,
+    TEXTURE_TILE_ATLAS,
     TEXTURE_AIM,
     TEXTURE_GUN,
     TEXTURE_SHOTGUN,
@@ -190,10 +192,22 @@ typedef enum {
     JETPACK_COLLECTED
 } jetpackStateEnum;
 
+typedef enum {
+    BOX_STATE_NULL,
+    BOX_STATE_LOOSE,
+    BOX_STATE_OPEN
+} BoxState;
+
 typedef struct {
     unsigned int width, height;
     uint8_t* data;
 } map_t;
+
+typedef struct Atlas {
+    bmp_t bmp;
+    texture_t texture;
+    unsigned int count;
+} Atlas;
 
 typedef struct {
     GranadeEnum state;
@@ -207,6 +221,31 @@ typedef struct {
     float offset;
     float latencyTimer, latencySpeed;
 } GunType;
+
+typedef struct Vertex {
+    vec2 pos, uv;
+} Vertex;
+
+typedef struct Mesh {
+    unsigned int id;
+    array_t* vertices;
+    array_t* indices;
+} Mesh;
+
+typedef enum {
+    MAP_TILE_NULL,
+    MAP_TILE_BLOCK,
+    MAP_TILE_STATIC,
+    MAP_TILE_GUN,
+    MAP_TILE_SHOTGUN,
+    MAP_TILE_RIFLE,
+    MAP_TILE_MACHINEGUN,
+    MAP_TILE_FLAMETHROWER,
+    MAP_TILE_BAZOOKA,
+    MAP_TILE_FIREBARREL,
+    MAP_TILE_JETPACK,
+    MAP_TILE_GRANADE
+} tile_t;
 
 /********************
 =====================
@@ -228,6 +267,7 @@ unsigned int shaderLoadTexture();
 unsigned int shaderLoadFont();
 unsigned int shaderLoadFramebuffer();
 unsigned int shaderLoadColor();
+unsigned int shaderLoadMesh();
 
 void spriteCollectionSubmitCustom(bmp_t* bmp);
 unsigned int spriteCollectionSubmit(bmp_t* bmp);
@@ -321,6 +361,9 @@ void granadeCollect(Entity granade);
 void granadeDrop(Entity granade, vec2 pos);
 void granadeThrow(Entity e, vec2 position, float rot);
 
+void boxStep();
+void boxOpen(Entity box);
+
 bool checkRigidCollision(Entity entity, vec2 off);
 Entity checkGunCollision(Entity entity);
 Entity checkFirebarrelCollision(Entity entity);
@@ -353,6 +396,13 @@ map_t map_from_module();
 void module_from_map(map_t* map);
 map_t map_generate(unsigned int w, unsigned int h, unsigned int stat, unsigned int block, unsigned int steps, unsigned int item);
 vec2 map_spawn(map_t map);
+uint8_t* map_tile(map_t m, unsigned int x, unsigned int y);
+
+Mesh meshFromMap(map_t map);
+void meshBind(Mesh* mesh);
+
+Atlas atlasLoad(char** paths, unsigned int count);
+void atlasFree(Atlas* atlas);
 
 void archetypesInit();
 Entity archetypePlayer(unsigned int sprite);
@@ -365,6 +415,7 @@ Entity archetypeShadow(vec2 position, unsigned int sprite, float side);
 Entity archetypeFirebarrel(vec2 position);
 Entity archetypeJetpackController(vec2 position);
 Entity archetypeGranade(vec2 position);
+Entity archetypeBox(vec2 position);
 
 #ifdef __cplusplus
 }

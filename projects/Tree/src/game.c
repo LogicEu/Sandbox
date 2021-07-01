@@ -60,6 +60,7 @@ static void gameTick(float deltaTime)
     playerGameStep(deltaTime);
     gunControllerStep(deltaTime);
     jetpackControllerStep();
+    boxStep(deltaTime);
     gravityStep(deltaTime);
     velocityStep(deltaTime);
     smokeStep(deltaTime);

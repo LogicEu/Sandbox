@@ -509,7 +509,7 @@ static void map_world_net()
         spawnPoint = map_spawn(map);
     }
     map_destroy(map);
-    terrainRecalcTextures();
+    //terrainRecalcTextures();
 }
 
 static void netReadBmp()
