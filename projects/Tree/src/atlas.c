@@ -27,7 +27,7 @@ static void atlasPush(Atlas* atlas, bmp_t bmp)
 
 static void atlasBind(Atlas* atlas)
 {
-    atlas->texture = texture_from_bmp(&atlas->bmp);
+    atlas->texture = texture_atlas(&atlas->bmp);
 }
 
 Atlas atlasLoad(char** paths, unsigned int count)

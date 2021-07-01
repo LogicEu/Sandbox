@@ -2,43 +2,27 @@
 To Do:
 --------@eulogic
 
-Random func equal between platforms and common seed generation online
-
-
 Fix Hitbox Being Constant 12 x 24
 
 SpriteEditor
-    - Add Icons 
+    - Add Icons (pencil, tar, etc)
 
 Networking:
     - User Name
     - Messaging
-
-    - Granade
-        -Pick Event
-        -Throw Event
-        -Drop Event
-        -Explode Event
-
-    - Firebarrel
-        -Explode event
 
 UI:
     - Create Window, or MiniMenu
     - Create Info Pop-Up
 
 Engine:
-    - Unite vertices of blocks.
+    - Fix mesh updating for level editor and edge clamping when drawing (OpenGL)
     - Be able to destroy block
-    - IDEA: giant array with grid mesh of vertices, and algorithm for filling
-    the blocks accordingly.
 
     - REFACTOR OLD SHADER SYSTEM TO NEW MAT4 PROJECTION SHADER SYSTEM
 
 Fix:
-    - Implement explotion event for granade
-    - Implement item disconnect system
-
-    - Discrepancies in map serialization between Mac and RasPi
-    - Solution for when user suddenly disconnects and his items are marked as
-    his
+    - Fix Granade and Firebarrel States 
+    - Fix server lock step issue for item's states
+    - Discrepancies in map serialization between Mac and RasPi?? (Sometimes?)
+    - Solution for when user suddenly disconnects and his items are marked as his

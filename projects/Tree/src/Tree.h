@@ -400,6 +400,8 @@ uint8_t* map_tile(map_t m, unsigned int x, unsigned int y);
 
 Mesh meshFromMap(map_t map);
 void meshBind(Mesh* mesh);
+void meshDestroy(Mesh* mesh);
+Mesh meshCreate();
 
 Atlas atlasLoad(char** paths, unsigned int count);
 void atlasFree(Atlas* atlas);

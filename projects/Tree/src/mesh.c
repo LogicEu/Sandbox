@@ -1,12 +1,18 @@
 #include "Tree.h"
 
-static Mesh meshCreate()
+Mesh meshCreate()
 {
     Mesh mesh;
     mesh.id = vertex_array_buffer_id_new();
     mesh.vertices = NULL;
     mesh.indices = NULL;
     return mesh;
+}
+
+void meshDestroy(Mesh* mesh)
+{
+    if (mesh->vertices) array_destroy(mesh->vertices);
+    if (mesh->indices) array_destroy(mesh->indices);
 }
 
 void meshBind(Mesh* mesh)

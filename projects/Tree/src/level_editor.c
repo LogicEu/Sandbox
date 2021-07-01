@@ -154,6 +154,7 @@ void levelGenerate()
 
     map_t map = map_generate(mapWidth, mapHeight, mapStatic, mapNoise, mapSmoothStep, mapItem);
     module_from_map(&map);
+    meshDestroy(&mesh);
     mesh = meshFromMap(map);
 
     spawnPoint = map_spawn(map);
@@ -400,5 +401,6 @@ void levelEditorInit()
     field = group->widgets[WX_LE_FIELD_ITEM].widget;
     str_to_var(field->text, &mapItem);
 
+    mesh = meshCreate();
     levelGenerate();
 }

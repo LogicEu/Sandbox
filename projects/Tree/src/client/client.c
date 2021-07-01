@@ -10,6 +10,7 @@ static array_t* netEntities = NULL;
 static unsigned int received;
 
 extern unsigned int randSeed;
+extern Mesh mesh;
 extern unsigned int currentPlayerSprite;
 
 unsigned int sprites[NET_MAX_CLIENT_COUNT];
@@ -504,6 +505,8 @@ static void map_world_net()
         return;
     }
     module_from_map(&map);
+    meshDestroy(&mesh);
+    mesh = meshFromMap(map);
     spawnPoint = map_spawn(map);
     while (spawnPoint.x < 40.0f && spawnPoint.y < 40.0f) {
         spawnPoint = map_spawn(map);
