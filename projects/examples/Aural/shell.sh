@@ -1,6 +1,6 @@
 #!/bin/bash
 
-app='audio_loop_test'
+app='wav_test'
 dir=../../../
 lib=(
    '-I'$dir'src/'

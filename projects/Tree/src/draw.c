@@ -204,8 +204,7 @@ static void drawMesh()
 
 void drawComponents()
 {
-    drawMesh();
-    //drawComponent(COMPONENT_RIGID_COLLIDER);
+    if (component_entity_count(COMPONENT_RIGID_COLLIDER)) drawMesh();
     drawComponent(COMPONENT_FIREBARREL);
     drawComponent(COMPONENT_BOX);
     drawComponent(COMPONENT_SMOKE);

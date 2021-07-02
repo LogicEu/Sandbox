@@ -16,12 +16,13 @@ UI:
     - Create Info Pop-Up
 
 Engine:
-    - Fix mesh updating for level editor and edge clamping when drawing (OpenGL)
+    - Fix mesh updating for level editor
     - Be able to destroy block
-
     - REFACTOR OLD SHADER SYSTEM TO NEW MAT4 PROJECTION SHADER SYSTEM
 
 Fix:
+    - RasPi SegFaulted Once when entering online world / connecting issue?
+    - When Online map is erased, the mesh is still drawn.
     - Fix Granade and Firebarrel States 
     - Fix server lock step issue for item's states
     - Discrepancies in map serialization between Mac and RasPi?? (Sometimes?)

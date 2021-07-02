@@ -118,12 +118,10 @@ static void playerDrawGUI()
 static void playerDrawDead()
 {
     static unsigned int sprite = SPRITE_DEAD;
-    texture_t* t = assetsGetSprite(currentPlayerSprite, sprite)->textures;
     entity_set(player, COMPONENT_SPRITE_ID, &sprite);
-
     rect_t* rPhi = entity_get(player, COMPONENT_PHI_RECT);
-    rPhi->w = t->width;
-    rPhi->h = t->height;
+    rPhi->w = 24.0f;
+    rPhi->h = 12.0f;
 }
 
 static void pickObject()
@@ -172,8 +170,9 @@ void playerReset()
 
     sprite_t* sprite = assetsGetSprite(currentPlayerSprite, k);
     rect_t r = {spawnPoint.x, spawnPoint.y, sprite->textures->width, sprite->textures->height};
+    rect_t hitbox = {spawnPoint.x, spawnPoint.y, 12.0f, 24.0f};
     entity_set(player, COMPONENT_GL_RECT, &r);
-    entity_set(player, COMPONENT_PHI_RECT, &r);
+    entity_set(player, COMPONENT_PHI_RECT, &hitbox);
     entity_set(player, COMPONENT_VEL_VEC2, &vecZero);
     entity_set(player, COMPONENT_SPRITE_ID, &k);
     hp = 100;

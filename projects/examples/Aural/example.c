@@ -1,19 +1,12 @@
 #include <Aural/Aural.h>
 #include <stdio.h>
-#include <unistd.h>
 
 int main(int argc, char** argv)
 {
-    initAural();
-    sound_t* sound = sound_load("assets/sounds/jump.mp3", false);
-    if (!sound) return -1;
+    int sample_rate = 44100;
+    int bit_depth = 16;
 
-    while(1) {
-        sleep(1);
-        sound_play(sound);
-        printf("Sound playing...\n");
-    }
-
-    sound_free(sound);
+    sine_t sine = sine_create(440.0f, 0.5f, sample_rate);
+    wav_file_write_sine("test.wav", sine, 2, sample_rate, bit_depth);
     return 0;
 }

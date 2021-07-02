@@ -10,10 +10,11 @@ extern unsigned int currentPlayerSprite;
 Entity archetypePlayer(unsigned int sprite)
 {
     static unsigned int k = SPRITE_IDLE;
+    rect_t hitbox = {spawnPoint.x, spawnPoint.y, 12.0f, 24.0f};
 
     sprite_t* s = assetsGetSprite(currentPlayerSprite ,k);
     rect_t r = {spawnPoint.x, spawnPoint.y, s->textures->width, s->textures->height};
-    return archetype_entity(ARCHETYPE_PLAYER, 6, &k, &sprite, &r, &r, &vecZero, &bTrue);
+    return archetype_entity(ARCHETYPE_PLAYER, 6, &k, &sprite, &r, &hitbox, &vecZero, &bTrue);
 }
 
 Entity archetypeTerrainTile(unsigned int texture_index, vec2 position)
