@@ -68,7 +68,6 @@ int main(void)
     vec2 res = {(float)width, (float)height}; 
     vec3 origin = {0.0f, 2.0f, -5.0f};
 
-
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
             vec2 coord = {(float)x, (float)y};
