@@ -36,6 +36,7 @@ typedef struct Icon {
 typedef enum wxEnum {
     WIDGET_TITLE,
     WIDGET_RECT,
+    WIDGET_ICON,
     WIDGET_BUTTON,
     WIDGET_SWITCH,
     WIDGET_SLIDER,

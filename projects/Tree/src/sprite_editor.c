@@ -161,7 +161,9 @@ static void editorInput()
     }
     button = group->widgets[WX_SE_BUTTON_SAVE].widget;
     if (button->state == WIDGET_HOVER && mousePressed) {
-        bmp_write(field->text, &bmp);
+        bmp_t tmp = bmp_flip_vertical(&bmp);
+        bmp_write(field->text, &tmp);
+        bmp_free(&tmp);
     }
     button = group->widgets[WX_SE_BUTTON_SUBMIT].widget;
     if (button->state == WIDGET_HOVER && mousePressed) {

@@ -13,14 +13,6 @@ typedef enum {
     WX_DIR_META
 } dirEnum;
 
-typedef enum {
-    WX_GAME_TITLE
-} gameUIEnum;
-
-typedef enum {
-    WX_LEVEL_EDITOR_TITLE
-} levelEditorUIEnum;
-
 extern wxDirectory wxDir;
 
 void mouseDraw();

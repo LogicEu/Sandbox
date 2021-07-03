@@ -17,6 +17,7 @@ extern vec2 mouse;
 extern bool blackAndWhite;
 extern vec2 spawnPoint;
 extern unsigned int currentPlayerSprite;
+extern unsigned int playerLives;
 
 extern Entity netUsedWeapon;
 extern Entity netJetpack;
@@ -186,6 +187,8 @@ static void playerDeadStep(float deltaTime)
         deadTimer = 1.0f;
         playerReset();
         blackAndWhite = false;
+        if (playerLives) playerLives--;
+        else playerLives = 3;
     } else playerDrawDead();
 }
 

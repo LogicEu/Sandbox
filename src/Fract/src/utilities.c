@@ -40,6 +40,12 @@ float remapf(float input_a, float input_b, float out_a, float out_b, float val)
     return lerpf(out_a, out_b, t);
 }
 
+float smoothstep(float a, float b, float x) 
+{
+    x = clampf((x - a) / (b - a), 0.0f, 1.0f);
+    return x * x * (3 - 2 * x);
+}
+
 float fast_inverse_sqrt(float num)
 {
 	float x = num * 0.5;

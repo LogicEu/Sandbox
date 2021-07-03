@@ -124,7 +124,10 @@ typedef enum {
     TEXTURE_FLAMETHROWER,
     TEXTURE_BAZOOKA,
     TEXTURE_ROCKET,
-    TEXTURE_FIRE
+    TEXTURE_FIRE,
+    TEXTURE_HEART,
+    TEXTURE_MEDKIT,
+    TEXTURE_AMMO
 } textureEnum;
 
 typedef enum {

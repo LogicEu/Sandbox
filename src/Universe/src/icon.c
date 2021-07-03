@@ -24,12 +24,12 @@ void iconDraw(Icon* icon)
     vec2 p4 = vec2_add(pos, vec2_rotate(vec2_new(w, -h), icon->rotation));
 
     float vertices[] = {
-        p1.x, p1.y, 1.0f, 1.0f,
-        p2.x, p2.y, 1.0f, 0.0f,
-        p3.x, p3.y, 0.0f, 0.0f,
-        p1.x, p1.y, 1.0f, 1.0f,
-        p3.x, p3.y, 0.0f, 0.0f,
-        p4.x, p4.y, 0.0f, 1.0f
+        p1.x, p1.y, 0.0f, 1.0f,
+        p2.x, p2.y, 0.0f, 0.0f,
+        p3.x, p3.y, 1.0f, 0.0f,
+        p1.x, p1.y, 0.0f, 1.0f,
+        p3.x, p3.y, 1.0f, 0.0f,
+        p4.x, p4.y, 1.0f, 1.0f
     };
 
     glUseProgram(textureShader);

@@ -2,6 +2,7 @@
 #include "UI/UIcommon.h"
 
 Entity player;
+unsigned int playerLives;
 static float camAlarm = 1.0f;
 
 extern vec2 mouse;
@@ -11,6 +12,17 @@ extern vec2 spawnPoint;
 extern unsigned int currentPlayerSprite;
 
 static wxGroup* group;
+
+typedef enum {
+    WX_GAME_MAIN_TITLE,
+
+    WX_GAME_RECT_HEALTHBAR,
+
+    WX_GAME_ICON_GUN,
+    WX_GAME_ICON_JETPACK,
+    WX_GAME_ICON_GRANADE,
+    WX_GAME_ICON_HEART
+} gameUIEnum;
 
 void cameraTriggerAlarm()
 {
@@ -96,4 +108,5 @@ void gameInit()
 {
     gameDirectoryReset();
     player = archetypePlayer(currentPlayerSprite);
+    playerLives = 3;
 }

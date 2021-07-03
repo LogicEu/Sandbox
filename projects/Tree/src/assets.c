@@ -24,6 +24,7 @@
 #define FILE_TEXTURE_BAZOOKA "assets/sprites/bazooka.png"
 #define FILE_TEXTURE_ROCKET "assets/sprites/rocket_small.png"
 #define FILE_TEXTURE_FIRE "assets/sprites/fire16.png"
+#define FILE_TEXTURE_HEART "assets/sprites/heart.png"
 
 #define FILE_SPRITE_KID_RUNNING "assets/sprites/Kid/kid_index.txt"
 #define FILE_TEXTURE_KID_STANDING "assets/sprites/Kid/kid_standing.png"
@@ -151,6 +152,9 @@ static void assetsLoadTextures()
     array_push(&a, &t);
 
     t = texture_load(FILE_TEXTURE_FIRE);
+    array_push(&a, &t);
+
+    t = texture_load(FILE_TEXTURE_HEART);
     array_push(&a, &t);
 
     array_push(assets, &a);

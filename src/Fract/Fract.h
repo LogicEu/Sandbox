@@ -78,6 +78,7 @@ float lerpf(float a, float b, float t);
 float smooth_lerpf(float a, float b, float t);
 float inverse_lerpf(float a, float b, float val);
 float remapf(float input_a, float input_b, float out_a, float out_b, float val);
+float smoothstep(float a, float b, float x);
 float fast_inverse_sqrt(float num);
 float fast_sqrt(float num);
 

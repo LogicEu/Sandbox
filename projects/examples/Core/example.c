@@ -9,7 +9,7 @@ static const char* glsl_version = "#version 330 core\n\n";
 static const char* glsl_version = "#version 300 es\nprecision mediump float;\n\n";
 #endif
 
-static const char* glsl_quad_shader = "layout (location = 0) in vec2 vertCoord;\nvoid main() {gl_Position = vec4(vertCoord.x, vertCoord.y, 0.0, 1.0);}\n";
+static const char* glsl_quad_shader = "layout (location = 0) in vec2 vertCoord;\nout vec2 fragCoord;\nvoid main()\n{\nfragCoord = vertCoord;\ngl_Position = vec4(vertCoord.x, vertCoord.y, 0.0, 1.0);}\n";
 static const char* glsl_template = "out vec4 FragColor;\n\nuniform float u_time;\nuniform vec2 u_resolution;\nuniform vec2 u_mouse;\n\nvoid main() \n{\n\tvec2 uv = gl_FragCoord.xy / u_resolution.y;\n\tvec3 color = vec3(uv.x, uv.y, cos(u_time));\n\tFragColor = vec4(color, 1.0);\n}\n";
 
 void glsl_write_shader()

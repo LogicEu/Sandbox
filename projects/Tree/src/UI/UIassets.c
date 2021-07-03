@@ -324,6 +324,26 @@ static wxGroup metaGroup(float xscale, float yscale)
     return group;
 }
 
+static wxGroup gameGroup(float xscale, float yscale)
+{
+    wxGroup group = wxGroupCreate();
+    wxTitle title = wxTitleCreate("Game Mode", vec3_new(4.0f, 185.0f, 1.0f), color(1.0f, 0.0f, 0.0f, 1.0f));
+    wxGroupPush(&group, &title, WIDGET_TITLE);
+
+    wxRect rect = wxRectCreate(rect_new(64.0f, yscale - 24.0f, 50.0f, 8.0f), color(1.0f, 0.0f, 0.0f, 1.0f));
+    wxGroupPush(&group, &rect, WIDGET_RECT);
+
+    Icon icon = iconCreate(*assetsGetTexture(TEXTURE_GUN), vec2_new(xscale - 16.0f, yscale - 16.0f), 1.0f, 0.0f);
+    wxGroupPush(&group, &icon, WIDGET_ICON);
+    icon = iconCreate(*assetsGetTexture(TEXTURE_JETPACK), vec2_new(xscale - 16.0f, yscale - 32.0f), 1.0f, 0.0f);
+    wxGroupPush(&group, &icon, WIDGET_ICON);
+    icon = iconCreate(*assetsGetTexture(TEXTURE_GRANADE), vec2_new(xscale - 16.0f, yscale - 48.0f), 1.0f, 0.0f);
+    wxGroupPush(&group, &icon, WIDGET_ICON);
+    icon = iconCreate(*assetsGetTexture(TEXTURE_HEART), vec2_new(16.0f, yscale - 32.0f), 1.0f, 0.0f);
+    wxGroupPush(&group, &icon, WIDGET_ICON);
+    return group;
+}
+
 static wxDirectory UIassetsDirectory()
 {
     float xscale = viewport.x / viewport.z;
@@ -331,14 +351,11 @@ static wxDirectory UIassetsDirectory()
 
     wxDirectory dir = wxDirectoryCreate();
     wxGroup group;
-    wxTitle title;
 
     group = mainMenuGroup(xscale);
     wxDirectoryPushGroup(&dir, &group);
 
-    group = wxGroupCreate();
-    title = wxTitleCreate("Game Mode", vec3_new(4.0f, 185.0f, 1.0f), color(1.0f, 0.0f, 0.0f, 1.0f));
-    wxGroupPush(&group, &title, WIDGET_TITLE);
+    group = gameGroup(xscale, yscale);
     wxDirectoryPushGroup(&dir, &group);
 
     group = levelEditorGroup(xscale, yscale);
