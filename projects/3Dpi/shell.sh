@@ -13,6 +13,7 @@ inc=(
     -L../../lib/
     -I.
     -I../../
+    -I../../include/
     -I../../src/
     -lglfw
     -lzbug

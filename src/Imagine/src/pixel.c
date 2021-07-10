@@ -14,7 +14,7 @@ pixel_t pixel(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 
 pixel_t unipixel(uint8_t i)
 {
-    pixel_t p = {i, i, i, i};
+    pixel_t p = {i, i, i, 255};
     return p;
 }
 

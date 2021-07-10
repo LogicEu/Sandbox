@@ -15,6 +15,14 @@ static void wxGroupWidgetDraw(wxPtr w)
             iconDraw((Icon*)w.widget);
             break;
         }
+        case WIDGET_FRAME: {
+            wxFrameDraw((wxFrame*)w.widget);
+            break;
+        }
+        case WIDGET_WX_ICON: {
+            wxIconDraw((wxIcon*)w.widget);
+            break;
+        }
         case WIDGET_BUTTON: {
             wxButtonDraw((wxButton*)w.widget);
             break;
@@ -47,6 +55,14 @@ static void wxGroupWidgetUpdate(wxPtr w, vec2 mouse, bool pressed, bool down)
         case WIDGET_ICON: {
             return;
         }
+        case WIDGET_FRAME: {
+            wxFrameUpdate((wxFrame*)w.widget, mouse, down);
+            break;
+        }
+        case WIDGET_WX_ICON: {
+            wxIconUpdate((wxIcon*)w.widget, mouse, down);
+            break;
+        }
         case WIDGET_BUTTON: {
             wxButtonUpdate((wxButton*)w.widget, mouse, down);
             break;
@@ -78,6 +94,12 @@ size_t wxWidgetSize(wxEnum e)
         }
         case WIDGET_ICON: {
             return sizeof(Icon);
+        }
+        case WIDGET_FRAME: {
+            return sizeof(wxFrame);
+        }
+        case WIDGET_WX_ICON: {
+            return sizeof(wxIcon);
         }
         case WIDGET_BUTTON: {
             return sizeof(wxButton);

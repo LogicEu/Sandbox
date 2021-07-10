@@ -2,6 +2,15 @@
 To Do:
 --------@eulogic
 
+TODAY:
+    - Create wxIcon, and/or wxIconButton
+    - Put tar, eraser, drop, etc in sprite editor
+    - Create mesh updating for level editor (put blocks)
+    - New payer UI system
+    - Implement Box
+    - Implement Medkit
+    - Implement Ammo
+
 Fix Hitbox Being Constant 12 x 24
 
 SpriteEditor

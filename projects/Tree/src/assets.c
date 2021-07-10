@@ -25,6 +25,12 @@
 #define FILE_TEXTURE_ROCKET "assets/sprites/rocket_small.png"
 #define FILE_TEXTURE_FIRE "assets/sprites/fire16.png"
 #define FILE_TEXTURE_HEART "assets/sprites/heart.png"
+#define FILE_TEXTURE_MEDKIT "assets/sprites/medkit.png"
+#define FILE_TEXTURE_AMMO "assets/sprites/ammokit.png"
+#define FILE_TEXTURE_BRUSH "assets/sprites/brush.png"
+#define FILE_TEXTURE_ERASER "assets/sprites/eraser.png"
+#define FILE_TEXTURE_TAR "assets/sprites/tar.png"
+#define FILE_TEXTURE_DROPPICKER "assets/sprites/droppicker.png"
 
 #define FILE_SPRITE_KID_RUNNING "assets/sprites/Kid/kid_index.txt"
 #define FILE_TEXTURE_KID_STANDING "assets/sprites/Kid/kid_standing.png"
@@ -94,6 +100,18 @@ static void assetsLoadTextures()
     t = texture_load(FILE_TEXTURE_AIM);
     array_push(&a, &t);
 
+    t = texture_load(FILE_TEXTURE_BRUSH);
+    array_push(&a, &t);
+
+    t = texture_load(FILE_TEXTURE_ERASER);
+    array_push(&a, &t);
+
+    t = texture_load(FILE_TEXTURE_TAR);
+    array_push(&a, &t);
+
+    t = texture_load(FILE_TEXTURE_DROPPICKER);
+    array_push(&a, &t);
+
     t = texture_load(FILE_TEXTURE_GUN);
     array_push(&a, &t);
 
@@ -155,6 +173,12 @@ static void assetsLoadTextures()
     array_push(&a, &t);
 
     t = texture_load(FILE_TEXTURE_HEART);
+    array_push(&a, &t);
+
+    t = texture_load(FILE_TEXTURE_MEDKIT);
+    array_push(&a, &t);
+
+    t = texture_load(FILE_TEXTURE_AMMO);
     array_push(&a, &t);
 
     array_push(assets, &a);

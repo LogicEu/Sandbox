@@ -37,6 +37,8 @@ typedef enum wxEnum {
     WIDGET_TITLE,
     WIDGET_RECT,
     WIDGET_ICON,
+    WIDGET_FRAME,
+    WIDGET_WX_ICON,
     WIDGET_BUTTON,
     WIDGET_SWITCH,
     WIDGET_SLIDER,
@@ -60,6 +62,17 @@ typedef enum wxState {
     WIDGET_HOVER,
     WIDGET_SELECTED
 } wxState;
+
+typedef struct {
+    vec2 position;
+    wxState state;
+    float scale;
+} wxFrame;
+
+typedef struct {
+    texture_t texture;
+    wxFrame frame;
+} wxIcon;
 
 typedef struct wxSwitch {
     vec2 position;
@@ -106,7 +119,7 @@ typedef struct wxDirectory {
 } wxDirectory;
 
 extern Font* globalFont;
-extern texture_t tSwitch[2], tSlider[2];
+extern texture_t tSwitch[2], tSlider[2], tFrame;
 extern Theme globalTheme;
 extern unsigned int widgetShader, fontShader, textureShader;
 extern unsigned int fontVAO, fontVBO, widgetVAO, widgetVBO, textureVAO, textureVBO;
@@ -115,6 +128,7 @@ extern unsigned int scrWidth, scrHeight, scrScale, scrXscale, scrYscale;
 void universeInit(unsigned int width, unsigned int height, unsigned int scale);
 void universeThemeSet(color_t primary[3], color_t secondary[3], color_t terciary[3]);
 void universeSwitchSet(texture_t tActive, texture_t tInactive);
+void universeFrameSet(texture_t frame);
 void universeSliderSet(texture_t slider, texture_t marker);
 void universeFontSet(Font* font);
 
@@ -154,6 +168,14 @@ void wxSliderDraw(wxSlider* s);
 wxField wxFieldCreate(rect_t rect, unsigned int maxSize);
 void wxFieldUpdate(wxField* field, vec2 mouse, bool pressed);
 void wxFieldDraw(wxField* field);
+
+wxFrame wxFrameCreate(vec2 position, float scale);
+void wxFrameUpdate(wxFrame* f, vec2 mouse, bool pressed);
+void wxFrameDraw(wxFrame* f);
+
+wxIcon wxIconCreate(texture_t texture, vec2 position, float scale);
+void wxIconUpdate(wxIcon* f, vec2 mouse, bool pressed);
+void wxIconDraw(wxIcon* f);
 
 wxGroup wxGroupCreate();
 void wxGroupDraw(wxGroup* group);

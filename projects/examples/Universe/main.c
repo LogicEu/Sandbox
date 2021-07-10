@@ -14,6 +14,7 @@ int main(void)
     Font* font = fontLoad("assets/fonts/Emulogic.ttf", 36);
 
     universeFontSet(font);
+    universeFrameSet(texture_load("assets/sprites/frame16.png"));
     universeSliderSet(
         texture_load("assets/sprites/slider.png"),
         texture_load("assets/sprites/marker.png")
@@ -28,6 +29,8 @@ int main(void)
     wxSwitch sw = wxSwitchCreate(vec2_new(400.0f, 400.0f), 4.0f);
     wxSlider slider = wxSliderCreate(vec2_new(300.0f, 400.0f), 4.0f, 0);
     wxField field = wxFieldCreate(rect_new(SCR_WIDTH / 2, SCR_HEIGHT / 2 - 100.0f, 250.0f, 40.0f), 64);
+    wxFrame frame = wxFrameCreate(vec2_new(100.0, 20.0), 4.0f);
+    wxIcon wx_icon = wxIconCreate(texture_load("assets/sprites/medkit.png"), vec2_new(80.0f, 300.0f), 4.0f);
 
     wxGroup group = wxGroupCreate();
     wxDirectory dir = wxDirectoryCreate();
@@ -36,6 +39,8 @@ int main(void)
     wxDirectoryPushWidget(&dir, &sw, WIDGET_SWITCH);
     wxDirectoryPushWidget(&dir, &slider, WIDGET_SLIDER);
     wxDirectoryPushWidget(&dir, &field, WIDGET_FIELD);
+    wxDirectoryPushWidget(&dir, &frame, WIDGET_FRAME);
+    wxDirectoryPushWidget(&dir, &wx_icon, WIDGET_WX_ICON);
 
     vec2 mouse;
     float g = 0.3f;

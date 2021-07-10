@@ -27,6 +27,7 @@ static void universeUI()
 
     universeThemeSet(primary, secondary, terciary);
     universeFontSet(fontLoad("assets/fonts/Pixels.ttf", 32));
+    universeFrameSet(texture_load("assets/sprites/frame16.png"));
     universeSliderSet(
         texture_load("assets/sprites/slider.png"),
         texture_load("assets/sprites/marker.png")
@@ -132,6 +133,8 @@ static wxGroup spriteEditorGroup(float xscale, float yscale)
     wxGroupPush(&group, &slider, WIDGET_SLIDER);
     slider = wxSliderCreate(vec2_new(xscale - 10.0f, 96.0f), 1.0f, true);
     wxGroupPush(&group, &slider, WIDGET_SLIDER);
+    slider = wxSliderCreate(vec2_new(xscale - 50.0f, 32.0f), 1.0f, true);
+    wxGroupPush(&group, &slider, WIDGET_SLIDER);
     
     wxRect rect = wxRectCreate(rect_new(xscale - 32.0f, yscale - 16.0f, 16.0f, 16.0f), color(0.0f, 0.0f, 0.0f, 1.0f));
     wxGroupPush(&group, &rect, WIDGET_RECT);
@@ -151,6 +154,15 @@ static wxGroup spriteEditorGroup(float xscale, float yscale)
     wxGroupPush(&group, &rect, WIDGET_RECT);
     rect = wxRectCreate(rect_new(16.0f, 16.0f, 16.0f, 16.0f), unicolor(0.0f));
     wxGroupPush(&group, &rect, WIDGET_RECT);
+
+    wxIcon icon = wxIconCreate(*assetsGetTexture(TEXTURE_BRUSH), vec2_new(xscale * 0.5 - 32.0f, yscale - 32.0f), 1.0f);
+    wxGroupPush(&group, &icon, WIDGET_WX_ICON);
+    icon = wxIconCreate(*assetsGetTexture(TEXTURE_ERASER), vec2_new(xscale * 0.5 - 16.0f, yscale - 32.0f), 1.0f);
+    wxGroupPush(&group, &icon, WIDGET_WX_ICON);
+    icon = wxIconCreate(*assetsGetTexture(TEXTURE_TAR), vec2_new(xscale * 0.5 + 16.0f, yscale - 32.0f), 1.0f);
+    wxGroupPush(&group, &icon, WIDGET_WX_ICON);
+    icon = wxIconCreate(*assetsGetTexture(TEXTURE_DROPPICKER), vec2_new(xscale * 0.5 + 32.0f, yscale - 32.0f), 1.0f);
+    wxGroupPush(&group, &icon, WIDGET_WX_ICON);
     
     return group;
 }

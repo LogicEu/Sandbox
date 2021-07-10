@@ -1,10 +1,10 @@
 #include <Universe/Universe.h>
 
 Font* globalFont;
-texture_t tSwitch[2], tSlider[2];
+texture_t tSwitch[2], tSlider[2], tFrame;
 Theme globalTheme;
 
-bool defaultTheme = true, initSwitch = false, initSlider = false, initFont = false;
+bool defaultTheme = true, initSwitch = false, initSlider = false, initFont = false, initFrame = false;
 unsigned int widgetShader, fontShader, textureShader;
 unsigned int fontVAO, fontVBO, widgetVAO, widgetVBO, textureVAO, textureVBO;
 unsigned int scrWidth, scrHeight, scrScale, scrXscale, scrYscale;
@@ -91,6 +91,12 @@ void universeSliderSet(texture_t slider, texture_t marker)
     tSlider[0] = slider;
     tSlider[1] = marker;
     initSlider = true;
+}
+
+void universeFrameSet(texture_t frame)
+{
+    tFrame = frame;
+    initFrame = true;
 }
 
 void universeFontSet(Font* font)

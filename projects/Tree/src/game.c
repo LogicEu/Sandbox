@@ -10,6 +10,7 @@ extern vec4 cam;
 extern wxDirectory wxDir;
 extern vec2 spawnPoint;
 extern unsigned int currentPlayerSprite;
+extern unsigned int hp;
 
 static wxGroup* group;
 
@@ -83,10 +84,30 @@ static void gameTick(float deltaTime)
     firebarrelStep();
 }
 
+static color_t color_lerp(color_t col1, color_t col2, float t)
+{
+    return color(
+        lerpf(col1.r, col2.r, t), 
+        lerpf(col1.g, col2.g, t), 
+        lerpf(col1.b, col2.b, t), 
+        lerpf(col1.a, col2.a, t)
+    );
+}
+
 static void gameDraw()
 {
     static color_t white = {1.0f, 1.0f, 1.0f, 1.0f};
+    static color_t red = {1.0f, 0.0f, 0.0f, 1.0f};
+    static color_t greenLight = {0.3f, 1.0f, 0.3f, 1.0f};
+
+    wxRect* rect = group->widgets[WX_GAME_RECT_HEALTHBAR].widget;
+    rect->rect.w = (float)hp * 0.5f;
+    rect->color = color_lerp(red, greenLight, (float)hp * 0.01f);
+    float f = (50.0f - rect->rect.w) * 0.5f;
+    rect->rect.x -= f;
     wxGroupDraw(group);
+    rect->rect.x += f;
+
     glBindVertexArray(quadVAO);
     glUseProgram(assetsGetShader(SHADER_TEXTURE));
     drawTextureColor(*assetsGetTexture(TEXTURE_AIM), mouse, white);
