@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 #include <Omega.h>
+#include <stdint.h>
 
 /*******************************
  * NERV NEURAL NETWORK C LINRARY
@@ -13,9 +14,8 @@ extern "C" {
  *                      @eulogic
  ******************************/
 
-// https://github.com/mayurbhole/Neural-Network-framework-using-Backpropogation-in-C/blob/master/main.c
-// https://medium.com/analytics-vidhya/building-neural-network-framework-in-c-using-backpropagation-8ad589a0752d
-// https://towardsdatascience.com/simple-neural-network-implementation-in-c-663f51447547
+// https://medium.com/analytics-vidhya/
+// building-neural-network-framework-in-c-using-backpropagation-8ad589a0752d
 
 typedef struct neuron_t {
     float activation, dactivation;
@@ -33,12 +33,6 @@ typedef struct nnetwork_t {
     int layer_count;
     layer_t* layers;
 } nnetwork_t;
-
-typedef struct ninput_t {
-    int input_neuron_count;
-    int input_examples;
-    float **inputs;
-} ninput_t;
 
 neuron_t neuron_create(int out_weights_count);
 void neuron_destroy(neuron_t* neuron);
