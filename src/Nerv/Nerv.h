@@ -14,9 +14,6 @@ extern "C" {
  *                      @eulogic
  ******************************/
 
-// https://medium.com/analytics-vidhya/
-// building-neural-network-framework-in-c-using-backpropagation-8ad589a0752d
-
 typedef struct neuron_t {
     float activation, dactivation;
     float *output_weights, *doutput_weights;
@@ -64,23 +61,6 @@ float dsigmoid(float x);
 float relu(float x);
 float drelu(float x);
 float rand_weight();
-
-/*int init(void);
-int dinit(void);
-
-int create_architecture(void);
-int initialize_weights(void);
-void feed_input(int i);
-void train_neural_net(void);
-void forward_prop(void);
-void compute_cost(int i);
-void back_prop(int p);
-void update_weights(void);
-void get_inputs(void);
-void get_desired_outputs(void);
-void test_nn(void);
-
-int initialize_dummy_weights(void);*/
 
 #ifdef __cplusplus
 }

@@ -64,16 +64,17 @@ void nnetwork_initialize(nnetwork_t* network)
 
 void nnetwork_update(nnetwork_t* network, float alpha)
 {
-    for (int i = 0; i < network->layer_count - 1; i++) {
-        layer_t* layer = network->layers + i;
-        layer_t* next_layer = layer + 1;
-        for (int j = 0; j < layer->neuron_count; j++) {
-            neuron_t* neuron = layer->neurons + j;
+    layer_t* l = network->layers;
+    layer_t* next_layer = l + 1;
+    for (layer_t* lend = l + network->layer_count - 1; l != lend; l++) {
+        neuron_t* n = l->neurons;
+        for (neuron_t* nend = n + l->neuron_count; n != nend; n++) {
             for (int k = 0; k < next_layer->neuron_count; k++) {
-                neuron->output_weights[k] -= alpha * neuron->doutput_weights[k];
+                n->output_weights[k] -= alpha * n->doutput_weights[k];
             }
-            neuron->bias -= alpha * neuron->dbias;
+            n->bias -= alpha * n->dbias;
         }
+        next_layer++;
     }
 }
 
