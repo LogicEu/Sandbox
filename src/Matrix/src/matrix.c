@@ -72,7 +72,7 @@ Mat matrix_transpose(Mat* m)
 
 Mat matmul(Mat* a, Mat* b)
 {
-    Mat ret = matrix(a->rows, b->columns), *m; m = &ret;
+    Mat ret = matrix(a->rows, b->columns);
     if (a->columns != b->rows) {
         printf("Number of columns in first matrix must be equal to number of rows in second\n");
         return ret;

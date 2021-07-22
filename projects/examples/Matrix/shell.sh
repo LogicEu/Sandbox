@@ -8,6 +8,7 @@ lib=(
    '-L'$dir'lib/'
    -lmatrix
    -limagine
+   -lzbug
 )
 
 comp() {

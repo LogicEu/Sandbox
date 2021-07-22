@@ -8,6 +8,7 @@ lib=(
    '-L'$dir'lib/'
    -lnerv
    -limagine
+   -lzbug
 )
 
 comp() {

@@ -4,7 +4,7 @@
 
 float normalize(float x)
 {
-    return x * (0.0f < x < 1.0f) + (float)(x >= 1.0f);
+    return x * (0.0f < x && x < 1.0f) + (float)(x >= 1.0f);
 }
 
 uint8_t ftou8(float normalized)
