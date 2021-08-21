@@ -1,4 +1,4 @@
-#include "../Matrix.h"
+#include <Matrix/Matrix.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -211,6 +211,26 @@ Vec vector_sigderiv(Vec* v)
     float* r = ret.data, *n = v->data;
     for (float* end = r + ret.size; r != end; r++) {
         *r = sigderiv(*(n++));
+    }
+    return ret;
+}
+
+Vec vector_leaky_relu(Vec* v, float leak)
+{
+    Vec ret = vector(v->size);
+    float* r = ret.data, *n = v->data;
+    for (float* end = r + ret.size; r != end; r++) {
+        *r = leaky_relu(*(n++), leak);
+    }
+    return ret;
+}
+
+Vec vector_dleaky_relu(Vec* v, float leak)
+{
+    Vec ret = vector(v->size);
+    float* r = ret.data, *n = v->data;
+    for (float* end = r + ret.size; r != end; r++) {
+        *r = dleaky_relu(*(n++), leak);
     }
     return ret;
 }

@@ -13,6 +13,7 @@ inc=(
     -I.
     -I../../
     -I../../src/
+    -I../../include/
 )
 
 fail_op() {

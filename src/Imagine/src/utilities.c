@@ -6,9 +6,26 @@
 ------------------------------
 */
 
+unsigned char* rgba_to_greyscale(unsigned char* buffer, unsigned int width, unsigned int height)
+{
+    printf("Converting from RGBA to greyscale color format\n");
+    unsigned char* ret = (unsigned char*)malloc(width * height);
+    for (unsigned int y = 0; y < height; y++) {
+        for (unsigned int x = 0; x < width; x++) {
+            unsigned int m = 0;
+            m += buffer[(width * y + x) * 4 + 0];
+            m += buffer[(width * y + x) * 4 + 1];
+            m += buffer[(width * y + x) * 4 + 2];
+            ret[(width * y + x)] = (uint8_t)m;
+        }
+    }
+    printf("Process completed\n");
+    return ret;
+}
+
 unsigned char* rgb_to_greyscale(unsigned char* buffer, unsigned int width, unsigned int height)
 {
-    printf("Converting from RGB to Greyscale color format\n");
+    printf("Converting from RGB to greyscale color format\n");
     unsigned char* ret = (unsigned char*)malloc(width * height);
     for (unsigned int y = 0; y < height; y++) {
         for (unsigned int x = 0; x < width; x++) {

@@ -73,7 +73,11 @@ unsigned char* img_transform_buffer(unsigned char* buffer, unsigned int width, u
         ret = rgb_to_rgba(buffer, width, height);
     } else if (src == IMG_RGBA && dest == IMG_RGB) {
         ret = rgba_to_rgb(buffer, width, height);
-    } 
+    } else if (src == IMG_RGB && dest == IMG_BW) {
+        ret = rgb_to_greyscale(buffer, width, height);
+    } else if (src == IMG_RGBA && dest == IMG_BW) {
+        ret = rgba_to_greyscale(buffer, width, height);
+    }
     return ret;
 }
 
@@ -115,7 +119,7 @@ void img_file_write(const char* path, unsigned char* img, unsigned int width, un
     if (in_channels != parse_channel) {
         unsigned char* buffer = img_transform_buffer(img, width, height, in_channels, parse_channel);
         if (!buffer) {
-            printf("There was a problem loading file '%s'\n", path);
+            printf("There was a problem transforming file '%s'\n", path);
             return;
         }
         img_file_write_any(path, buffer, width, height, format);

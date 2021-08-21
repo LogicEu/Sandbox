@@ -147,6 +147,8 @@ gif_t* bmp_to_gif(bmp_t* bitmaps, unsigned int count);
 ------------------------------
 */
 
+unsigned char* rgba_to_greyscale(unsigned char* buffer, unsigned int width, unsigned int height);
+unsigned char* rgb_to_greyscale(unsigned char* buffer, unsigned int width, unsigned int height);
 unsigned char* rgb_to_rgba(unsigned char* buffer, unsigned int width, unsigned int height);
 unsigned char* rgba_to_rgb(unsigned char* buffer, unsigned int width, unsigned int height);
 
@@ -208,11 +210,13 @@ bmp_t bmp_color(unsigned int width, unsigned int height, unsigned int channels, 
 bmp_t bmp_load(const char* path);
 void bmp_write(const char* path, bmp_t* bitmap);
 void bmp_free(bmp_t* bitmap);
+bmp_t bmp_copy(bmp_t* bmp);
 
 bmp_t bmp_negative(bmp_t* bitmap);
 bmp_t bmp_flip_vertical(bmp_t* bitmap);
 bmp_t bmp_flip_horizontal(bmp_t* bitmap);
 bmp_t bmp_black_and_white(bmp_t* bitmap);
+bmp_t bmp_greyscale(bmp_t* bitmap);
 bmp_t bmp_rotate(bmp_t* bitmap);
 bmp_t bmp_scale(bmp_t* bitmap);
 bmp_t bmp_white_to_transparent(bmp_t* bitmap);
@@ -225,6 +229,9 @@ bmp_t bmp_jcompress(bmp_t* bitmap, unsigned int quality);
 bmp_t bmp_resize_width(bmp_t* bmp, unsigned int target_width);
 bmp_t bmp_resize_height(bmp_t* bmp, unsigned int target_height);
 bmp_t bmp_scale_lerp(bmp_t* bmp, float f);
+
+bmp_t bmp_channels_expand(bmp_t* bmp, unsigned int channels);
+bmp_t bmp_conv2d(bmp_t* bmp);
 
 
 /*

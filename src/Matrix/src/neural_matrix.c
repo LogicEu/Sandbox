@@ -1,4 +1,4 @@
-#include "../Matrix.h"
+#include <Matrix/Matrix.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,6 +9,8 @@
 // d = 2(a - y) * f'(z)
 // dw = a * d * g
 // db = d * g
+
+#define LEAK 0.1
 
 NeuralMatrix neural_matrix_create(int layer_count, ...)
 {   
@@ -34,6 +36,26 @@ NeuralMatrix neural_matrix_create(int layer_count, ...)
     return nm;
 }
 
+NeuralMatrix neural_matrix_copy(NeuralMatrix* nm)
+{
+    int neuron_counts[nm->layer_count];
+    for (int i = 0; i < nm->layer_count; i++) {
+        neuron_counts[i] = nm->layers[i].a.size;
+    }
+
+    NeuralMatrix ret;
+    ret.layer_count = nm->layer_count;
+    ret.layers = (Layer*)malloc(sizeof(Layer) * ret.layer_count);
+    
+    Layer* layer = ret.layers;
+    for (int i = 0; i < ret.layer_count; i++) {
+        int next = 0;
+        if (i < ret.layer_count - 1) next = neuron_counts[i + 1];
+        *(layer++) = layer_create(neuron_counts[i], next);
+    } 
+    return ret;
+}
+
 void neural_matrix_destroy(NeuralMatrix* nm)
 {
     Layer* layer = nm->layers;
@@ -51,7 +73,7 @@ void neural_matrix_init(NeuralMatrix* nm)
         Mat* m = &layer->w; 
         float* f = m->data;
         for (int j = 0; j < m->columns * m->rows; j++) {
-            *(f++) = rand_normal() / (float)layer->a.size;
+            *(f++) = gaussrand() / (float)layer->a.size;
         }
         layer++;
     }

@@ -87,22 +87,37 @@ bmp_t bmp_flip_vertical(bmp_t* bitmap)
     return new_bitmap;
 }
 
+bmp_t bmp_greyscale(bmp_t* bitmap)
+{
+    printf("Greyscale transformation\n");
+    bmp_t new_bitmap = bmp_new(bitmap->width, bitmap->height, 1);
+    for (unsigned int y = 0; y < bitmap->height; y++) {
+        for (unsigned int x = 0; x < bitmap->width; x++) {
+            px_t p = px_at(bitmap, x, y);
+            int m = 0;
+            int div = bitmap->channels * (bitmap->channels <= 3) + 3 * (bitmap->channels > 3);
+            for (int j = 0; j < div; j++) {
+                m += (int)p[j];
+            }
+            m /= div;
+            memset(px_at(&new_bitmap, x, y), m, 1);
+        }
+    }
+    return new_bitmap;
+}
+
 bmp_t bmp_black_and_white(bmp_t* bitmap) 
 {
     bmp_t new_bitmap = bmp_new(bitmap->width, bitmap->height, bitmap->channels);
     for (unsigned int y = 0; y < bitmap->height; y++) {
         for (unsigned int x = 0; x < bitmap->width; x++) {
             px_t p = px_at(bitmap, x, y);
-            unsigned int m = 0;
+            int m = 0;
             for (unsigned int j = 0; j < bitmap->channels; j++) {
                 m += (unsigned int)p[j];
             }
             m /= bitmap->channels;
-            uint8_t cpy[bitmap->channels];
-            for (unsigned int j = 0; j < bitmap->channels; j++) {
-                cpy[j] = (uint8_t)m;
-            }
-            memcpy(px_at(&new_bitmap, x, y), &cpy[0], bitmap->channels);
+            memset(px_at(&new_bitmap, x, y), m, bitmap->channels);
         }
     }
     return new_bitmap;

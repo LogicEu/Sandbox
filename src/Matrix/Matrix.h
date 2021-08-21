@@ -37,15 +37,20 @@ typedef struct {
 #define MATRIX_AT(m, x, y) (m->data + (m->columns * y) + x)
 #define VECTOR_AT(v, x) (v->data + x)
 
-float normalize(float x);
+double gaussrand();
+double rand_normal();
+double rand_distrib(double standard_deviation, double mean);
+
 uint8_t ftou8(float normalized);
 float u8tof(uint8_t u);
+float normalize(float x);
 float sigmoid(float x);
 float sigderiv(float sig);
 float dsigmoid(float x);
 float relu(float x);
 float drelu(float x);
-float rand_normal();
+float leaky_relu(float x, float slope);
+float dleaky_relu(float x, float slope);
 
 Vec vector(int size);
 Vec vector_create(int size, ...);
@@ -65,6 +70,8 @@ Vec vector_sigderiv(Vec* v);
 Vec vector_relu(Vec* v);
 Vec vector_drelu(Vec* v);
 Vec vector_softmax(Vec* v);
+Vec vector_leaky_relu(Vec* v, float leak);
+Vec vector_dleaky_relu(Vec* v, float leak);
 void vector_scale(Vec* v, float n);
 void vector_copy(Vec* dst, Vec* src);
 
@@ -87,6 +94,7 @@ void layer_free_vectors(Layer* layer);
 void layer_free_matrix(Layer* layer);
 
 NeuralMatrix neural_matrix_create(int layer_count, ...);
+NeuralMatrix neural_matrix_copy(NeuralMatrix* nm);
 void neural_matrix_destroy(NeuralMatrix* nm);
 void neural_matrix_init(NeuralMatrix* nm);
 void neural_matrix_propagate_forward(NeuralMatrix* nm);

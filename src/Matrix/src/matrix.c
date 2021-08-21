@@ -1,4 +1,4 @@
-#include "../Matrix.h"
+#include <Matrix/Matrix.h>
 #include <stdlib.h>
 #include <string.h>
 

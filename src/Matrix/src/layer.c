@@ -1,4 +1,4 @@
-#include "../Matrix.h"
+#include <Matrix/Matrix.h>
 
 Layer layer_create(int layer_size, int next_layer_size)
 {
